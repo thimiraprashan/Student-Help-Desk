@@ -1,0 +1,202 @@
+/* ================= LAYOUT ================= */
+.layout {
+  display: flex;
+}
+
+/* ================= PAGE ================= */
+.page {
+  flex: 1;
+  padding: 40px;
+  background: #020617;
+  min-height: 100vh;
+  color: white;
+}
+
+/* ================= TITLE ================= */
+.title {
+  font-size: 26px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+/* ================= GRID ================= */
+.grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 24px;
+}
+
+/* ================= CARD ================= */
+.card {
+  background: linear-gradient(180deg, #0f172a, #111827);
+  border-radius: 20px;
+  padding: 28px;
+  border: 1px solid #1e293b;
+}
+
+/* section title */
+.card h3 {
+  font-size: 15px;
+  color: #cbd5f5;
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ================= CV BOX ================= */
+.upload-box {
+  border: 2px dashed #2f3b5a;
+  border-radius: 18px;
+
+  height: 260px;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  text-align: center;
+  cursor: pointer;
+
+  transition: all 0.25s ease;
+}
+
+.upload-box:hover {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.06);
+}
+
+.upload-icon {
+  font-size: 42px;
+  margin-bottom: 12px;
+}
+
+.upload-box p {
+  font-size: 18px;
+  font-weight: 600;
+  color: #e2e8f0;
+  margin-bottom: 6px;
+}
+
+.upload-box small {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* CV file box */
+.cv-box {
+  display: flex;
+  gap: 12px;
+  background: #020617;
+  padding: 14px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  align-items: center;
+}
+
+.cv-icon {
+  width: 44px;
+  height: 44px;
+  background: #ef444422;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cv-name {
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.cv-success {
+  font-size: 12px;
+  color: #10b981;
+}
+
+/* hint box */
+.cv-hint {
+  margin-top: 14px;
+  background: rgba(99, 102, 241, 0.08);
+  border: 1px solid rgba(99, 102, 241, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+  font-size: 13px;
+  color: #a5b4fc;
+}
+
+/* ================= PROFILE ================= */
+
+/* 🔥 FULL WIDTH BASIC INFO */
+.info-box {
+  width: 100%;
+  background: #020617;
+  padding: 18px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.info-box b {
+  font-size: 16px;
+  color: #e2e8f0;
+}
+
+.info-box p {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* ================= FORM ================= */
+.input {
+  width: 100%;
+  padding: 13px;
+  border-radius: 12px;
+  border: 1px solid #1e293b;
+  background: #020617;
+  color: #e2e8f0;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.input:focus {
+  border-color: #6366f1;
+  outline: none;
+}
+
+/* textarea */
+textarea.input {
+  resize: vertical;
+  min-height: 80px;
+}
+
+/* ================= BUTTON ================= */
+.primary {
+  background: linear-gradient(90deg, #6366f1, #8b5cf6);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+.primary:hover {
+  opacity: 0.9;
+}
+
+/* ================= BUTTON GROUP ================= */
+.btn-group {
+  display: flex;
+  gap: 10px;
+}
+
+.danger {
+  background: #ef4444;
+  color: white;
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: none;
+}

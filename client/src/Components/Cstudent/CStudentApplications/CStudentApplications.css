@@ -1,0 +1,119 @@
+/* CStudentApplications.css */
+
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: #0f1117;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* Sidebar fix */
+.layout > *:first-child {
+  flex-shrink: 0;
+  width: 260px;
+  min-width: 260px;
+}
+
+.content {
+  flex: 1;
+  padding: 2rem 2.5rem;
+  overflow-y: auto;
+  min-width: 0;
+}
+
+/* Page Title */
+.title {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 1.5rem;
+}
+
+/* Table Card */
+.table-card {
+  background-color: #1c1f2e;
+  border: 1px solid #2a2d42;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+/* Table */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table thead tr {
+  background-color: #1a1d2e;
+  border-bottom: 1px solid #2a2d42;
+}
+
+.table thead th {
+  padding: 14px 20px;
+  text-align: left;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #5a5f7a;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.table tbody tr {
+  border-bottom: 1px solid #22253a;
+  transition: background-color 0.15s;
+}
+
+.table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table tbody tr:hover {
+  background-color: #22253a;
+}
+
+.table tbody td {
+  padding: 16px 20px;
+  font-size: 0.9rem;
+  color: #9296b8;
+}
+
+/* Internship column bold */
+.table tbody td.internship {
+  font-weight: 600;
+  color: #ffffff;
+}
+
+/* Status badge */
+.status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.status.shortlisted {
+  background-color: rgba(91, 95, 199, 0.15);
+  color: #a0a4e8;
+  border: 1px solid rgba(91, 95, 199, 0.3);
+}
+
+.status.pending {
+  background-color: rgba(234, 179, 8, 0.12);
+  color: #f0c040;
+  border: 1px solid rgba(234, 179, 8, 0.25);
+}
+
+.status.accepted {
+  background-color: rgba(0, 200, 130, 0.1);
+  color: #00c882;
+  border: 1px solid rgba(0, 200, 130, 0.25);
+}
+
+.status.rejected {
+  background-color: rgba(220, 60, 60, 0.1);
+  color: #f07070;
+  border: 1px solid rgba(220, 60, 60, 0.2);
+}
