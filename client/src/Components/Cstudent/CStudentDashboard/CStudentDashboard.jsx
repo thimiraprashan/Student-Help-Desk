@@ -1,9 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import Sidebar from "../../Common/Sidebar";
-import "./CStudentDashboard.css";
 
-const CStudentDashboard = () => {   // ✅ NAME FIXED
+const CStudentDashboard = () => {
 
   const navigate = useNavigate();
 
@@ -22,63 +21,92 @@ const CStudentDashboard = () => {   // ✅ NAME FIXED
   ];
 
   return (
-    <div className="layout">
+    <div className="flex min-h-screen bg-gray-50">
 
       {/* Sidebar */}
       <Sidebar session={{ name: user.name }} unreadCount={2} />
 
-      {/* Dashboard */}
-      <div className="dashboard">
+      {/* Main */}
+      <div className="flex-1 p-6 overflow-auto">
 
-        <h2>Welcome back, {user.name}!</h2>
-        <p className="sub">Your career journey at a glance.</p>
+        <h2 className="text-2xl font-bold text-gray-800">
+          Welcome back, {user.name}!
+        </h2>
 
-        {/* Stats */}
-        <div className="stats">
+        <p className="text-gray-500 mt-1 mb-6">
+          Your career journey at a glance.
+        </p>
+
+        {/* 🔥 Stats */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {stats.map((s, i) => (
-            <div key={i} className="card">
-              <div className="icon">{s.icon}</div>
+            <div
+              key={i}
+              className="bg-blue-50 border border-blue-100 p-4 rounded-xl shadow-sm flex items-center gap-3"
+            >
+              <div className="text-2xl">{s.icon}</div>
               <div>
-                <p className="label">{s.label}</p>
-                <h3>{s.value}</h3>
+                <p className="text-xs text-gray-500">{s.label}</p>
+                <h3 className="text-xl font-bold text-gray-800">{s.value}</h3>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Grid */}
-        <div className="grid">
+        {/* 🔥 Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
-          <div className="box">
-            <h3>🔥 Latest Internships</h3>
+          {/* Internships */}
+          <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm">
+            <h3 className="font-semibold text-gray-800 mb-3">
+              🔥 Latest Internships
+            </h3>
+
             {internships.map((i, index) => (
-              <div key={index} className="item">
-                <p className="title">{i.title}</p>
-                <p className="details">{i.company} · {i.details}</p>
+              <div key={index} className="py-3 border-b border-blue-100 last:border-none">
+                <p className="font-semibold text-gray-700 text-sm">{i.title}</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  {i.company} · {i.details}
+                </p>
               </div>
             ))}
           </div>
 
-          <div className="box">
-            <h3>📬 My Applications</h3>
-            <div className="item flex">
+          {/* Applications */}
+          <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm">
+            <h3 className="font-semibold text-gray-800 mb-3">
+              📬 My Applications
+            </h3>
+
+            <div className="flex justify-between items-center text-sm text-gray-700">
               <span>Software Engineer Intern</span>
-              <span className="badge">SHORTLISTED</span>
+              <span className="bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-xs font-semibold">
+                SHORTLISTED
+              </span>
             </div>
           </div>
 
         </div>
 
-        {/* CV Box */}
-        <div className="cv-box">
+        {/* 🔥 CV Box */}
+        <div className="bg-yellow-50 border border-yellow-300 p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+
           <div>
-            <h4>⚠️ CV Not Uploaded</h4>
-            <p>Upload your CV so companies can view it when you apply.</p>
+            <h4 className="font-semibold text-yellow-700">
+              ⚠️ CV Not Uploaded
+            </h4>
+            <p className="text-sm text-gray-600">
+              Upload your CV so companies can view it when you apply.
+            </p>
           </div>
 
-          <button onClick={() => navigate("/student/cv")}>
+          <button
+            onClick={() => navigate("/student/cv")}
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold"
+          >
             Upload CV
           </button>
+
         </div>
 
       </div>
@@ -86,4 +114,4 @@ const CStudentDashboard = () => {   // ✅ NAME FIXED
   );
 };
 
-export default CStudentDashboard; // ✅ NAME FIXED
+export default CStudentDashboard;
