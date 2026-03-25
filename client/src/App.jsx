@@ -15,6 +15,8 @@ import CompanyDashboard from "./Components/Ccompany/CompanyDashboard";
 import CompanyInternships from "./Components/Ccompany/CompanyInternships";
 import CompanyApplicants from "./Components/Ccompany/CompanyApplicants";
 import CompanyNotifications from "./Components/Ccompany/CompanyNotifications";
+import CCompanyMessages from "./Components/Ccompany/CCompanyMessages";
+import CompanyProfile from "./Components/Ccompany/CCompanyProfile";
 
 function App() {
 
@@ -32,7 +34,6 @@ function App() {
 
     messages: [],
 
-    // ✅ FULL STUDENT DATA
     students: [
       {
         id: 1,
@@ -44,12 +45,19 @@ function App() {
       }
     ],
 
-    // ✅ SAMPLE INTERNSHIP
+    companies: [
+      {
+        id: 101,
+        name: "Tech Corp",
+        email: "techcorp@gmail.com"
+      }
+    ],
+
     internships: [
       {
         id: 1,
         title: "Software Engineer Intern",
-        companyId: 1,
+        companyId: 101,
         location: "Colombo",
         duration: "3 months",
         skills: ["React", "Node.js"],
@@ -57,27 +65,30 @@ function App() {
       }
     ],
 
-    // ✅ THIS FIXES EMPTY APPLICANTS
     applications: [
       {
         id: 1,
         studentId: 1,
         internshipId: 1,
-        status: "pending"
+        status: "Pending"
       }
     ],
 
     feedbacks: [],
   });
 
-  const userId = 1;
+  // ✅ IMPORTANT: Separate IDs
+  const studentId = 1;
+  const companyId = 101;
 
   const showToast = (msg) => alert(msg);
 
+  // ✅ THREAD ID (KEEP)
   const threadId = (companyId, studentId) => {
     return `c${companyId}_s${studentId}`;
   };
 
+  // ✅ GET THREAD
   const getThread = (companyId, studentId) => {
     return db.messages.filter(
       (m) => m.threadId === threadId(companyId, studentId)
@@ -87,34 +98,44 @@ function App() {
   return (
     <Routes>
 
-      {/* STUDENT */}
+      {/* ================= STUDENT ================= */}
       <Route path="/" element={<CStudentDashboard />} />
       <Route path="/student/dashboard" element={<CStudentDashboard />} />
 
       <Route
         path="/student/internships"
-        element={<CStudentInternships db={db} setDb={setDb} userId={userId} />}
+        element={
+          <CStudentInternships
+            db={db}
+            setDb={setDb}
+            userId={studentId}
+          />
+        }
       />
 
       <Route
         path="/student/applications"
-        element={<CStudentApplications db={db} userId={userId} />}
+        element={
+          <CStudentApplications
+            db={db}
+            userId={studentId}
+          />
+        }
       />
 
       <Route path="/student/cv" element={<StudentCV />} />
-
       <Route path="/student/guidance" element={<Csguidence />} />
       <Route path="/student/feedback" element={<Csguidence />} />
 
+      {/* ✅ STUDENT CHAT */}
       <Route
         path="/student/messages"
         element={
           <CCStudentMessages
             db={db}
             setDb={setDb}
-            userId={userId}
-            getThread={getThread}
-            threadId={threadId}
+            userId={studentId}
+            companyId={companyId}
           />
         }
       />
@@ -125,20 +146,21 @@ function App() {
           <CStudentNotifications
             db={db}
             setDb={setDb}
-            userId={userId}
+            userId={studentId}
             showToast={showToast}
           />
         }
       />
 
-      {/* COMPANY */}
+      {/* ================= COMPANY ================= */}
+
       <Route
         path="/company/dashboard"
         element={
           <CompanyDashboard
             db={db}
-            userId={userId}
-            session={{ name: "TechCorp Lanka" }}
+            userId={companyId}
+            session={{ name: "Company" }}
           />
         }
       />
@@ -149,7 +171,7 @@ function App() {
           <CompanyInternships
             db={db}
             setDb={setDb}
-            userId={userId}
+            userId={companyId}
           />
         }
       />
@@ -160,7 +182,19 @@ function App() {
           <CompanyApplicants
             db={db}
             setDb={setDb}
-            userId={userId}
+            userId={companyId}
+          />
+        }
+      />
+
+      {/* ✅ COMPANY CHAT */}
+      <Route
+        path="/company/messages"
+        element={
+          <CCompanyMessages
+            db={db}
+            setDb={setDb}
+            userId={companyId}
           />
         }
       />
@@ -171,9 +205,14 @@ function App() {
           <CompanyNotifications
             db={db}
             setDb={setDb}
-            userId={userId}
+            userId={companyId}
           />
         }
+      />
+
+      <Route
+        path="/company/profile"
+        element={<CompanyProfile />}
       />
 
     </Routes>

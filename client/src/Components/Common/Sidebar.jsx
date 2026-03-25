@@ -1,7 +1,7 @@
 import React from "react";
 import "./Sidebar.css";
 import { useNavigate, useLocation } from "react-router-dom";
-import { FaGraduationCap } from "react-icons/fa"; // ✅ FIX
+import { FaGraduationCap } from "react-icons/fa";
 
 const Sidebar = ({ session, unreadCount }) => {
   const navigate = useNavigate();
@@ -14,6 +14,7 @@ const Sidebar = ({ session, unreadCount }) => {
   return (
     <div className="sidebar">
 
+      {/* LOGO */}
       <div className="logo">
         <div className="logo-icon">
           <FaGraduationCap />
@@ -24,6 +25,7 @@ const Sidebar = ({ session, unreadCount }) => {
         </div>
       </div>
 
+      {/* USER */}
       <div className="user">
         <div className="avatar">
           {session?.name ? session.name[0].toUpperCase() : "S"}
@@ -34,7 +36,9 @@ const Sidebar = ({ session, unreadCount }) => {
         </div>
       </div>
 
+      {/* MENU */}
       <div className="menu">
+
         <div className={isActive("/student/dashboard")} onClick={() => navigate("/student/dashboard")}>
           🏠 Dashboard
         </div>
@@ -55,12 +59,19 @@ const Sidebar = ({ session, unreadCount }) => {
           💬 My Feedback
         </div>
 
+        {/* ✅ ADD THIS */}
+        <div className={isActive("/student/messages")} onClick={() => navigate("/student/messages")}>
+          💬 Messages
+        </div>
+
         <div className={isActive("/student/notifications") + " notification"} onClick={() => navigate("/student/notifications")}>
           🔔 Notifications
           <span className="badge">{unreadCount || 0}</span>
         </div>
+
       </div>
 
+      {/* LOGOUT */}
       <div className="logout">🚪 Sign Out</div>
 
     </div>

@@ -1,24 +1,61 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Sidebar from "../../Common/Sidebar";
 
 const CStudentNotifications = ({ db, setDb, userId, showToast }) => {
 
-  const notifs = db.notifications.filter(n => n.toUserId === userId);
+  // 🔥 LOAD FROM BACKEND → db state update
+  const loadNotifications = () => {
+    fetch(`http://localhost:5000/notifications/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log("BACKEND NOTIFS:", data);
 
-  const markAllRead = () => {
-    setDb(d => ({
-      ...d,
-      notifications: d.notifications.map(n =>
-        n.toUserId === userId ? { ...n, read: true } : n
+        // 👉 db state update (IMPORTANT)
+        setDb(d => ({
+          ...d,
+          notifications: data || []
+        }));
+      })
+      .catch(err => console.log(err));
+  };
+
+  useEffect(() => {
+    loadNotifications();
+
+    // 🔥 auto refresh
+    const interval = setInterval(() => {
+      loadNotifications();
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // 🔥 FILTER FROM DB (unchanged)
+  const notifs = db.notifications.filter(
+    (n) => String(n.toUserId) === String(userId)
+  );
+
+  const markAllRead = async () => {
+
+    await Promise.all(
+      notifs.map(n =>
+        fetch(`http://localhost:5000/notifications/${n._id}/read`, {
+          method: "PUT"
+        })
       )
-    }));
+    );
+
+    loadNotifications();
     showToast("All marked as read");
   };
 
   return (
     <div className="flex min-h-screen bg-gray-50">
 
-      <Sidebar session={{ name: "Sasangi Perera" }} unreadCount={2} />
+      <Sidebar
+        session={{ name: "Sasangi Perera" }}
+        unreadCount={notifs.filter(n => !n.read).length}
+      />
 
       <div className="flex-1 p-6">
 
@@ -38,7 +75,7 @@ const CStudentNotifications = ({ db, setDb, userId, showToast }) => {
         <div className="space-y-3">
           {notifs.map(n => (
             <div
-              key={n.id}
+              key={n._id}
               className={`bg-blue-50 border border-blue-100 p-4 rounded-xl flex items-center gap-4 ${n.read ? "opacity-50" : ""}`}
             >
               <div className="text-xl">🔔</div>
@@ -50,14 +87,12 @@ const CStudentNotifications = ({ db, setDb, userId, showToast }) => {
 
               {!n.read && (
                 <button
-                  onClick={() =>
-                    setDb(d => ({
-                      ...d,
-                      notifications: d.notifications.map(x =>
-                        x.id === n.id ? { ...x, read: true } : x
-                      )
-                    }))
-                  }
+                  onClick={async () => {
+                    await fetch(`http://localhost:5000/notifications/${n._id}/read`, {
+                      method: "PUT"
+                    });
+                    loadNotifications();
+                  }}
                   className="text-sm border px-2 py-1 rounded hover:bg-gray-100"
                 >
                   ✓

@@ -1,87 +1,109 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ MENU SWITCH
+  // 🔥 STATE
+  const [companyName, setCompanyName] = useState("Company");
+
+  // 🔥 FUNCTION → FETCH FROM DATABASE
+  const loadProfile = async () => {
+    try {
+      const res = await fetch("http://localhost:5000/company-profile");
+      const data = await res.json();
+
+      if (data?.name) {
+        setCompanyName(data.name);
+      } else {
+        setCompanyName(session?.name || "Company");
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  // 🔥 LOAD ON START
+  useEffect(() => {
+    loadProfile();
+  }, []);
+
+  // 🔥 LISTEN FOR UPDATE EVENT
+  useEffect(() => {
+    const handler = () => {
+      loadProfile(); // 🔥 re-fetch from DB
+    };
+
+    window.addEventListener("profileUpdated", handler);
+
+    return () => window.removeEventListener("profileUpdated", handler);
+  }, []);
+
+  // MENU
   const menu =
     role === "company"
       ? [
           { name: "Dashboard", path: "/company/dashboard", icon: "🏠" },
           { name: "My Internships", path: "/company/internships", icon: "💼" },
           { name: "Applicants", path: "/company/applicants", icon: "👥" },
+          { name: "Messages", path: "/company/messages", icon: "💬" },
           { name: "Notifications", path: "/company/notifications", icon: "🔔" },
+          { name: "Profile", path: "/company/profile", icon: "👤" },
         ]
-      : [
-          { name: "Dashboard", path: "/student/dashboard", icon: "🏠" },
-          { name: "Search Internships", path: "/student/internships", icon: "🔍" },
-          { name: "My Applications", path: "/student/applications", icon: "📄" },
-          { name: "Profile & CV", path: "/student/cv", icon: "👤" },
-          { name: "Messages", path: "/student/messages", icon: "💬" },
-          { name: "Notifications", path: "/student/notifications", icon: "🔔" },
-        ];
+      : [];
 
   const isActive = (path) => location.pathname === path;
 
   return (
-    <div className="w-[260px] min-h-screen bg-gradient-to-b from-[#0f172a] to-[#020617] text-white flex flex-col justify-between border-r border-slate-800">
+    <div className="w-[260px] min-h-screen bg-gradient-to-b from-[#0f172a] to-[#020617] text-white flex flex-col justify-between">
 
-      {/* TOP */}
       <div>
 
-        {/* Logo */}
+        {/* LOGO */}
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-xl">
+          <div className="w-10 h-10 bg-indigo-500 rounded-xl flex items-center justify-center">
             🎓
           </div>
           <div>
-            <h1 className="font-bold text-sm">CareerGuide</h1>
-            <p className="text-xs text-slate-400">LMS Module</p>
+            <h1 className="text-sm font-bold">CareerGuide</h1>
+            <p className="text-xs text-gray-400">LMS Module</p>
           </div>
         </div>
 
-        {/* Profile */}
+        {/* PROFILE */}
         <div className="p-5 border-b border-slate-800 flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-indigo-600 flex items-center justify-center font-bold">
-            {session?.name?.[0] || "U"}
+          <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center font-bold">
+            {companyName?.[0]?.toUpperCase()}
           </div>
           <div>
-            <p className="text-sm font-semibold">{session?.name}</p>
-            <span
-              className={`text-xs px-2 py-0.5 rounded-full ${
-                role === "company"
-                  ? "bg-blue-900 text-blue-300"
-                  : "bg-green-900 text-green-300"
-              }`}
-            >
-              {role === "company" ? "COMPANY" : "STUDENT"}
+            {/* 🔥 REAL NAME */}
+            <p className="text-sm font-semibold">{companyName}</p>
+
+            <span className="text-xs bg-blue-900 text-blue-300 px-2 py-0.5 rounded-full">
+              COMPANY
             </span>
           </div>
         </div>
 
-        {/* Menu */}
+        {/* MENU */}
         <div className="p-3 space-y-2">
           {menu.map((item, i) => (
             <div
               key={i}
               onClick={() => navigate(item.path)}
-              className={`flex items-center justify-between px-4 py-3 rounded-xl cursor-pointer transition
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer
                 ${
                   isActive(item.path)
-                    ? "bg-indigo-600/20 border border-indigo-500 text-white"
-                    : "hover:bg-slate-800 text-slate-300"
+                    ? "bg-indigo-600/20 border border-indigo-500"
+                    : "hover:bg-slate-800"
                 }`}
             >
-              <div className="flex items-center gap-3">
-                <span>{item.icon}</span>
-                <span className="text-sm">{item.name}</span>
-              </div>
+              <span>{item.icon}</span>
+              <span className="text-sm">{item.name}</span>
 
-              {/* Notification badge */}
               {item.name === "Notifications" && unreadCount > 0 && (
-                <span className="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">
+                <span className="ml-auto bg-red-500 text-xs px-2 rounded-full">
                   {unreadCount}
                 </span>
               )}
@@ -91,12 +113,13 @@ const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
 
       </div>
 
-      {/* Bottom */}
+      {/* SIGN OUT */}
       <div className="p-4">
-        <button className="w-full border border-slate-700 text-slate-300 py-3 rounded-xl hover:bg-slate-800 transition">
-          🚪 Sign Out
+        <button className="w-full border border-slate-700 py-3 rounded-xl hover:bg-slate-800">
+          Sign Out
         </button>
       </div>
+
     </div>
   );
 };

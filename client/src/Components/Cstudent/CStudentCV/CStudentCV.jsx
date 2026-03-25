@@ -12,91 +12,185 @@ const StudentCV = () => {
     gpa: "",
     bio: "",
     cvName: "",
-    cv: null
+    cv: null,
+    userId: 1
   });
 
-  const fileRef = useRef();
+  const [isEditing, setIsEditing] = useState(true);
 
-  // 🔥 LOAD FROM LOCAL STORAGE
+  // ✅ NEW VALIDATION STATE
+  const [errors, setErrors] = useState({});
+
+  const fileRef = useRef();
+  const userId = 1;
+
+  // 🔥 READ (NO CHANGE)
   useEffect(() => {
-    const saved = localStorage.getItem("studentProfile");
-    if (saved) {
-      setProfile(JSON.parse(saved));
-    } else {
-      // default values
-      setProfile({
-        name: "Sasangi Perera",
-        email: "sasangi@gmail.com",
-        field: "IT",
-        year: 3,
-        phone: "",
-        gpa: "",
-        bio: "",
-        cvName: "",
-        cv: null
-      });
-    }
+    fetch(`http://localhost:5000/api/cv/${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && (data._id || data.userId)) {
+          setProfile({
+            name: data.name || "",
+            email: data.email || "",
+            field: data.field || "",
+            year: data.year || "",
+            phone: data.phone || "",
+            gpa: data.gpa || "",
+            bio: data.bio || "",
+            cvName: data.cvName || "",
+            cv: data.cv || null,
+            _id: data._id,
+            userId: data.userId || userId
+          });
+
+          setIsEditing(false);
+        }
+      })
+      .catch(() => console.log("No data"));
   }, []);
 
-  // 🔥 FILE UPLOAD
-  const handleFile = (e) => {
+  // ✅ VALIDATION FUNCTION
+ const validate = () => {
+  let newErrors = {};
+
+  if (!profile.name) newErrors.name = "Name required";
+  if (!profile.email || !/\S+@\S+\.\S+/.test(profile.email))
+    newErrors.email = "Valid email required";
+  if (!profile.phone || profile.phone.length < 10)
+    newErrors.phone = "Valid phone required";
+  if (!profile.field) newErrors.field = "Field required";
+
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
+
+  // 🔥 FILE UPLOAD + AUTO SAVE FIX
+  const handleFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    if (!file.name.endsWith(".pdf") && !file.name.endsWith(".docx")) {
-      alert("Only PDF or DOCX files");
-      return;
+    const formData = new FormData();
+    formData.append("cv", file);
+
+    try {
+      const res = await fetch("http://localhost:5000/api/upload", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await res.json();
+
+      const updatedProfile = {
+        ...profile,
+        cv: data.filePath,
+        cvName: data.fileName
+      };
+
+      setProfile(updatedProfile);
+
+    } catch (err) {
+      console.log("Upload error:", err);
+    }
+  };
+
+  // 🔥 SAVE
+  const saveProfile = async (customData) => {
+
+    if (!validate()) return; // ✅ added
+
+    let finalData = customData || profile;
+
+    if (!finalData.cv) {
+      delete finalData.cv;
+      delete finalData.cvName;
     }
 
-    const fakePath = "uploads/" + file.name;
+    const res = await fetch("http://localhost:5000/api/cv", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(finalData)
+    });
 
-    const updated = {
+    const data = await res.json();
+
+    setProfile(data);
+    localStorage.setItem("studentProfile", JSON.stringify(data));
+    setIsEditing(false);
+    alert("Saved!");
+  };
+
+  // 🔥 UPDATE
+  const updateProfile = async () => {
+
+    if (!validate()) return; // ✅ added
+
+    let bodyData = {
       ...profile,
-      cv: fakePath,
-      cvName: file.name
+      userId: Number(userId)
     };
 
-    setProfile(updated);
-    localStorage.setItem("studentProfile", JSON.stringify(updated));
+    if (!profile.cv) {
+      delete bodyData.cv;
+      delete bodyData.cvName;
+    }
 
-    alert("CV uploaded!");
+    const res = await fetch(`http://localhost:5000/api/cv/${userId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(bodyData)
+    });
+
+    const data = await res.json();
+
+    setProfile(data);
+    alert("Updated!");
+    setIsEditing(false);
   };
 
-  // 🔥 SAVE PROFILE
-  const saveProfile = () => {
-    localStorage.setItem("studentProfile", JSON.stringify(profile));
-    alert("Profile updated!");
-  };
+  // 🔥 DELETE (NO CHANGE)
+  const deleteProfile = async () => {
+    await fetch(`http://localhost:5000/api/cv/${userId}`, {
+      method: "DELETE"
+    });
 
-  // 🔥 REMOVE CV
-  const removeCV = () => {
-    const updated = {
-      ...profile,
+    setProfile({
+      name: "",
+      email: "",
+      field: "",
+      year: "",
+      phone: "",
+      gpa: "",
+      bio: "",
+      cvName: "",
       cv: null,
-      cvName: ""
-    };
+      userId: userId
+    });
 
-    setProfile(updated);
-    localStorage.setItem("studentProfile", JSON.stringify(updated));
+    setIsEditing(true);
+    alert("Deleted!");
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-white"> {/* ✅ white bg */}
 
-      {/* Sidebar */}
       <Sidebar session={{ name: profile.name }} unreadCount={2} />
 
-      {/* Content */}
       <div className="flex-1 p-6 overflow-auto">
 
         <h2 className="text-2xl font-bold text-gray-800 mb-6">
           My Profile & CV
         </h2>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* ✅ SMALL WIDTH */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-w-5xl mx-auto">
 
-          {/* ================= CV SECTION ================= */}
-          <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl shadow-sm">
+          {/* CV */}
+          <div className="group bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition">
 
             <h3 className="font-semibold text-gray-800 mb-4">
               📄 CV / Resume
@@ -105,7 +199,7 @@ const StudentCV = () => {
             {profile.cvName ? (
               <>
                 <div className="flex items-center gap-3 bg-white border border-blue-100 p-3 rounded-lg mb-3">
-                  <div className="w-10 h-10 bg-red-100 text-red-500 flex items-center justify-center rounded">
+                  <div className="w-10 h-10 bg-red-100 flex items-center justify-center rounded">
                     📄
                   </div>
 
@@ -120,27 +214,42 @@ const StudentCV = () => {
                 </div>
 
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => fileRef.current.click()}
-                    className="border px-3 py-1 rounded-lg text-sm hover:bg-gray-100"
-                  >
-                    Replace
-                  </button>
+                  {profile.cv && (
+                    <a
+                      href={`http://localhost:5000/${profile.cv}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-green-500 text-white px-3 py-1 rounded-lg text-sm"
+                    >
+                      Download
+                    </a>
+                  )}
 
-                  <button
-                    onClick={removeCV}
-                    className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-600"
-                  >
-                    Remove
-                  </button>
+                  {isEditing && (
+                    <>
+                      <button
+                        onClick={() => fileRef.current.click()}
+                        className="border px-3 py-1 rounded-lg text-sm"
+                      >
+                        Replace
+                      </button>
+
+                      <button
+                        onClick={deleteProfile}
+                        className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm"
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
                 </div>
               </>
             ) : (
               <div
                 onClick={() => fileRef.current.click()}
-                className="border-2 border-dashed border-blue-200 rounded-xl h-52 flex flex-col justify-center items-center text-center cursor-pointer hover:bg-blue-100 transition"
+                className="border-2 border-dashed border-blue-200 rounded-xl h-40 flex flex-col justify-center items-center cursor-pointer hover:bg-blue-100 transition"
               >
-                <div className="text-3xl mb-2">📤</div>
+                <div className="text-4xl text-green-500 mb-2">📤</div>
                 <p className="font-semibold text-gray-700">
                   Click to Upload CV
                 </p>
@@ -150,104 +259,155 @@ const StudentCV = () => {
               </div>
             )}
 
-            <input
-              ref={fileRef}
-              type="file"
-              hidden
-              onChange={handleFile}
-            />
-
-            <div className="mt-4 bg-indigo-50 border border-indigo-100 p-3 rounded-lg text-sm text-indigo-600">
-              💡 Companies can view and download your CV when you apply.
-            </div>
+            <input ref={fileRef} type="file" hidden onChange={handleFile} />
 
           </div>
 
-          {/* ================= PROFILE SECTION ================= */}
-          <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl shadow-sm">
+          {/* PROFILE */}
+          <div className="group bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm hover:shadow-md hover:scale-[1.01] transition">
 
             <h3 className="font-semibold text-gray-800 mb-4">
               👤 Profile Details
             </h3>
+{["name","email","field","year","phone","gpa"].map((field) => (
+  <div key={field}>
+    <label className="text-sm text-gray-600 capitalize">{field}</label>
 
-            {/* Editable Fields */}
-            <label className="text-sm text-gray-600">Full Name</label>
-            <input
-              className="w-full px-3 py-2 border border-blue-100 rounded-lg mb-3"
-              value={profile.name}
-              onChange={(e) =>
-                setProfile({ ...profile, name: e.target.value })
-              }
-            />
+    {/* 🔥 FIELD DROPDOWN */}
+    {field === "field" ? (
+      <select
+        className="w-full mb-2 p-2 text-sm border rounded bg-white focus:ring-2 focus:ring-blue-300"
+        disabled={!isEditing}
+        value={profile.field}
+        onChange={(e) => {
+          const value = e.target.value;
+          setProfile({ ...profile, field: value });
+        }}
+      >
+        <option value="">Select Field</option>
+        <option value="IT">IT</option>
+        <option value="Engineering">Engineering</option>
+        <option value="Business">Business</option>
+        <option value="Design">Design</option>
+      </select>
 
-            <label className="text-sm text-gray-600">Email</label>
-            <input
-              className="w-full px-3 py-2 border border-blue-100 rounded-lg mb-3"
-              value={profile.email}
-              onChange={(e) =>
-                setProfile({ ...profile, email: e.target.value })
-              }
-            />
+    /* 🔥 YEAR SELECT */
+    ) : field === "year" ? (
+      <select
+        className="w-full mb-2 p-2 text-sm border rounded bg-white focus:ring-2 focus:ring-blue-300"
+        disabled={!isEditing}
+        value={profile.year}
+        onChange={(e) => {
+          const value = e.target.value;
+          setProfile({ ...profile, year: value });
+        }}
+      >
+        {/* <option value="">Select Year</option> */}
+        <option value="1">Year 1</option>
+        <option value="2">Year 2</option>
+        <option value="3">Year 3</option>
+        <option value="4">Year 4</option>
+      </select>
 
-            <label className="text-sm text-gray-600">Field</label>
-            <input
-              className="w-full px-3 py-2 border border-blue-100 rounded-lg mb-3"
-              value={profile.field}
-              onChange={(e) =>
-                setProfile({ ...profile, field: e.target.value })
-              }
-            />
+    /* 🔥 GPA INPUT */
+    ) : field === "gpa" ? (
+    <input
+  type="number"
+  min="0"
+  max="4"
+  step="0.1"
+  className="w-full mb-2 p-2 text-sm border rounded bg-white focus:ring-2 focus:ring-blue-300"
+  disabled={!isEditing}
+  value={profile.gpa}
+  onChange={(e) => {
+    let value = e.target.value;
 
-            <label className="text-sm text-gray-600">Year</label>
-            <input
-              type="number"
-              className="w-full px-3 py-2 border border-blue-100 rounded-lg mb-3"
-              value={profile.year}
-              onChange={(e) =>
-                setProfile({ ...profile, year: e.target.value })
-              }
-            />
+    // allow empty (user typing)
+    if (value === "") {
+      setProfile({ ...profile, gpa: value });
+      return;
+    }
 
-            <label className="text-sm text-gray-600">Phone</label>
-            <input
-              className="w-full px-3 py-2 border border-blue-100 rounded-lg mb-3"
-              value={profile.phone}
-              onChange={(e) =>
-                setProfile({ ...profile, phone: e.target.value })
-              }
-            />
+    // convert to number
+    let num = parseFloat(value);
 
-            <label className="text-sm text-gray-600">GPA</label>
-            <input
-              type="number"
-              className="w-full px-3 py-2 border border-blue-100 rounded-lg mb-3"
-              value={profile.gpa}
-              onChange={(e) =>
-                setProfile({ ...profile, gpa: e.target.value })
-              }
-            />
+    // ❌ block invalid values
+    if (num < 0 || num > 4) return;
 
-            <label className="text-sm text-gray-600">Bio</label>
+    setProfile({ ...profile, gpa: value });
+  }}
+/>
+
+    /* 🔥 NORMAL INPUTS */
+    ) : (
+      <input
+        className="w-full mb-2 p-2 text-sm border rounded bg-white focus:ring-2 focus:ring-blue-300"
+        disabled={!isEditing}
+        value={profile[field]}
+        onChange={(e) => {
+          const value = e.target.value;
+          setProfile({ ...profile, [field]: value });
+        }}
+      />
+    )}
+
+    {/* 🔥 ERROR SHOW */}
+    {errors[field] && (
+      <p className="text-red-500 text-xs">{errors[field]}</p>
+    )}
+  </div>
+))}
+
+            <label>Bio</label>
             <textarea
-              rows={3}
-              className="w-full px-3 py-2 border border-blue-100 rounded-lg mb-3"
+              className="w-full mb-3 p-2 border rounded bg-white"
+              disabled={!isEditing}
               value={profile.bio}
               onChange={(e) =>
                 setProfile({ ...profile, bio: e.target.value })
               }
             />
 
-            <button
-              onClick={saveProfile}
-              className="bg-indigo-500 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg font-semibold"
-            >
-              Save Profile
-            </button>
+            <div className="flex gap-2">
+
+              {isEditing ? (
+                profile._id ? (
+                  <button
+                    onClick={updateProfile}
+                    className="bg-green-500 text-white px-4 py-2 rounded"
+                  >
+                    Update
+                  </button>
+                ) : 
+                (
+                  <button
+                    onClick={() => saveProfile()}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                  >
+                    Save Profile
+                  </button>
+                )
+              ) : (
+                <button
+                  onClick={() => setIsEditing(true)}
+                  className="bg-yellow-500 text-white px-4 py-2 rounded"
+                >
+                  Edit
+                </button>
+              )}
+
+              <button
+                onClick={deleteProfile}
+                className="bg-red-500 text-white px-4 py-2 rounded"
+              >
+                Delete
+              </button>
+
+            </div>
 
           </div>
 
         </div>
-
       </div>
     </div>
   );

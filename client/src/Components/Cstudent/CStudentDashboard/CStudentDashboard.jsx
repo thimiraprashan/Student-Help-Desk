@@ -42,13 +42,29 @@ const CStudentDashboard = () => {
           {stats.map((s, i) => (
             <div
               key={i}
-              className="bg-blue-50 border border-blue-100 p-4 rounded-xl shadow-sm flex items-center gap-3"
+              className="group bg-blue-50 border border-blue-100 p-4 rounded-xl shadow-sm flex items-center gap-3 cursor-pointer
+              
+              hover:bg-blue-100 hover:shadow-md hover:scale-[1.03] 
+              transition-all duration-300 ease-in-out
+              hover:ring-2 hover:ring-blue-300"
             >
-              <div className="text-2xl">{s.icon}</div>
+              
+              {/* ICON */}
+              <div className="text-2xl transform group-hover:translate-x-1 transition">
+                {s.icon}
+              </div>
+
+              {/* TEXT */}
               <div>
                 <p className="text-xs text-gray-500">{s.label}</p>
                 <h3 className="text-xl font-bold text-gray-800">{s.value}</h3>
               </div>
+
+              {/* 👉 Arrow */}
+              <div className="ml-auto text-gray-400 group-hover:text-blue-600 transform group-hover:translate-x-2 transition">
+                →
+              </div>
+
             </div>
           ))}
         </div>
@@ -57,13 +73,16 @@ const CStudentDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
 
           {/* Internships */}
-          <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm">
+          <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm hover:shadow-md transition">
             <h3 className="font-semibold text-gray-800 mb-3">
               🔥 Latest Internships
             </h3>
 
             {internships.map((i, index) => (
-              <div key={index} className="py-3 border-b border-blue-100 last:border-none">
+              <div 
+                key={index} 
+                className="py-3 border-b border-blue-100 last:border-none hover:bg-blue-100 px-2 rounded transition"
+              >
                 <p className="font-semibold text-gray-700 text-sm">{i.title}</p>
                 <p className="text-xs text-gray-500 mt-1">
                   {i.company} · {i.details}
@@ -73,12 +92,12 @@ const CStudentDashboard = () => {
           </div>
 
           {/* Applications */}
-          <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm">
+          <div className="bg-blue-50 border border-blue-100 p-5 rounded-xl shadow-sm hover:shadow-md transition">
             <h3 className="font-semibold text-gray-800 mb-3">
               📬 My Applications
             </h3>
 
-            <div className="flex justify-between items-center text-sm text-gray-700">
+            <div className="flex justify-between items-center text-sm text-gray-700 hover:bg-blue-100 px-2 py-2 rounded transition">
               <span>Software Engineer Intern</span>
               <span className="bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-xs font-semibold">
                 SHORTLISTED
@@ -89,7 +108,8 @@ const CStudentDashboard = () => {
         </div>
 
         {/* 🔥 CV Box */}
-        <div className="bg-yellow-50 border border-yellow-300 p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="bg-yellow-50 border border-yellow-300 p-5 rounded-xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4
+        hover:shadow-md transition">
 
           <div>
             <h4 className="font-semibold text-yellow-700">
@@ -102,7 +122,7 @@ const CStudentDashboard = () => {
 
           <button
             onClick={() => navigate("/student/cv")}
-            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold"
+            className="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold transition"
           >
             Upload CV
           </button>

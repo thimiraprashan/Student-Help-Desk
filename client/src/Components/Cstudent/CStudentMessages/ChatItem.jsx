@@ -1,35 +1,87 @@
 import React from "react";
-import Sidebar from "../../Common/Sidebar";
-const ChatItem = ({ student, lastMessage, unread, onClick }) => {
+
+const ChatItem = ({
+  student,
+  lastMessage,
+  unread,
+  onClick,
+  active,
+  onlineUsers = [],
+}) => {
+
+  const studentId = student?._id || student?.id;
+
+  const isOnline = onlineUsers.map(String).includes(String(studentId));
+
+  const isLastFromMe =
+    String(lastMessage?.fromId) === String(studentId);
+
   return (
     <div
       onClick={onClick}
-      className="cursor-pointer bg-[#1e293b] hover:bg-[#334155] transition rounded-xl p-4 flex items-center gap-4"
+      className={`cursor-pointer rounded-xl p-4 flex items-center gap-4 transition ${
+        active
+          ? "bg-indigo-600 text-white"
+          : "bg-[#1e293b] hover:bg-[#334155]"
+      }`}
     >
       {/* Avatar */}
-      <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-lg">
+      <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-lg text-white">
         {student?.name?.[0] || "?"}
 
+        {/* 🟢 Online */}
+        <span
+          className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-[#1e293b] ${
+            isOnline ? "bg-green-500" : "bg-gray-500"
+          }`}
+        />
+
+        {/* 🔴 Unread */}
         {unread > 0 && (
-          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-4 h-4 flex items-center justify-center rounded-full font-bold">
+          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] w-5 h-5 flex items-center justify-center rounded-full font-bold">
             {unread}
           </span>
         )}
       </div>
 
-      {/* Info */}
+      {/* Text */}
       <div className="flex-1 overflow-hidden">
         <div className="flex justify-between items-center">
-          <span className="text-gray-200 font-semibold text-sm">
+
+          {/* Name */}
+          <span className="text-sm font-semibold truncate">
             {student?.name}
           </span>
-          <span className="text-gray-500 text-[11px]">
-            {lastMessage?.date}
+
+          {/* Time */}
+          <span className="text-gray-300 text-[11px] whitespace-nowrap ml-2">
+            {lastMessage?.date
+              ? new Date(lastMessage.date).toLocaleTimeString([], {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })
+              : ""}
           </span>
+
         </div>
 
-        <div className="text-gray-400 text-xs truncate mt-1">
-          {lastMessage?.content}
+        {/* Last Message */}
+        <div
+          className={`text-xs truncate mt-1 flex items-center gap-1 ${
+            unread > 0
+              ? "font-semibold"
+              : "text-gray-300"
+          }`}
+        >
+          {/* ✅ WhatsApp tick */}
+          {isLastFromMe && (
+            <span className="text-blue-400 text-[10px]">✓✓</span>
+          )}
+
+          {/* Message */}
+          {lastMessage?.file
+            ? "📎 File"
+            : lastMessage?.content || "Start conversation..."}
         </div>
       </div>
     </div>

@@ -1,28 +1,20 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../../Common/Sidebar";
 
 const CStudentApplications = () => {
 
-  const applications = [
-    {
-      title: "Software Engineer Intern",
-      company: "TechCorp Lanka",
-      date: "2026-03-10",
-      status: "Shortlisted"
-    },
-    {
-      title: "Civil Engineering Intern",
-      company: "BuildPro Engineers",
-      date: "2026-03-08",
-      status: "Pending"
-    },
-    {
-      title: "UI/UX Intern",
-      company: "Creative Labs",
-      date: "2026-03-05",
-      status: "Rejected"
-    }
-  ];
+  const [applications, setApplications] = useState([]);
+  const studentId = 1;
+
+  useEffect(() => {
+    fetch("http://localhost:5000/applications")
+      .then(res => res.json())
+      .then(data => {
+        const myApps = data.filter(a => a.studentId === studentId);
+        setApplications(myApps);
+      })
+      .catch(err => console.log(err));
+  }, []);
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -40,55 +32,81 @@ const CStudentApplications = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-white">
 
-      {/* Sidebar */}
       <Sidebar session={{ name: "Sasangi Perera" }} unreadCount={2} />
 
-      {/* Content */}
-      <div className="flex-1 p-6 overflow-auto">
+      <div className="flex-1 p-8 overflow-auto">
 
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">
-          My Applications
-        </h2>
+        {/* HEADER */}
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-gray-800">
+            My Applications 🚀
+          </h2>
+          <p className="text-gray-500 text-sm mt-1">
+            Track your internship progress and status
+          </p>
+        </div>
 
-        <div className="bg-blue-50 border border-blue-100 rounded-xl shadow-sm overflow-hidden">
+        {/* 🔥 TABLE CARD (LIGHT BLUE) */}
+        <div className="bg-blue-50 border border-blue-100 rounded-2xl shadow-sm overflow-hidden">
 
-          {/* Table Header */}
-          <div className="grid grid-cols-4 bg-blue-100 text-gray-600 text-xs font-semibold uppercase px-5 py-3">
+          {/* HEADER */}
+          <div className="grid grid-cols-4 bg-blue-100 text-blue-700 text-xs font-semibold uppercase px-6 py-4 tracking-wide border-b border-blue-200">
             <div>Internship</div>
             <div>Company</div>
             <div>Date</div>
             <div>Status</div>
           </div>
 
-          {/* Rows */}
+          {/* ROWS */}
           {applications.map((app, index) => (
             <div
               key={index}
-              className="grid grid-cols-4 px-5 py-4 border-t border-blue-100 items-center hover:bg-blue-50 transition"
+              className="group grid grid-cols-4 px-6 py-5 border-t border-blue-100 items-center cursor-pointer
+              
+              hover:bg-blue-100 hover:shadow-sm hover:scale-[1.01]
+              transition-all duration-300"
             >
+              {/* TITLE */}
               <div className="font-semibold text-gray-800 text-sm">
                 {app.title}
               </div>
 
-              <div className="text-sm text-gray-600">
-                {app.company}
+              {/* COMPANY */}
+              <div className="text-sm text-blue-600 font-semibold hover:underline cursor-pointer">
+                {app.companyName}
               </div>
 
+              {/* DATE */}
               <div className="text-sm text-gray-500">
                 {app.date}
               </div>
 
-              <div>
+              {/* STATUS + ARROW */}
+              <div className="flex items-center justify-between">
+
                 <span
                   className={`px-3 py-1 text-xs rounded-full font-semibold ${getStatusStyle(app.status)}`}
                 >
                   {app.status}
                 </span>
+
+                {/* 👉 Arrow */}
+                <span className="ml-3 text-gray-400 group-hover:text-blue-600 transform group-hover:translate-x-2 transition">
+                  →
+                </span>
+
               </div>
             </div>
           ))}
+
+          {/* EMPTY */}
+          {applications.length === 0 && (
+            <div className="p-6 text-center text-gray-400">
+              No applications yet
+            </div>
+          )}
 
         </div>
 
