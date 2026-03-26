@@ -115,9 +115,9 @@ const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
 
       {/* SIGN OUT */}
       <div className="p-4">
-        <button className="w-full border border-slate-700 py-3 rounded-xl hover:bg-slate-800">
-          Sign Out
-        </button>
+        <button className="w-full border border-red-500 py-3 rounded-xl text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200">
+  Sign Out
+</button>
       </div>
 
     </div>

@@ -51,12 +51,15 @@ const StudentCV = () => {
   }, []);
 
   // ✅ VALIDATION FUNCTION
- const validate = () => {
+const validate = () => {
   let newErrors = {};
 
-  if (!profile.name) newErrors.name = "Name required";
+  if (!profile.name || profile.name.length < 3)
+    newErrors.name = "Min 3 characters";
+
   if (!profile.email || !/\S+@\S+\.\S+/.test(profile.email))
     newErrors.email = "Valid email required";
+
   if (!profile.phone || profile.phone.length < 10)
     newErrors.phone = "Valid phone required";
   if (!profile.field) newErrors.field = "Field required";
@@ -276,7 +279,8 @@ const StudentCV = () => {
     {/* 🔥 FIELD DROPDOWN */}
     {field === "field" ? (
       <select
-        className="w-full mb-2 p-2 text-sm border rounded bg-white focus:ring-2 focus:ring-blue-300"
+        className={`w-full mb-2 p-2 text-sm border rounded bg-white focus:ring-2 
+  ${errors[field] ? "border-red-500 focus:ring-red-300" : "focus:ring-blue-300"}`}
         disabled={!isEditing}
         value={profile.field}
         onChange={(e) => {
@@ -339,17 +343,39 @@ const StudentCV = () => {
 />
 
     /* 🔥 NORMAL INPUTS */
-    ) : (
-      <input
-        className="w-full mb-2 p-2 text-sm border rounded bg-white focus:ring-2 focus:ring-blue-300"
-        disabled={!isEditing}
-        value={profile[field]}
-        onChange={(e) => {
-          const value = e.target.value;
-          setProfile({ ...profile, [field]: value });
-        }}
-      />
-    )}
+) : (
+  <input
+    className={`w-full mb-2 p-2 text-sm border rounded bg-white focus:ring-2 
+      ${errors[field] ? "border-red-500 focus:ring-red-300" : "focus:ring-blue-300"}`}
+    disabled={!isEditing}
+    value={profile[field]}
+    onChange={(e) => {
+      const value = e.target.value;
+
+      setProfile({ ...profile, [field]: value });
+
+      // 🔥 REAL-TIME VALIDATION
+      let error = "";
+
+      if (field === "name") {
+        if (!value || value.length < 3)
+          error = "Min 3 characters";
+      }
+
+      if (field === "email") {
+        if (!/\S+@\S+\.\S+/.test(value))
+          error = "Valid email required";
+      }
+
+      if (field === "phone") {
+        if (!/^[0-9]{10,}$/.test(value))
+          error = "Valid phone required";
+      }
+
+      setErrors({ ...errors, [field]: error });
+    }}
+  />
+)}
 
     {/* 🔥 ERROR SHOW */}
     {errors[field] && (
@@ -360,13 +386,12 @@ const StudentCV = () => {
 
             <label>Bio</label>
             <textarea
-              className="w-full mb-3 p-2 border rounded bg-white"
-              disabled={!isEditing}
-              value={profile.bio}
-              onChange={(e) =>
-                setProfile({ ...profile, bio: e.target.value })
-              }
-            />
+  className="w-full mb-3 p-2 border rounded bg-white focus:ring-2 focus:ring-blue-300"
+  value={profile.bio}
+  onChange={(e) =>
+    setProfile({ ...profile, bio: e.target.value })
+  }
+/>
 
             <div className="flex gap-2">
 

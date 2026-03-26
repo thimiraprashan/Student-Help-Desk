@@ -32,7 +32,7 @@
   justify-content: center;
 }
 
-/* 🔥 ICON FIX (VERY IMPORTANT) */
+/* 🔥 ICON FIX */
 .logo-icon svg {
   color: #ffffff;
   font-size: 22px;
@@ -107,20 +107,39 @@
   background: transparent;
   border: 1px solid transparent;
   transition: all 0.2s ease;
+
+  position: relative; /* 🔥 for left indicator */
 }
 
 .item:hover {
-  background: rgba(99, 102, 241, 0.08);
+  background: rgba(99, 102, 241, 0.12);
   border: 1px solid #2e3a5a;
   color: #e2e8f0;
+
+  transform: scale(1.01);
 }
 
 /* 🔥 ACTIVE STYLE */
 .item.active {
-  background: linear-gradient(90deg, #6366f1, #8b5cf6);
-  color: white;
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+  color: #ffffff;
   font-weight: 600;
-  box-shadow: 0 0 15px rgba(99, 102, 241, 0.5);
+
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+
+  transform: scale(1.02);
+}
+
+/* 🔥 LEFT INDICATOR LINE */
+.item.active::before {
+  content: "";
+  width: 4px;
+  height: 70%;
+  background: #a5b4fc;
+  position: absolute;
+  left: 0;
+  border-radius: 4px;
 }
 
 /* notification */
@@ -153,4 +172,13 @@
 .logout:hover {
   background: #1e293b;
   color: white;
+}
+/* 🔥 LEFT ACTIVE LINE */
+.active-line {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 60%;
+  background: #a5b4fc;
+  border-radius: 4px;
 }
