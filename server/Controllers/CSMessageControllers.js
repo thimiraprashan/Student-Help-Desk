@@ -16,16 +16,14 @@ export const getMessages = async (req, res) => {
   try {
     const { id1, id2 } = req.params;
 
-    // ✅ ALWAYS CREATE BOTH POSSIBLE THREAD IDS
-    const threadId1 = `c${id2}_s${id1}`;
-    const threadId2 = `c${id1}_s${id2}`;
+    const makeThreadId = (id1, id2) => {
+      return [String(id1), String(id2)].sort().join("_");
+    };
 
-    // ✅ FIND BOTH DIRECTIONS
+    const threadId = makeThreadId(id1, id2);
+
     const messages = await Message.find({
-      $or: [
-        { threadId: threadId1 },
-        { threadId: threadId2 }
-      ]
+      threadId: threadId,
     }).sort({ date: 1 });
 
     res.json(messages);

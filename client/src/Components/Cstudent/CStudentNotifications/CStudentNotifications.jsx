@@ -82,7 +82,9 @@ const CStudentNotifications = ({ db, setDb, userId, showToast }) => {
 
               <div className="flex-1">
                 <p className="text-sm text-gray-700">{n.message}</p>
-                <p className="text-xs text-gray-500">{n.date}</p>
+                <p className="text-xs text-gray-500">
+  {new Date(n.date).toLocaleString()}
+</p>
               </div>
 
               {!n.read && (

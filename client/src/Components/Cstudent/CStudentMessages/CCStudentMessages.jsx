@@ -39,7 +39,7 @@ const CCStudentMessages = ({ db, setDb, userId }) => {
 
   // 🔥 FETCH MESSAGES
   useEffect(() => {
-    if (!activeThread) return;
+if (!activeThread || !userId) return;
 
     fetch(`http://localhost:5000/messages/${userId}/${activeThread.companyId}`)
       .then(res => res.json())
@@ -143,24 +143,23 @@ const CCStudentMessages = ({ db, setDb, userId }) => {
 
             const companyId = String(company._id); // ✅ FIXED
             const companyName = company.name || company.companyName;
-
-            const thread = getThread(companyId, userId);
+const thread = getThread(String(companyId), String(userId));
             const last = thread[thread.length - 1] || {};
 
             const unread = messages.filter(
               (m) =>
                 m.threadId === makeThreadId(String(companyId), String(userId)) &&
-                m.toId === String(userId) &&
+                String(m.toId) === String(userId) &&
                 !m.read
             ).length;
 
             return (
               <ChatItem
                 key={companyId}
-                student={{
-                  id: companyId,
-                  name: companyName
-                }}
+               student={{
+  _id: companyId,
+  name: companyName
+}}
                 lastMessage={last}
                 unread={unread}
                 active={activeThread?.companyId === companyId}

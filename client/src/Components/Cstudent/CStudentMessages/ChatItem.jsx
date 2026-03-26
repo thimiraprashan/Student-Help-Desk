@@ -9,7 +9,7 @@ const ChatItem = ({
   onlineUsers = [],
 }) => {
 
-  const studentId = student?._id || student?.id;
+  const studentId = String(student?._id);
 
   const isOnline = onlineUsers.map(String).includes(String(studentId));
 

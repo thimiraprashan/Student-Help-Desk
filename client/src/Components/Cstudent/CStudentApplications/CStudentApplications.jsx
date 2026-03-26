@@ -6,7 +6,8 @@ const CStudentApplications = () => {
   const [applications, setApplications] = useState([]);
   const studentId = 1;
 
-  useEffect(() => {
+  // 🔥 FETCH FUNCTION
+  const loadApplications = () => {
     fetch("http://localhost:5000/applications")
       .then(res => res.json())
       .then(data => {
@@ -14,6 +15,17 @@ const CStudentApplications = () => {
         setApplications(myApps);
       })
       .catch(err => console.log(err));
+  };
+
+  useEffect(() => {
+    loadApplications();
+
+    // 🔥 AUTO REFRESH (notification feel)
+    const interval = setInterval(() => {
+      loadApplications();
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const getStatusStyle = (status) => {
@@ -48,7 +60,7 @@ const CStudentApplications = () => {
           </p>
         </div>
 
-        {/* 🔥 TABLE CARD (LIGHT BLUE) */}
+        {/* 🔥 TABLE CARD */}
         <div className="bg-blue-50 border border-blue-100 rounded-2xl shadow-sm overflow-hidden">
 
           {/* HEADER */}
@@ -64,7 +76,6 @@ const CStudentApplications = () => {
             <div
               key={index}
               className="group grid grid-cols-4 px-6 py-5 border-t border-blue-100 items-center cursor-pointer
-              
               hover:bg-blue-100 hover:shadow-sm hover:scale-[1.01]
               transition-all duration-300"
             >
@@ -83,7 +94,7 @@ const CStudentApplications = () => {
                 {app.date}
               </div>
 
-              {/* STATUS + ARROW */}
+              {/* STATUS */}
               <div className="flex items-center justify-between">
 
                 <span

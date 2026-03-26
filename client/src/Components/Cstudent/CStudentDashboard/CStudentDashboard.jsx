@@ -6,7 +6,8 @@ const CStudentDashboard = () => {
 
   const navigate = useNavigate();
 
-  const user = { name: "Sasangi Perera" };
+  const savedProfile = JSON.parse(localStorage.getItem("studentProfile"));
+const user = { name: savedProfile?.name || "Student" };
 
   const stats = [
     { label: "Applications", value: 1, icon: "📋" },
@@ -25,6 +26,7 @@ const CStudentDashboard = () => {
 
       {/* Sidebar */}
       <Sidebar session={{ name: user.name }} unreadCount={2} />
+      
 
       {/* Main */}
       <div className="flex-1 p-6 overflow-auto">

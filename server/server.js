@@ -83,27 +83,41 @@ app.put("/applications/:id", async (req, res) => {
       return res.status(404).json({ error: "Application not found" });
     }
 
-    // 🔥 update
+    // 🔥 update status
     await db.collection("applications").updateOne(
       { _id: new ObjectId(appId) },
       { $set: { status } }
     );
 
-    // 🔥 notification create
-    if (status === "Accepted") {
-      console.log("🔥 ACCEPTED → creating notification");
+    // 🔥 notification create (ALL STATUS)
+    if (application.status !== status) {
+
+      console.log("🔥 STATUS CHANGED → creating notification");
+
+      let message = "";
+
+      if (status === "Accepted") {
+        message = `🎉 You have been accepted for ${application.title}!`;
+      } else if (status === "Rejected") {
+        message = `❌ Your application for ${application.title} was rejected`;
+      } else if (status === "Shortlisted") {
+        message = `⭐ You have been shortlisted for ${application.title}`;
+      } else {
+        message = `ℹ️ Your application for ${application.title} status updated to ${status}`;
+      }
 
       await db.collection("notifications").insertOne({
         toUserId: Number(application.studentId),
-        message: `🎉 You have been accepted for ${application.title}!`,
+        message: message,
         date: new Date().toISOString(),
         read: false,
         type: "application_status",
         relatedApplicationId: appId
       });
+
     }
 
-    res.json({ message: "Updated successfully" });
+    res.json({ message: "Updated successfully + notification sent" });
 
   } catch (err) {
     console.log("UPDATE ERROR:", err);
