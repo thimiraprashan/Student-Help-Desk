@@ -16,15 +16,11 @@ const CCompanyMessages = ({ db, setDb, userId }) => {
   const messages = db.messages || [];
 
   // ✅ THREAD ID (FIXED 🔥)
-  const makeThreadId = (id1, id2) => {
-    return [String(id1), String(id2)].sort().join("_");
-  };
-
-  // ✅ GET THREAD (FIXED 🔥)
-  const getThread = (messages, id1, id2) => {
-    const tid = makeThreadId(String(id1), String(id2)); // ✅ FIX
-    return messages.filter((m) => m.threadId === tid);
-  };
+const makeThreadId = (id1, id2) => {
+  return [String(id1).trim(), String(id2).trim()]
+    .sort()
+    .join("_");
+};
 
   // 🔥 LOAD STUDENT PROFILE NAMES
   useEffect(() => {
@@ -81,9 +77,14 @@ const CCompanyMessages = ({ db, setDb, userId }) => {
     fetch(`http://localhost:5000/messages/${userId}/${activeThread.studentId}`)
       .then(res => res.json())
       .then(data => {
-      setDb(prev => ({
+setDb(prev => ({
   ...prev,
-  messages: data || []
+  messages: [
+    ...prev.messages.filter(
+      m => m.threadId !== makeThreadId(userId, activeThread.studentId)
+    ),
+    ...(data || [])
+  ]
 }));
       })
       .catch(err => console.log(err));
@@ -177,19 +178,20 @@ const CCompanyMessages = ({ db, setDb, userId }) => {
             const last = thread[thread.length - 1] || {};
 
             return (
-              <ChatItem
-                key={studentId}
-                student={{
-                  ...s,
-                  id: studentId,
-                  name: studentProfiles[s.id] || s.name
-                }}
-                lastMessage={last}
-                unread={0}
-                active={activeThread?.studentId === studentId}
-                onlineUsers={db.onlineUsers || []}
-                onClick={() => setActiveThread({ studentId })}
-              />
+<ChatItem
+  key={studentId}
+  student={{
+    ...s,
+    id: studentId,
+    name: studentProfiles[s.id] || s.name
+  }}
+  lastMessage={last}
+  unread={0}
+  active={activeThread?.studentId === studentId}
+  onlineUsers={db.onlineUsers || []}
+  onClick={() => setActiveThread({ studentId })}
+  currentUserId={userId}   // ✅ ADD
+/>
             );
           })}
 

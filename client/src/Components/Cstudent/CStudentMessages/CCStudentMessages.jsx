@@ -14,9 +14,11 @@ const CCStudentMessages = ({ db, setDb, userId }) => {
   const messages = db.messages || [];
 
   // ✅ THREAD ID (SAFE 🔥)
-  const makeThreadId = (id1, id2) => {
-    return [String(id1), String(id2)].sort().join("_");
-  };
+const makeThreadId = (id1, id2) => {
+  return [String(id1).trim(), String(id2).trim()]
+    .sort()
+    .join("_");
+};
 
   // 🔥 LOAD COMPANIES
   useEffect(() => {
@@ -44,9 +46,14 @@ if (!activeThread || !userId) return;
     fetch(`http://localhost:5000/messages/${userId}/${activeThread.companyId}`)
       .then(res => res.json())
       .then(data => {
-        setDb(prev => ({
+setDb(prev => ({
   ...prev,
-  messages: data || []
+  messages: [
+    ...prev.messages.filter(
+      m => m.threadId !== makeThreadId(userId, activeThread.companyId)
+    ),
+    ...(data || [])
+  ]
 }));
       })
       .catch(err => console.log(err));
@@ -154,19 +161,18 @@ const thread = getThread(String(companyId), String(userId));
             ).length;
 
             return (
-              <ChatItem
-                key={companyId}
-               student={{
-  _id: companyId,
-  name: companyName
-}}
-                lastMessage={last}
-                unread={unread}
-                active={activeThread?.companyId === companyId}
-                onClick={() =>
-                  setActiveThread({ companyId })
-                }
-              />
+<ChatItem
+  key={companyId}
+  student={{
+    _id: companyId,
+    name: companyName
+  }}
+  lastMessage={last}
+  unread={unread}
+  active={activeThread?.companyId === companyId}
+  onClick={() => setActiveThread({ companyId })}
+  currentUserId={userId}   // ✅ ADD
+/>
             );
           })}
 

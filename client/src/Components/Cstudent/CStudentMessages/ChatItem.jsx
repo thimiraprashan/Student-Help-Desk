@@ -7,14 +7,16 @@ const ChatItem = ({
   onClick,
   active,
   onlineUsers = [],
+  currentUserId // ✅ ADD THIS
 }) => {
 
-  const studentId = String(student?._id);
+  const studentId = String(student?._id || student?.id);
 
-  const isOnline = onlineUsers.map(String).includes(String(studentId));
+  const isOnline = onlineUsers.map(String).includes(studentId);
 
+  // ✅ FIXED
   const isLastFromMe =
-    String(lastMessage?.fromId) === String(studentId);
+    String(lastMessage?.fromId) === String(currentUserId);
 
   return (
     <div
@@ -68,17 +70,14 @@ const ChatItem = ({
         {/* Last Message */}
         <div
           className={`text-xs truncate mt-1 flex items-center gap-1 ${
-            unread > 0
-              ? "font-semibold"
-              : "text-gray-300"
+            unread > 0 ? "font-semibold" : "text-gray-300"
           }`}
         >
-          {/* ✅ WhatsApp tick */}
+          {/* ✅ Tick */}
           {isLastFromMe && (
             <span className="text-blue-400 text-[10px]">✓✓</span>
           )}
 
-          {/* Message */}
           {lastMessage?.file
             ? "📎 File"
             : lastMessage?.content || "Start conversation..."}
