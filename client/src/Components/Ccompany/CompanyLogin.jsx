@@ -73,9 +73,9 @@ function CompanyLogin({ onLogin }) {
         <div className="absolute bottom-10 left-1/3 h-64 w-64 rounded-full bg-cyan-100/60 blur-3xl" />
       </div>
 
-      <div className="relative mx-auto flex min-h-[calc(100vh-3rem)] max-w-[94rem] items-center">
-        <div className="grid w-full gap-4 rounded-[2.25rem] border border-white/70 bg-white/45 p-4 shadow-[0_28px_80px_rgba(59,130,246,0.16)] backdrop-blur-xl lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="hidden rounded-[1.9rem] border border-white/20 bg-[linear-gradient(145deg,_#0f172a_0%,_#172554_45%,_#1d4ed8_100%)] p-7 text-white shadow-[0_20px_50px_rgba(30,64,175,0.24)] lg:block">
+      <div className="relative mx-auto flex min-h-[calc(100vh-3rem)] max-w-[84rem] items-center">
+        <div className="grid w-full gap-3 rounded-[1.9rem] border border-white/70 bg-white/45 p-3 shadow-[0_28px_80px_rgba(59,130,246,0.16)] backdrop-blur-xl lg:grid-cols-[1.02fr_0.9fr]">
+        <div className="hidden rounded-[1.7rem] border border-white/20 bg-[linear-gradient(145deg,_#0f172a_0%,_#172554_45%,_#1d4ed8_100%)] p-5 text-white shadow-[0_20px_50px_rgba(30,64,175,0.24)] lg:block">
           <div className="flex items-center justify-between">
             <p className="text-sm uppercase tracking-[0.4em] text-sky-200">
               CareerGuide
@@ -88,17 +88,17 @@ function CompanyLogin({ onLogin }) {
           <p className="mt-10 text-xs uppercase tracking-[0.45em] text-sky-200/80">
             CareerGuide
           </p>
-          <h1 className="mt-5 max-w-2xl text-[3.5rem] font-semibold leading-[1.05] xl:text-[4.1rem]">
+          <h1 className="mt-4 max-w-xl text-[2.55rem] font-semibold leading-[1.08] xl:text-[3rem]">
             Hire interns with a portal that feels organized, fast, and clear.
           </h1>
-          <p className="mt-4 max-w-2xl text-[15px] leading-7 text-blue-100/85 xl:max-w-3xl">
+          <p className="mt-4 max-w-2xl text-sm leading-7 text-blue-100/85 xl:max-w-3xl">
             Manage internships, applicants, notifications, and company details in one
             focused workspace. Each company gets its own isolated account and data.
           </p>
 
-          <div className="mt-7 grid gap-4 xl:grid-cols-2">
-            <div className="rounded-[1.6rem] border border-white/15 bg-white/8 p-4 backdrop-blur-sm">
-              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-xl">
+          <div className="mt-6 grid gap-3 xl:grid-cols-2">
+            <div className="rounded-[1.35rem] border border-white/15 bg-white/8 p-3.5 backdrop-blur-sm">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 text-lg">
                 <span>+</span>
               </div>
               <p className="text-xs uppercase tracking-[0.25em] text-sky-200">
@@ -108,8 +108,8 @@ function CompanyLogin({ onLogin }) {
                 Create an account, log in, and start posting internships in a few steps.
               </p>
             </div>
-            <div className="rounded-[1.6rem] border border-white/15 bg-white/8 p-4 backdrop-blur-sm">
-              <div className="mb-3 flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15 text-xl">
+            <div className="rounded-[1.35rem] border border-white/15 bg-white/8 p-3.5 backdrop-blur-sm">
+              <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-2xl bg-white/15 text-lg">
                 <span>#</span>
               </div>
               <p className="text-xs uppercase tracking-[0.25em] text-sky-200">
@@ -121,21 +121,21 @@ function CompanyLogin({ onLogin }) {
             </div>
           </div>
 
-          <div className="mt-6 grid grid-cols-3 gap-3">
-            <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-4 text-center backdrop-blur-sm">
-              <p className="text-2xl font-semibold text-white">01</p>
+          <div className="mt-5 grid grid-cols-3 gap-2.5">
+            <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3.5 text-center backdrop-blur-sm">
+              <p className="text-xl font-semibold text-white">01</p>
               <p className="mt-1 text-xs uppercase tracking-[0.2em] text-blue-100/80">
                 Login
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-4 text-center backdrop-blur-sm">
-              <p className="text-2xl font-semibold text-white">02</p>
+            <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3.5 text-center backdrop-blur-sm">
+              <p className="text-xl font-semibold text-white">02</p>
               <p className="mt-1 text-xs uppercase tracking-[0.2em] text-blue-100/80">
                 Post Roles
               </p>
             </div>
-            <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-4 text-center backdrop-blur-sm">
-              <p className="text-2xl font-semibold text-white">03</p>
+            <div className="rounded-2xl border border-white/10 bg-white/8 px-3 py-3.5 text-center backdrop-blur-sm">
+              <p className="text-xl font-semibold text-white">03</p>
               <p className="mt-1 text-xs uppercase tracking-[0.2em] text-blue-100/80">
                 Review Talent
               </p>
@@ -143,17 +143,17 @@ function CompanyLogin({ onLogin }) {
           </div>
         </div>
 
-        <div className="mx-auto w-full rounded-[1.9rem] border border-white/80 bg-white/90 p-6 shadow-[0_18px_45px_rgba(59,130,246,0.14)] backdrop-blur-xl">
+        <div className="mx-auto w-full rounded-[1.7rem] border border-white/80 bg-white/90 p-4.5 shadow-[0_18px_45px_rgba(59,130,246,0.14)] backdrop-blur-xl">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm uppercase tracking-[0.35em] text-blue-500">
                 Company Portal
               </p>
-              <h2 className="mt-3 text-[2rem] font-bold text-slate-900">
+              <h2 className="mt-2 text-[1.65rem] font-bold text-slate-900">
                 {mode === "login" ? "Welcome back" : "Create your company account"}
               </h2>
             </div>
-            <div className="flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-[linear-gradient(145deg,_#2563eb,_#4f46e5)] text-xl font-bold text-white shadow-lg shadow-blue-200">
+            <div className="flex h-12 w-12 items-center justify-center rounded-[1.1rem] bg-[linear-gradient(145deg,_#2563eb,_#4f46e5)] text-base font-bold text-white shadow-lg shadow-blue-200">
               CG
             </div>
           </div>
@@ -164,7 +164,7 @@ function CompanyLogin({ onLogin }) {
               : "Register with company name, email, and password to create your own workspace."}
           </p>
 
-          <div className="mt-5 grid grid-cols-3 gap-2.5">
+          <div className="mt-4 grid grid-cols-3 gap-2">
             <div className="rounded-2xl border border-blue-100 bg-blue-50 px-3 py-3 text-center">
               <p className="text-xs uppercase tracking-[0.2em] text-blue-500">Portal</p>
               <p className="mt-1 text-sm font-semibold text-slate-800">Secure</p>
@@ -179,7 +179,7 @@ function CompanyLogin({ onLogin }) {
             </div>
           </div>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          <form onSubmit={handleSubmit} className="mt-4 space-y-3">
             {mode === "register" && (
               <div>
                 <label className="text-sm font-medium text-slate-700">Company Name</label>
