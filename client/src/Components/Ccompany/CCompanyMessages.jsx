@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import ChatItem from "../Cstudent/CStudentMessages/ChatItem";
 import Sidebar from "../Common/SSidebar";
-import EmojiPicker from "emoji-picker-react";
 
 const CCompanyMessages = ({ db, setDb, userId }) => {
 
@@ -252,12 +251,17 @@ setDb(prev => ({
                 </button>
 
                 {showEmoji && (
-                  <div className="absolute bottom-20">
-                    <EmojiPicker
-                      onEmojiClick={(e) =>
-                        setNewMessage((prev) => prev + e.emoji)
-                      }
-                    />
+                  <div className="absolute bottom-20 z-50 rounded-xl border bg-white p-3 shadow-lg">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewMessage((prev) => prev + "😊");
+                        setShowEmoji(false);
+                      }}
+                      className="text-2xl"
+                    >
+                      😊
+                    </button>
                   </div>
                 )}
 

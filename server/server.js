@@ -8,6 +8,7 @@ import companyRoutes from "./Routes/CCompanyRoutes.js";
 import messageRoutes from "./Routes/CSMessageRoutes.js";
 import cvRoutes from "./Routes/CStudentCVRoutes.js";
 import companyProfileRoutes from "./Routes/CCompanyProfileRoutes.js";
+import companyAuthRoutes from "./Routes/CCompanyAuthRoutes.js";
 import uploadRoutes from "./Routes/uploadRoutes.js";
 
 const app = express();
@@ -25,6 +26,7 @@ app.use("/companies", companyRoutes);
 app.use("/messages", messageRoutes);
 app.use("/api/cv", cvRoutes);
 app.use("/company-profile", companyProfileRoutes);
+app.use("/company-auth", companyAuthRoutes);
 app.use("/api/upload", uploadRoutes);
 
 // =======================================

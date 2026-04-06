@@ -1,9 +1,28 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Common/SSidebar";
 
+const internshipCategories = [
+  "IT",
+  "Software Engineering",
+  "Marketing",
+  "Design",
+  "Finance",
+  "HR",
+];
+
+const skillOptions = [
+  "React",
+  "Node.js",
+  "Java",
+  "Python",
+  "UI/UX",
+  "Communication",
+];
+
 const CompanyInternships = ({ db, setDb, userId }) => {
 
   const [showForm, setShowForm] = useState(false);
+  const [isFormMinimized, setIsFormMinimized] = useState(false);
   const [editItem, setEditItem] = useState(null);
 
   const [form, setForm] = useState({
@@ -19,10 +38,35 @@ const CompanyInternships = ({ db, setDb, userId }) => {
   const [errors, setErrors] = useState({});
   const [companyProfile, setCompanyProfile] = useState(null);
 
+  const selectedSkills = form.skills
+    ? form.skills.split(",").map((skill) => skill.trim()).filter(Boolean)
+    : [];
+
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("companyProfile"));
-    if (saved) setCompanyProfile(saved);
+    const savedSession = localStorage.getItem("companySession");
+    if (savedSession) {
+      try {
+        const parsed = JSON.parse(savedSession);
+        setCompanyProfile((prev) => ({
+          ...prev,
+          name: parsed?.name || prev?.name || "Company",
+        }));
+      } catch (err) {
+        console.log(err);
+      }
+    }
   }, []);
+
+  useEffect(() => {
+    fetch(`http://localhost:5000/company-profile?companyId=${userId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (data) {
+          setCompanyProfile(data);
+        }
+      })
+      .catch(err => console.log(err));
+  }, [userId]);
 
   useEffect(() => {
     fetch("http://localhost:5000/companies")
@@ -33,9 +77,11 @@ const CompanyInternships = ({ db, setDb, userId }) => {
           internships: data.data || []
         }));
       });
-  }, []);
+  }, [setDb]);
 
-  const myInts = db.internships;
+  const myInts = (db.internships || []).filter(
+    (item) => String(item.companyId) === String(userId)
+  );
 
   const resetForm = () => {
     setForm({
@@ -49,7 +95,18 @@ const CompanyInternships = ({ db, setDb, userId }) => {
     });
     setEditItem(null);
     setShowForm(false);
+    setIsFormMinimized(false);
     setErrors({});
+  };
+
+  const toggleSkill = (skill) => {
+    const nextSkills = selectedSkills.includes(skill)
+      ? selectedSkills.filter((item) => item !== skill)
+      : [...selectedSkills, skill];
+
+    const value = nextSkills.join(", ");
+    setForm((prev) => ({ ...prev, skills: value }));
+    validateField("skills", value);
   };
 
   // 🔥 DELETE
@@ -139,13 +196,13 @@ const CompanyInternships = ({ db, setDb, userId }) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const profileRes = await fetch("http://localhost:5000/company-profile");
+    const profileRes = await fetch(`http://localhost:5000/company-profile?companyId=${userId}`);
     const profileData = await profileRes.json();
 
     const newItem = {
       ...form,
       companyId: userId,
-      companyName: profileData?.name || "Company",
+      companyName: profileData?.name || companyProfile?.name || "Company",
       skills: form.skills.split(",").map(s => s.trim())
     };
 
@@ -175,32 +232,56 @@ const CompanyInternships = ({ db, setDb, userId }) => {
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-50">
+    <div className="flex min-h-screen bg-slate-100">
 
       <Sidebar session={{ name: companyProfile?.name || "Company" }} role="company" />
 
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 lg:p-8">
 
-        <div className="flex justify-between mb-6">
-          <h2 className="text-xl font-bold text-gray-800">My Internships</h2>
+        <div className="mb-8 rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-100 p-6 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.35em] text-blue-500">
+                Internship Management
+              </p>
+              <h2 className="mt-3 text-4xl font-bold text-slate-900">My Internships</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600">
+                Publish, update, and manage openings for the currently logged-in company account.
+              </p>
+            </div>
 
-          <button
-            onClick={() => setShowForm(true)}
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-          >
-            + Post New
-          </button>
+            <button
+              onClick={() => setShowForm(true)}
+              className="rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-3 font-medium text-white shadow-lg shadow-blue-200 transition hover:from-blue-700 hover:to-indigo-700"
+            >
+              + Post New
+            </button>
+          </div>
         </div>
 
-        <div className="grid gap-4">
-          {myInts.map(i => (
-            <div key={i._id} className="bg-gradient-to-r from-blue-50 to-blue-100 p-4 rounded-xl shadow-sm border border-blue-200 hover:shadow-md transition">
+        <div className="grid gap-5">
+          {myInts.length === 0 && (
+            <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-8 py-16 text-center shadow-sm">
+              <h3 className="text-2xl font-bold text-slate-900">No internship posts yet</h3>
+              <p className="mt-3 text-sm text-slate-500">
+                Publish your first opening to start collecting student applications.
+              </p>
+            </div>
+          )}
 
-              <div className="flex justify-between">
+          {myInts.map(i => (
+            <div key={i._id} className="rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-100 p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+
+              <div className="flex flex-col gap-5 lg:flex-row lg:justify-between">
 
                 <div>
-                  <h3 className="font-semibold text-gray-800">{i.title}</h3>
-                  <p className="text-blue-600">{i.companyName}</p>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <h3 className="text-2xl font-bold text-slate-900">{i.title}</h3>
+                    <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-blue-700">
+                      {i.field || "Internship"}
+                    </span>
+                  </div>
+                  <p className="mt-2 text-sm font-medium text-blue-600">{i.companyName}</p>
 
                   <p className="text-sm text-blue-800 flex gap-4 mt-1 items-center">
   <span>📍 {i.location}</span>
@@ -212,22 +293,25 @@ const CompanyInternships = ({ db, setDb, userId }) => {
 </p>
 
                   <div className="flex gap-2 mt-2 flex-wrap">
-  {i.skills?.map(s => (
-    <span className="bg-blue-200 text-blue-800 px-2 py-1 rounded-md text-xs font-medium">
+  {i.skills?.map((s, index) => (
+    <span key={`${s}-${index}`} className="bg-blue-200 text-blue-800 px-2 py-1 rounded-md text-xs font-medium">
       {s}
     </span>
   ))}
 </div>
                 </div>
 
-                <div className="flex gap-2 items-center">
+                <div className="flex gap-3 items-center">
                   <button onClick={() => {
                     setEditItem(i);
-                    setForm({ ...i, skills: i.skills.join(", ") });
+                    setForm({
+                      ...i,
+                      skills: Array.isArray(i.skills) ? i.skills.join(", ") : i.skills || "",
+                    });
                     setShowForm(true);
-                  }} className="px-3 py-1 text-xs bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition">Edit</button>
+                  }} className="rounded-xl bg-emerald-50 px-4 py-2 text-sm font-medium text-emerald-700 transition hover:bg-emerald-100">Edit</button>
 
-                  <button onClick={() => deleteItem(i._id)} className="px-3 py-1 text-xs bg-red-100 text-red-600 rounded-md hover:bg-red-200 transition">Delete</button>
+                  <button onClick={() => deleteItem(i._id)} className="rounded-xl bg-red-50 px-4 py-2 text-sm font-medium text-red-600 transition hover:bg-red-100">Delete</button>
                 </div>
 
               </div>
@@ -239,45 +323,112 @@ const CompanyInternships = ({ db, setDb, userId }) => {
 
       {/* MODAL */}
       {showForm && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 bg-slate-950/45 px-4 py-6">
 
-          <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-6 rounded-2xl w-[420px] shadow-xl border border-blue-100">
+          <div className="mx-auto flex min-h-full max-w-xl items-center justify-center">
+          <div className="w-full rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 via-sky-50 to-white p-5 shadow-2xl">
 
-            <form onSubmit={handleSubmit} className="space-y-3">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm uppercase tracking-[0.3em] text-blue-500">
+                  Internship Form
+                </p>
+                <h3 className="mt-2 text-xl font-bold text-slate-900">
+                  {editItem ? "Edit Internship" : "Create New Internship"}
+                </h3>
+              </div>
 
-              <input
-                placeholder="Title"
-                value={form.title}
-                onChange={e => {
-                  setForm({ ...form, title: e.target.value });
-                  validateField("title", e.target.value);
-                }}
-                className={`w-full p-2 border rounded ${errors.title && "border-red-500"}`}
-              />
-              {errors.title && <p className="text-red-500 text-xs">{errors.title}</p>}
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsFormMinimized((prev) => !prev)}
+                  className="rounded-xl bg-blue-100 px-3 py-2 text-sm text-blue-700 hover:bg-blue-200"
+                >
+                  {isFormMinimized ? "Expand" : "Minimize"}
+                </button>
 
-              <input
-                placeholder="Location"
-                value={form.location}
-                onChange={e => {
-                  setForm({ ...form, location: e.target.value });
-                  validateField("location", e.target.value);
-                }}
-                className={`w-full p-2 border rounded ${errors.location && "border-red-500"}`}
-              />
-              {errors.location && <p className="text-red-500 text-xs">{errors.location}</p>}
+                <button
+                  type="button"
+                  onClick={resetForm}
+                  className="rounded-xl bg-white/80 px-3 py-2 text-sm text-slate-600 hover:bg-white"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
 
-              <input
-                placeholder="Duration (3 months)"
-                value={form.duration}
-                onChange={e => {
-                  setForm({ ...form, duration: e.target.value });
-                  validateField("duration", e.target.value);
-                }}
-                className={`w-full p-2 border rounded ${errors.duration && "border-red-500"}`}
-              />
-              {errors.duration && <p className="text-red-500 text-xs">{errors.duration}</p>}
+            {!isFormMinimized && (
+            <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
 
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Internship Title
+                </label>
+                <input
+                  placeholder="Frontend Developer Intern"
+                  value={form.title}
+                  onChange={e => {
+                    setForm({ ...form, title: e.target.value });
+                    validateField("title", e.target.value);
+                  }}
+                  className={`w-full rounded-2xl border bg-slate-50 px-4 py-3 outline-none ${errors.title ? "border-red-400" : "border-slate-300"}`}
+                />
+                {errors.title && <p className="mt-1 text-xs text-red-500">{errors.title}</p>}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Location
+                </label>
+                <input
+                  placeholder="Colombo"
+                  value={form.location}
+                  onChange={e => {
+                    setForm({ ...form, location: e.target.value });
+                    validateField("location", e.target.value);
+                  }}
+                  className={`w-full rounded-2xl border bg-slate-50 px-4 py-3 outline-none ${errors.location ? "border-red-400" : "border-slate-300"}`}
+                />
+                {errors.location && <p className="mt-1 text-xs text-red-500">{errors.location}</p>}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Internship Category
+                </label>
+                <select
+                  value={form.field}
+                  onChange={(e) => setForm({ ...form, field: e.target.value })}
+                  className="w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 outline-none"
+                >
+                  {internshipCategories.map((category) => (
+                    <option key={category} value={category}>
+                      {category}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Duration
+                </label>
+                <input
+                  placeholder="3 months"
+                  value={form.duration}
+                  onChange={e => {
+                    setForm({ ...form, duration: e.target.value });
+                    validateField("duration", e.target.value);
+                  }}
+                  className={`w-full rounded-2xl border bg-slate-50 px-4 py-3 outline-none ${errors.duration ? "border-red-400" : "border-slate-300"}`}
+                />
+                {errors.duration && <p className="mt-1 text-xs text-red-500">{errors.duration}</p>}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Deadline
+                </label>
 <input
   type="date"
   value={form.deadline}
@@ -287,40 +438,68 @@ const CompanyInternships = ({ db, setDb, userId }) => {
     setForm({ ...form, deadline: value });
     validateField("deadline", value); // optional realtime validation
   }}
-  className={`w-full p-2 border rounded ${
+  className={`w-full rounded-2xl border bg-slate-50 px-4 py-3 outline-none ${
     errors.deadline ? "border-red-400" : "border-blue-200"
   }`}
 />
-              {errors.deadline && <p className="text-red-500 text-xs">{errors.deadline}</p>}
+                {errors.deadline && <p className="mt-1 text-xs text-red-500">{errors.deadline}</p>}
+              </div>
 
-              <input
-                placeholder="Skills (React, Node)"
-                value={form.skills}
-                onChange={e => {
-                  setForm({ ...form, skills: e.target.value });
-                  validateField("skills", e.target.value);
-                }}
-                className={`w-full p-2 border rounded ${errors.skills && "border-red-500"}`}
-              />
-              {errors.skills && <p className="text-red-500 text-xs">{errors.skills}</p>}
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Skills
+                </label>
+                <div className="flex flex-wrap gap-2">
+                  {skillOptions.map((skill) => {
+                    const active = selectedSkills.includes(skill);
+                    return (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() => toggleSkill(skill)}
+                        className={`rounded-full px-4 py-2 text-sm font-medium transition ${
+                          active
+                            ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+                            : "bg-blue-50 text-blue-700 hover:bg-blue-100"
+                        }`}
+                      >
+                        {skill}
+                      </button>
+                    );
+                  })}
+                </div>
+                {selectedSkills.length > 0 && (
+                  <p className="mt-3 text-sm text-slate-500">
+                    Selected: {selectedSkills.join(", ")}
+                  </p>
+                )}
+                {errors.skills && <p className="mt-1 text-xs text-red-500">{errors.skills}</p>}
+              </div>
 
-              <textarea
-                placeholder="Description"
-                value={form.description}
-                onChange={e => {
-                  setForm({ ...form, description: e.target.value });
-                  validateField("description", e.target.value);
-                }}
-                className={`w-full p-2 border rounded ${errors.description && "border-red-500"}`}
-              />
-              {errors.description && <p className="text-red-500 text-xs">{errors.description}</p>}
+              <div className="md:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-slate-700">
+                  Description
+                </label>
+                <textarea
+                  placeholder="Describe the role, responsibilities, and what kind of candidate you are looking for."
+                  value={form.description}
+                  onChange={e => {
+                    setForm({ ...form, description: e.target.value });
+                    validateField("description", e.target.value);
+                  }}
+                  className={`min-h-32 w-full rounded-2xl border bg-slate-50 px-4 py-3 outline-none ${errors.description ? "border-red-400" : "border-slate-300"}`}
+                />
+                {errors.description && <p className="mt-1 text-xs text-red-500">{errors.description}</p>}
+              </div>
 
-              <button className="w-full bg-gradient-to-r from-indigo-500 to-blue-500 hover:from-indigo-600 hover:to-blue-600 text-white py-2 rounded-lg font-medium shadow-md transition">
-                Save
-              </button>
+            <button className="md:col-span-2 mt-2 w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 py-3 font-medium text-white shadow-lg shadow-blue-200 transition hover:from-blue-700 hover:to-indigo-700">
+              {editItem ? "Update Internship" : "Save Internship"}
+            </button>
 
             </form>
+            )}
 
+          </div>
           </div>
 
         </div>

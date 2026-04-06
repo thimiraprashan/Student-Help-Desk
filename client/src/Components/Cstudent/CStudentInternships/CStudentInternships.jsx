@@ -282,6 +282,37 @@ const CStudentInternships = () => {
         <p>🎯 {companyProfile?.purpose}</p>
       </div>
 
+      <div className="mb-4">
+        <h4 className="font-semibold mb-2">Company Details</h4>
+
+        <div className="overflow-hidden rounded-xl border border-blue-100 bg-white">
+          <table className="w-full text-sm">
+            <thead className="bg-blue-50 text-blue-700">
+              <tr>
+                <th className="px-3 py-2 text-left">Title</th>
+                <th className="px-3 py-2 text-left">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {(companyProfile?.details || []).length > 0 ? (
+                companyProfile.details.map((detail, index) => (
+                  <tr key={`${detail.title}-${index}`} className="border-t border-blue-100">
+                    <td className="px-3 py-2 font-medium text-gray-700">{detail.title}</td>
+                    <td className="px-3 py-2 text-gray-600">{detail.value}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="2" className="px-3 py-4 text-center text-gray-400">
+                    No company details available.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <h4 className="font-semibold mb-2">Active Internships</h4>
 
       {internships

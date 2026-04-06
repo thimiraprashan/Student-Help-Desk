@@ -1,17 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
 import ChatItem from "./ChatItem";
 import Sidebar from "../../Common/Sidebar";
-import EmojiPicker from "emoji-picker-react";
 
-const CCStudentMessages = ({ db, setDb, userId }) => {
+const CCStudentMessages = ({ db, setDb, userId, companyId }) => {
 
   const [activeThread, setActiveThread] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
-  const [companies, setCompanies] = useState([]);
   const chatEndRef = useRef(null);
 
   const messages = db.messages || [];
+  const companies = (db.companies || []).map((company) => ({
+    ...company,
+    _id: String(company.id || company._id),
+    name: company.name || company.companyName || "Company",
+  }));
 
   // ✅ THREAD ID (SAFE 🔥)
 const makeThreadId = (id1, id2) => {
@@ -20,25 +23,14 @@ const makeThreadId = (id1, id2) => {
     .join("_");
 };
 
-  // 🔥 LOAD COMPANIES
-  useEffect(() => {
-    fetch("http://localhost:5000/company-profile")
-      .then(res => res.json())
-      .then(data => {
-        const list = (Array.isArray(data) ? data : [data]).filter(Boolean);
-        setCompanies(list);
-      })
-      .catch(err => console.log(err));
-  }, []);
-
   // 🔥 FIXED ACTIVE THREAD (IMPORTANT)
   useEffect(() => {
     if (companies.length && !activeThread) {
-      const firstId = String(companies[0]?._id || companies[0]?.id || "");
+      const firstId = String(companyId || companies[0]?._id || companies[0]?.id || "");
       if (!firstId) return;
       setActiveThread({ companyId: firstId });
     }
-  }, [companies]);
+  }, [companies, companyId, activeThread]);
 
   // 🔥 FETCH MESSAGES
   useEffect(() => {
@@ -229,12 +221,17 @@ setDb(prev => ({
                 </button>
 
                 {showEmoji && (
-                  <div className="absolute bottom-14 z-50">
-                    <EmojiPicker
-                      onEmojiClick={(e) =>
-                        setNewMessage((prev) => prev + e.emoji)
-                      }
-                    />
+                  <div className="absolute bottom-14 z-50 rounded-xl border bg-white p-3 shadow-lg">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setNewMessage((prev) => prev + "😊");
+                        setShowEmoji(false);
+                      }}
+                      className="text-2xl"
+                    >
+                      😊
+                    </button>
                   </div>
                 )}
 

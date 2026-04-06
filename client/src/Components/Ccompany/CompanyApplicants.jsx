@@ -1,19 +1,17 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../Common/SSidebar";
 
-const CompanyApplicants = () => {
-
+const CompanyApplicants = ({ userId }) => {
   const [applications, setApplications] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
-
-  const companyId = 1;
+  const [companyName, setCompanyName] = useState("Company");
 
   const loadApplications = () => {
     fetch("http://localhost:5000/applications")
       .then(res => res.json())
       .then(data => {
         const myApps = data.filter(
-          (a) => a.companyId && String(a.companyId) === String(companyId)
+          (a) => a.companyId && String(a.companyId) === String(userId)
         );
         setApplications(myApps);
       })
@@ -21,49 +19,80 @@ const CompanyApplicants = () => {
   };
 
   useEffect(() => {
+    const savedSession = localStorage.getItem("companySession");
+    if (savedSession) {
+      try {
+        const parsed = JSON.parse(savedSession);
+        if (parsed?.name) {
+          setCompanyName(parsed.name);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
     loadApplications();
-  }, []);
+  }, [userId]);
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-slate-100">
 
-      <Sidebar session={{ name: "Company" }} role="company" />
+      <Sidebar session={{ name: companyName }} role="company" />
 
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 lg:p-8">
 
-        <h2 className="text-2xl text-gray-800 mb-6">Applicants</h2>
+        <div className="mb-8 rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-100 p-6 shadow-sm">
+          <p className="text-sm uppercase tracking-[0.35em] text-blue-500">Applicant Pipeline</p>
+          <div className="mt-4 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div>
+              <h2 className="text-4xl font-bold text-slate-900">Applicants</h2>
+              <p className="mt-3 text-sm leading-7 text-slate-600">
+                Review student applications and update statuses from one clean list.
+              </p>
+            </div>
+            <div className="rounded-2xl border border-blue-200 bg-white/60 px-4 py-3 backdrop-blur-sm">
+              <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Total</p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">{applications.length}</p>
+            </div>
+          </div>
+        </div>
 
         {applications.length === 0 && (
-          <p className="text-gray-500">No applicants yet</p>
+          <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-8 py-16 text-center shadow-sm">
+            <h3 className="text-2xl font-bold text-slate-900">No applicants yet</h3>
+            <p className="mt-3 text-sm text-slate-500">
+              When students apply to this company, they will appear here.
+            </p>
+          </div>
         )}
 
         {applications.map((app) => (
           <div
             key={app._id}
-            className="bg-gradient-to-r from-blue-50 to-indigo-50 p-5 rounded-xl mb-4 flex justify-between items-center shadow-sm border border-blue-200 hover:shadow-md transition"
+            className="mb-4 rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-100 p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
           >
 
-            <div className="flex items-center gap-4">
+            <div className="flex items-start gap-4">
 
-              <div className="w-12 h-12 bg-purple-500 rounded-xl flex items-center justify-center text-white">
+              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-xl font-bold text-white">
                 {app.studentName?.[0]}
               </div>
 
               <div>
                 {/* 🔥 FIXED NAME */}
-                <h3 className="text-gray-900 font-semibold">
+                <h3 className="text-2xl font-bold text-slate-900">
                   {app.studentName}
                 </h3>
 
-                <p className="text-sm text-blue-700">
+                <p className="mt-2 text-sm text-slate-600">
                   {app.field} · Year {app.year} · GPA {app.gpa}
                 </p>
 
-                <p className="text-sm text-blue-700">
+                <p className="mt-2 text-sm font-medium text-blue-600">
                   Applied for: {app.title}
                 </p>
 
-                <p className="text-xs text-blue-600">
+                <p className="mt-2 text-xs uppercase tracking-[0.15em] text-slate-400">
                   {app.date}
                 </p>
               </div>
@@ -87,7 +116,7 @@ const CompanyApplicants = () => {
 
                   loadApplications();
                 }}
-                className="bg-blue-500 text-white px-2 py-1 rounded text-xs"
+                className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none"
               >
                 <option value="Pending">Pending</option>
                 <option value="Shortlisted">Shortlisted</option>
@@ -97,7 +126,7 @@ const CompanyApplicants = () => {
 
               <button
                 onClick={() => setSelectedStudent(app)}
-                className="border border-blue-200 px-3 py-1 rounded text-blue-700 text-sm hover:bg-blue-100 transition"
+                className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
               >
                 View Profile
               </button>
@@ -111,13 +140,14 @@ const CompanyApplicants = () => {
 
       {/* 🔥 MODAL */}
       {selectedStudent && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+        <div className="fixed inset-0 z-50 bg-slate-950/45 px-4 py-6">
 
-          <div className="bg-gradient-to-br from-white to-blue-50 w-[500px] rounded-2xl shadow-xl p-6 relative border border-blue-100">
+          <div className="mx-auto flex min-h-full max-w-2xl items-center justify-center">
+          <div className="w-full rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl">
 
             <button
               onClick={() => setSelectedStudent(null)}
-              className="absolute top-3 right-4 text-blue-400 hover:text-blue-600 text-xl"
+                className="rounded-xl bg-slate-100 px-3 py-2 text-sm text-slate-600 hover:bg-slate-200"
             >
               ✖
             </button>
@@ -186,6 +216,7 @@ const CompanyApplicants = () => {
               </a>
             )}
 
+          </div>
           </div>
 
         </div>

@@ -11,7 +11,10 @@ const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
   // 🔥 FUNCTION → FETCH FROM DATABASE
   const loadProfile = async () => {
     try {
-      const res = await fetch("http://localhost:5000/company-profile");
+      const storedSession = JSON.parse(localStorage.getItem("companySession") || "null");
+      const companyId = storedSession?.companyId;
+      const query = companyId ? `?companyId=${companyId}` : "";
+      const res = await fetch(`http://localhost:5000/company-profile${query}`);
       const data = await res.json();
 
       if (data?.name) {
@@ -115,7 +118,13 @@ const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
 
       {/* SIGN OUT */}
       <div className="p-4">
-        <button className="w-full border border-red-500 py-3 rounded-xl text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200">
+        <button
+          onClick={() => {
+            localStorage.removeItem("companySession");
+            navigate("/company/login");
+          }}
+          className="w-full border border-red-500 py-3 rounded-xl text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
+        >
   Sign Out
 </button>
       </div>
