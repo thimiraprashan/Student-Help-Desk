@@ -20,12 +20,16 @@ import CompanyLogin from "./Components/Ccompany/CompanyLogin";
 
 function App() {
   const [db, setDb] = useState(initialDb);
+  const [studentSession, setStudentSession] = useState(() => {
+    const saved = localStorage.getItem("studentProfile");
+    return saved ? JSON.parse(saved) : { userId: 1, name: "Student" };
+  });
   const [companySession, setCompanySession] = useState(() => {
     const saved = localStorage.getItem("companySession");
     return saved ? JSON.parse(saved) : null;
   });
 
-  const studentId = 1;
+  const studentId = Number(studentSession?.userId || 1);
   const companyId = companySession?.companyId || 101;
 
   const showToast = (msg) => alert(msg);
@@ -34,15 +38,15 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<CStudentDashboard />} />
-      <Route path="/student/dashboard" element={<CStudentDashboard />} />
-      <Route path="/student/internships" element={<CStudentInternships db={db} setDb={setDb} userId={studentId} />} />
-      <Route path="/student/applications" element={<CStudentApplications db={db} userId={studentId} />} />
-      <Route path="/student/cv" element={<StudentCV />} />
-      <Route path="/student/guidance" element={<Csguidence />} />
-      <Route path="/student/feedback" element={<Csguidence />} />
+      <Route path="/" element={<CStudentDashboard userId={studentId} studentSession={studentSession} />} />
+      <Route path="/student/dashboard" element={<CStudentDashboard userId={studentId} studentSession={studentSession} />} />
+      <Route path="/student/internships" element={<CStudentInternships db={db} setDb={setDb} userId={studentId} studentSession={studentSession} />} />
+      <Route path="/student/applications" element={<CStudentApplications db={db} userId={studentId} studentSession={studentSession} />} />
+      <Route path="/student/cv" element={<StudentCV userId={studentId} onStudentProfileChange={setStudentSession} studentSession={studentSession} />} />
+      <Route path="/student/guidance" element={<Csguidence userId={studentId} studentSession={studentSession} />} />
+      <Route path="/student/feedback" element={<Csguidence userId={studentId} studentSession={studentSession} />} />
       <Route path="/student/messages" element={<CCStudentMessages db={db} setDb={setDb} userId={studentId} />} />
-      <Route path="/student/notifications" element={<CStudentNotifications db={db} setDb={setDb} userId={studentId} showToast={showToast} />} />
+      <Route path="/student/notifications" element={<CStudentNotifications db={db} setDb={setDb} userId={studentId} showToast={showToast} studentSession={studentSession} />} />
 
       <Route path="/company/login" element={<CompanyLogin onLogin={setCompanySession} />} />
       <Route path="/company/dashboard" element={requireCompanyAuth(<CompanyDashboard db={db} userId={companyId} session={{ name: companySession?.name || "Company" }} />)} />

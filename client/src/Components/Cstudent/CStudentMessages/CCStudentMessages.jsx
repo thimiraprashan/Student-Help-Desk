@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useRef } from "react";
 import ChatItem from "./ChatItem";
 import Sidebar from "../../Common/Sidebar";
+import EmojiPicker from "emoji-picker-react";
 
 const CCStudentMessages = ({ db, setDb, userId, companyId }) => {
 
   const [activeThread, setActiveThread] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
+  const [companyProfiles, setCompanyProfiles] = useState({});
   const chatEndRef = useRef(null);
 
   const messages = db.messages || [];
-  const companies = (db.companies || []).map((company) => ({
-    ...company,
-    _id: String(company.id || company._id),
-    name: company.name || company.companyName || "Company",
-  }));
 
   // ✅ THREAD ID (SAFE 🔥)
 const makeThreadId = (id1, id2) => {
@@ -22,6 +19,45 @@ const makeThreadId = (id1, id2) => {
     .sort()
     .join("_");
 };
+
+  const companies = Array.from(
+    new Map(
+      [
+        ...(db.companies || []).map((company) => {
+          const resolvedId = String(company.id || company._id || "");
+          return [
+            resolvedId,
+            {
+              ...company,
+              _id: resolvedId,
+              name: company.name || company.companyName || "Company",
+            },
+          ];
+        }),
+        ...messages
+          .filter(
+            (message) =>
+              String(message.fromId) === String(userId) ||
+              String(message.toId) === String(userId)
+          )
+          .map((message) => {
+            const otherCompanyId =
+              String(message.fromId) === String(userId)
+                ? String(message.toId)
+                : String(message.fromId);
+
+            return [
+              otherCompanyId,
+              {
+                _id: otherCompanyId,
+                id: otherCompanyId,
+                name: companyProfiles[otherCompanyId]?.name || `Company ${otherCompanyId}`,
+              },
+            ];
+          }),
+      ].filter(([resolvedId]) => resolvedId)
+    ).values()
+  );
 
   // 🔥 FIXED ACTIVE THREAD (IMPORTANT)
   useEffect(() => {
@@ -31,6 +67,27 @@ const makeThreadId = (id1, id2) => {
       setActiveThread({ companyId: firstId });
     }
   }, [companies, companyId, activeThread]);
+
+  useEffect(() => {
+    if (!companies.length) return;
+
+    companies.forEach((company) => {
+      const resolvedId = String(company?._id || company?.id || "");
+      if (!resolvedId || companyProfiles[resolvedId]?.name) return;
+
+      fetch(`http://localhost:5000/company-profile?companyId=${resolvedId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data?.name) {
+            setCompanyProfiles((prev) => ({
+              ...prev,
+              [resolvedId]: data,
+            }));
+          }
+        })
+        .catch(() => {});
+    });
+  }, [companies, companyProfiles]);
 
   // 🔥 FETCH MESSAGES
   useEffect(() => {
@@ -145,7 +202,11 @@ setDb(prev => ({
             const companyId = String(company._id || company.id || "");
             if (!companyId) return null;
 
-            const companyName = company.name || company.companyName || "Company";
+            const companyName =
+              companyProfiles[companyId]?.name ||
+              company.name ||
+              company.companyName ||
+              `Company ${companyId}`;
             const thread = getThread(String(companyId), String(userId));
             const last = thread[thread.length - 1] || {};
 
@@ -221,17 +282,15 @@ setDb(prev => ({
                 </button>
 
                 {showEmoji && (
-                  <div className="absolute bottom-14 z-50 rounded-xl border bg-white p-3 shadow-lg">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setNewMessage((prev) => prev + "😊");
+                  <div className="absolute bottom-14 left-0 z-50 rounded-xl border bg-white shadow-lg">
+                    <EmojiPicker
+                      onEmojiClick={(emojiData) => {
+                        setNewMessage((prev) => prev + emojiData.emoji);
                         setShowEmoji(false);
                       }}
-                      className="text-2xl"
-                    >
-                      😊
-                    </button>
+                      width={320}
+                      height={360}
+                    />
                   </div>
                 )}
 
