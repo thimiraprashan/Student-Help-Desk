@@ -1,3 +1,5 @@
+import Message from "../Model/CSMessageModel.js";
+
 export const sendMessage = async (req, res) => {
   try {
     const { threadId, fromId, toId, content, file } = req.body;

@@ -22,6 +22,11 @@ const makeThreadId = (id1, id2) => {
     .join("_");
 };
 
+  const getThread = (allMessages, companyId, studentId) => {
+    const threadId = makeThreadId(companyId, studentId);
+    return allMessages.filter((message) => message.threadId === threadId);
+  };
+
   // 🔥 LOAD STUDENT PROFILE NAMES
   useEffect(() => {
     if (!db.students?.length) return;
@@ -113,10 +118,10 @@ setDb(prev => ({
 
     const savedMsg = await res.json();
 
-    setDb({
-      ...db,
-      messages: [...messages, savedMsg],
-    });
+    setDb((prev) => ({
+      ...prev,
+      messages: [...(prev.messages || []), savedMsg],
+    }));
 
     setNewMessage("");
   };
@@ -145,10 +150,10 @@ setDb(prev => ({
 
     const savedMsg = await res.json();
 
-    setDb({
-      ...db,
-      messages: [...messages, savedMsg],
-    });
+    setDb((prev) => ({
+      ...prev,
+      messages: [...(prev.messages || []), savedMsg],
+    }));
   };
 
   // ✅ AUTO SCROLL
@@ -183,7 +188,7 @@ setDb(prev => ({
   student={{
     ...s,
     id: studentId,
-    name: studentProfiles[s.id] || s.name
+    name: studentProfiles[studentId] || s.name
   }}
   lastMessage={last}
   unread={0}

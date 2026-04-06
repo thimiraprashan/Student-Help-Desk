@@ -25,7 +25,7 @@ const makeThreadId = (id1, id2) => {
     fetch("http://localhost:5000/company-profile")
       .then(res => res.json())
       .then(data => {
-        const list = Array.isArray(data) ? data : [data];
+        const list = (Array.isArray(data) ? data : [data]).filter(Boolean);
         setCompanies(list);
       })
       .catch(err => console.log(err));
@@ -34,7 +34,8 @@ const makeThreadId = (id1, id2) => {
   // 🔥 FIXED ACTIVE THREAD (IMPORTANT)
   useEffect(() => {
     if (companies.length && !activeThread) {
-      const firstId = String(companies[0]._id); // ✅ FIXED
+      const firstId = String(companies[0]?._id || companies[0]?.id || "");
+      if (!firstId) return;
       setActiveThread({ companyId: firstId });
     }
   }, [companies]);
@@ -49,7 +50,7 @@ if (!activeThread || !userId) return;
 setDb(prev => ({
   ...prev,
   messages: [
-    ...prev.messages.filter(
+    ...(prev.messages || []).filter(
       m => m.threadId !== makeThreadId(userId, activeThread.companyId)
     ),
     ...(data || [])
@@ -91,7 +92,7 @@ setDb(prev => ({
 
     setDb(prev => ({
       ...prev,
-      messages: [...prev.messages, savedMsg],
+      messages: [...(prev.messages || []), savedMsg],
     }));
 
     setNewMessage("");
@@ -123,7 +124,7 @@ setDb(prev => ({
 
     setDb(prev => ({
       ...prev,
-      messages: [...prev.messages, savedMsg],
+      messages: [...(prev.messages || []), savedMsg],
     }));
   };
 
@@ -147,10 +148,13 @@ setDb(prev => ({
           </h2>
 
           {companies.map((company) => {
+            if (!company) return null;
 
-            const companyId = String(company._id); // ✅ FIXED
-            const companyName = company.name || company.companyName;
-const thread = getThread(String(companyId), String(userId));
+            const companyId = String(company._id || company.id || "");
+            if (!companyId) return null;
+
+            const companyName = company.name || company.companyName || "Company";
+            const thread = getThread(String(companyId), String(userId));
             const last = thread[thread.length - 1] || {};
 
             const unread = messages.filter(
