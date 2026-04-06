@@ -27,6 +27,10 @@ const EditCourse = () => {
   const [chapters, setChapters] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [currentChapterId, setCurrentChapterId] = useState(null);
+  
+  const [showChapterPopup, setShowChapterPopup] = useState(false);
+  const [chapterTitleInput, setChapterTitleInput] = useState('');
+  const [errors, setErrors] = useState({});
   const [lectureDetails, setLectureDetails] = useState({
     lectureTitle: '',
     lectureDuration: '',
@@ -36,17 +40,7 @@ const EditCourse = () => {
 
   const handleChapter = (action, chapterId) => {
     if (action === 'add') {
-      const title = prompt('Enter Chapter Name:');
-      if (title) {
-        const newChapter = {
-          chapterId: crypto.randomUUID(),
-          chapterTitle: title,
-          chapterContent: [],
-          collapsed: false,
-          chapterOrder: chapters.length > 0 ? chapters.slice(-1)[0].chapterOrder + 1 : 1,
-        };
-        setChapters([...chapters, newChapter]);
-      }
+      setShowChapterPopup(true);
     } else if (action === 'remove') {
       setChapters(chapters.filter((chapter) => chapter.chapterId !== chapterId));
     } else if (action === 'toggle') {
@@ -56,6 +50,21 @@ const EditCourse = () => {
         )
       );
     }
+  };
+
+  const addChapter = () => {
+      if (chapterTitleInput.trim()) {
+        const newChapter = {
+          chapterId: crypto.randomUUID(),
+          chapterTitle: chapterTitleInput.trim(),
+          chapterContent: [],
+          collapsed: false,
+          chapterOrder: chapters.length > 0 ? chapters.slice(-1)[0].chapterOrder + 1 : 1,
+        };
+        setChapters([...chapters, newChapter]);
+        setShowChapterPopup(false);
+        setChapterTitleInput('');
+      }
   };
 
   const handleLecture = (action, chapterId, lectureIndex) => {
@@ -101,6 +110,18 @@ const EditCourse = () => {
     try {
 
       e.preventDefault();
+
+      let newErrors = {};
+      if (!courseTitle.trim()) newErrors.courseTitle = true;
+      if (!educatorName.trim()) newErrors.educatorName = true;
+      const descText = quillRef.current.getText().trim();
+      if (!descText) newErrors.courseDescription = true;
+
+      setErrors(newErrors);
+
+      if (Object.keys(newErrors).length > 0) {
+        return; 
+      }
 
       if (!image) {
         toast.error('Thumbnail Not Selected')
@@ -185,17 +206,22 @@ const EditCourse = () => {
       <form onSubmit={handleSubmit} className='flex flex-col gap-4 max-w-md w-full text-gray-500'>
         <div className='flex flex-col gap-1'>
           <p>Course Title</p>
-          <input onChange={e => setCourseTitle(e.target.value)} value={courseTitle} type="text" placeholder='Type here' className='outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500' required />
+          <input onChange={e => {setCourseTitle(e.target.value); if(errors.courseTitle) setErrors({...errors, courseTitle: false})}} value={courseTitle} type="text" placeholder={errors.courseTitle ? "Please fill Course Title" : ''} className={`outline-none md:py-2.5 py-2 px-3 rounded border transition ${errors.courseTitle ? 'border-red-500 placeholder-red-400' : 'border-gray-500'}`} />
         </div>
 
         <div className='flex flex-col gap-1'>
           <p>Course By (Instructor Name)</p>
-          <input onChange={e => setEducatorName(e.target.value)} value={educatorName} type="text" placeholder='Type name here' className='outline-none md:py-2.5 py-2 px-3 rounded border border-gray-500' required />
+          <input onChange={e => {setEducatorName(e.target.value); if(errors.educatorName) setErrors({...errors, educatorName: false})}} value={educatorName} type="text" placeholder={errors.educatorName ? "Please fill Instructor Name" : ''} className={`outline-none md:py-2.5 py-2 px-3 rounded border transition ${errors.educatorName ? 'border-red-500 placeholder-red-400' : 'border-gray-500'}`} />
         </div>
 
-        <div className='flex flex-col gap-1'>
+        <div className='flex flex-col gap-1 relative'>
           <p>Course Description</p>
-          <div ref={editorRef}></div>
+          <div onClick={() => {if(errors.courseDescription) setErrors({...errors, courseDescription: false})}} className={`rounded transition-all ${errors.courseDescription ? 'border border-red-500 shadow-[0_0_0_2px_rgba(248,113,113,0.1)]' : 'border border-transparent'}`}>
+             {errors.courseDescription && quillRef?.current?.getText().trim()?.length === 0 && (
+                <div className="absolute top-[40px] left-4 text-red-500 font-medium pointer-events-none z-10 text-sm">Please fill Course Description</div>
+             )}
+             <div ref={editorRef} className='bg-white rounded'></div>
+          </div>
         </div>
 
         <div className='flex items-center justify-between flex-wrap gap-4'>
@@ -268,6 +294,30 @@ const EditCourse = () => {
           <div className="flex justify-center items-center bg-blue-100 p-2 rounded-lg cursor-pointer" onClick={() => handleChapter('add')}>
             + Add Chapter
           </div>
+
+          {/* Add Chapter Modal */}
+          {showChapterPopup && (
+            <div className="fixed inset-0 flex items-center justify-center bg-gray-900/50 backdrop-blur-sm z-50 p-4 transition-all">
+              <div className="bg-white p-6 rounded-2xl shadow-xl w-full max-w-sm relative border border-gray-100/50">
+                <button type="button" onClick={() => setShowChapterPopup(false)} className="absolute top-4 right-4 p-2 rounded-full hover:bg-gray-100 transition text-gray-500 bg-gray-50">
+                  <img src={assets.cross_icon} className='w-3 opacity-60' alt="Close" />
+                </button>
+                
+                <h2 className="text-lg font-bold text-gray-800 mb-5 flex items-center gap-2">
+                   <span className="bg-blue-50 text-blue-600 p-1.5 rounded-lg text-sm leading-none">📁</span> Add New Chapter
+                </h2>
+                
+                <div className="mb-5">
+                  <p className="block text-xs font-semibold text-gray-600 uppercase tracking-widest mb-1.5">Chapter Title</p>
+                  <input type="text" className="w-full border border-gray-200 rounded-xl py-2.5 px-4 focus:outline-none focus:border-blue-400 focus:ring-4 focus:ring-blue-100/50 transition shadow-sm text-sm text-gray-800 placeholder:text-gray-400" placeholder="e.g. Introduction to React" value={chapterTitleInput} onChange={(e) => setChapterTitleInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addChapter()} autoFocus />
+                </div>
+                
+                <button type='button' disabled={!chapterTitleInput.trim()} className="w-full bg-blue-600 text-white text-sm font-bold tracking-wide py-3 rounded-xl hover:bg-blue-700 transition shadow-md hover:shadow-blue-600/20 disabled:bg-blue-300 disabled:shadow-none disabled:cursor-not-allowed" onClick={addChapter}>
+                  ADD CHAPTER
+                </button>
+              </div>
+            </div>
+          )}
 
           {showPopup && (
             <div className="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">

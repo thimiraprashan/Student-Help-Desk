@@ -10,6 +10,26 @@ import Rating from '../../components/student/Rating';
 import Footer from '../../components/student/Footer';
 import Loading from '../../components/student/Loading';
 
+const calculateLectureExpiry = (lecture, purchaseData) => {
+  if (!purchaseData || !lecture.lectureAccessDuration) return null;
+  const enrollDate = new Date(purchaseData.createdAt);
+  let expiryDate = new Date(enrollDate);
+
+  const value = lecture.lectureAccessDuration;
+  const unit = lecture.lectureAccessUnit || 'Days';
+
+  if (unit === 'Minutes') expiryDate.setMinutes(expiryDate.getMinutes() + value);
+  else if (unit === 'Hours') expiryDate.setHours(expiryDate.getHours() + value);
+  else if (unit === 'Days') expiryDate.setDate(expiryDate.getDate() + value);
+  else if (unit === 'Months') expiryDate.setMonth(expiryDate.getMonth() + value);
+
+  const now = new Date();
+  const diffMs = expiryDate - now;
+
+  if (diffMs <= 0) return { expired: true, text: 'Access expired' };
+  return { expired: false, text: `Access expires in ${humanizeDuration(diffMs, { round: true, largest: 3, units: ['mo', 'w', 'd', 'h', 'm'] })}` };
+};
+
 const Player = ({ }) => {
 
   const { enrolledCourses, backendUrl, getToken, calculateChapterTime, userData, fetchUserEnrolledCourses } = useContext(AppContext)
@@ -17,6 +37,7 @@ const Player = ({ }) => {
   const { courseId } = useParams()
   const [courseData, setCourseData] = useState(null)
   const [progressData, setProgressData] = useState(null)
+  const [purchaseData, setPurchaseData] = useState(null)
   const [openSections, setOpenSections] = useState({});
   const [playerData, setPlayerData] = useState(null);
   const [initialRating, setInitialRating] = useState(0);
@@ -118,9 +139,22 @@ const Player = ({ }) => {
     }
   }
 
+  const fetchPurchaseData = async () => {
+    try {
+      const token = await getToken();
+      const { data } = await axios.post(backendUrl + '/api/user/user-purchase', { courseId }, { headers: { Authorization: `Bearer ${token}` }})
+      if(data.success) {
+        setPurchaseData(data.purchaseData)
+      }
+    } catch(err) {
+      console.log(err)
+    }
+  }
+
   useEffect(() => {
 
     getCourseProgress()
+    fetchPurchaseData()
 
   }, [])
 
@@ -146,18 +180,44 @@ const Player = ({ }) => {
 
               <div className={`overflow-hidden transition-all duration-300 ${openSections[index] ? "max-h-96" : "max-h-0"}`} >
                 <ul className="list-disc md:pl-10 pl-4 pr-4 py-2 text-gray-600 border-t border-gray-300">
-                  {chapter.chapterContent.map((lecture, i) => (
-                    <li key={i} className="flex items-start gap-2 py-1">
-                      <img src={progressData && progressData.lectureCompleted.includes(lecture.lectureId) ? assets.blue_tick_icon : assets.play_icon} alt="bullet icon" className="w-4 h-4 mt-1" />
-                      <div className="flex items-center justify-between w-full text-gray-800 text-xs md:text-default">
-                        <p>{lecture.lectureTitle}</p>
-                        <div className='flex gap-2'>
-                          {lecture.lectureUrl && <p onClick={() => setPlayerData({ ...lecture, chapter: index + 1, lecture: i + 1 })} className='text-blue-500 cursor-pointer'>Watch</p>}
-                          <p>{humanizeDuration(lecture.lectureDuration * 60 * 1000, { units: ['h', 'm'] })}</p>
-                        </div>
-                      </div>
-                    </li>
-                  ))}
+                    {chapter.chapterContent.map((lecture, i) => {
+                      const expiryData = calculateLectureExpiry(lecture, purchaseData);
+                      return (
+                        <li key={i} className="flex flex-col gap-1 py-3 px-3 border border-gray-200 rounded-lg bg-gray-50 mb-3 hover:bg-gray-100 transition duration-200 shadow-sm">
+                          <div className="flex items-center gap-2">
+                             <img src={progressData && progressData.lectureCompleted.includes(lecture.lectureId) ? assets.blue_tick_icon : assets.play_icon} alt="bullet icon" className="w-4 h-4" />
+                             <p className="font-semibold text-gray-800 text-sm md:text-base">{i + 1}. {lecture.lectureTitle}</p>
+                          </div>
+                          
+                          <div className="pl-6 flex flex-col gap-2 mt-1">
+                             {lecture.lectureAccessDuration && purchaseData && (
+                                <p className={`text-xs md:text-sm flex items-center gap-1 ${expiryData?.expired ? 'text-red-500' : 'text-green-600 font-medium'}`}>
+                                   <img src={assets.time_left_clock_icon} className="w-3" alt="time left icon"/>
+                                   {expiryData?.text}
+                                </p>
+                             )}
+                             
+                             <div className="flex sm:flex-row flex-col items-start sm:items-center justify-between w-full pt-1 gap-2 sm:gap-4">
+                                <div className="flex items-center gap-3">
+                                  {lecture.lectureUrl && (
+                                     expiryData?.expired ? (
+                                         <p className='text-gray-400 text-sm font-medium'>🔒 Expired</p>
+                                     ) : (
+                                         <button onClick={() => setPlayerData({ ...lecture, chapter: index + 1, lecture: i + 1 })} className='text-sm bg-blue-600 text-white px-4 py-1.5 rounded-md hover:bg-blue-700 transition font-medium shadow-sm'>
+                                              Watch
+                                         </button>
+                                     )
+                                  )}
+                                </div>
+                                <p className="text-gray-500 text-xs flex flex-row items-center gap-1">
+                                   <img src={assets.time_clock_icon} className="w-3" alt="duration" />
+                                   {humanizeDuration(lecture.lectureDuration * 60 * 1000, { units: ['h', 'm'] })}
+                                </p>
+                             </div>
+                          </div>
+                        </li>
+                      )
+                    })}
                 </ul>
               </div>
             </div>
@@ -176,7 +236,7 @@ const Player = ({ }) => {
           playerData
             ? (
               <div>
-                <YouTube iframeClassName='w-full aspect-video' videoId={playerData.lectureUrl.split('/').pop()} />
+                <YouTube iframeClassName='w-full aspect-video' videoId={playerData.lectureUrl.split('/').pop().split('?v=').pop().split('?')[0].split('&')[0]} />
                 <div className='flex justify-between items-center mt-1'>
                   <p className='text-xl '>{playerData.chapter}.{playerData.lecture} {playerData.lectureTitle}</p>
                   <button onClick={() => markLectureAsCompleted(playerData.lectureId)} className='text-blue-600'>{progressData && progressData.lectureCompleted.includes(playerData.lectureId) ? 'Completed' : 'Mark Complete'}</button>

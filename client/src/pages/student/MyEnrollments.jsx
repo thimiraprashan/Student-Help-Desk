@@ -3,6 +3,40 @@ import { AppContext } from '../../context/AppContext'
 import axios from 'axios'
 import { Line } from 'rc-progress';
 import Footer from '../../components/student/Footer';
+import humanizeDuration from 'humanize-duration';
+
+const calculateCourseExpiry = (course, purchaseData) => {
+    if (!course.courseContent || !purchaseData) return { expired: false, text: 'Lifetime Access' };
+    const baseDate = new Date(purchaseData.createdAt);
+    let maxExpiryDate = new Date(baseDate.getTime());
+    let hasExpiry = false;
+
+    course.courseContent.forEach(chapter => {
+        chapter.chapterContent.forEach(lecture => {
+            if (lecture.lectureAccessDuration) {
+                hasExpiry = true;
+                const value = lecture.lectureAccessDuration;
+                const unit = lecture.lectureAccessUnit || 'Days';
+
+                let exp = new Date(baseDate.getTime());
+                if (unit === 'Minutes') exp.setMinutes(exp.getMinutes() + value);
+                else if (unit === 'Hours') exp.setHours(exp.getHours() + value);
+                else if (unit === 'Days') exp.setDate(exp.getDate() + value);
+                else if (unit === 'Months') exp.setMonth(exp.getMonth() + value);
+
+                if (exp > maxExpiryDate) maxExpiryDate = exp;
+            }
+        });
+    });
+
+    if (!hasExpiry) return { expired: false, text: 'Lifetime Access' };
+
+    const now = new Date();
+    const diffMs = maxExpiryDate - now;
+
+    if (diffMs <= 0) return { expired: true, text: 'Expired' };
+    return { expired: false, text: humanizeDuration(diffMs, { round: true, largest: 3, units: ['mo', 'w', 'd', 'h', 'm'] }) };
+};
 
 const MyEnrollments = () => {
 
@@ -27,7 +61,7 @@ const MyEnrollments = () => {
                     let totalLectures = calculateNoOfLectures(course);
 
                     const lectureCompleted = data.progressData ? data.progressData.lectureCompleted.length : 0;
-                    return { totalLectures, lectureCompleted };
+                    return { totalLectures, lectureCompleted, purchaseData: data.purchaseData };
                 })
             );
 
@@ -64,6 +98,7 @@ const MyEnrollments = () => {
                             <th className="px-4 py-3 font-semibold truncate">Course</th>
                             <th className="px-4 py-3 font-semibold truncate max-sm:hidden">Duration</th>
                             <th className="px-4 py-3 font-semibold truncate max-sm:hidden">Completed</th>
+                            <th className="px-4 py-3 font-semibold truncate max-sm:hidden">Remaining Duration</th>
                             <th className="px-4 py-3 font-semibold truncate">Status</th>
                         </tr>
                     </thead>
@@ -82,8 +117,11 @@ const MyEnrollments = () => {
                                     {progressArray[index] && `${progressArray[index].lectureCompleted} / ${progressArray[index].totalLectures}`}
                                     <span className='text-xs ml-2'>Lectures</span>
                                 </td>
+                                <td className="px-4 py-3 max-sm:hidden text-red-500 font-medium">
+                                    {calculateCourseExpiry(course, progressArray[index]?.purchaseData)?.text}
+                                </td>
                                 <td className="px-4 py-3 max-sm:text-right">
-                                    <button onClick={() => navigate('/player/' + course._id)} className='px-3 sm:px-5 py-1.5 sm:py-2 bg-blue-600 max-sm:text-xs text-white'>
+                                    <button onClick={() => navigate('/player/' + course._id)} className='px-3 sm:px-5 py-1.5 sm:py-2 bg-blue-600 max-sm:text-xs text-white disabled:bg-gray-400 disabled:cursor-not-allowed' disabled={calculateCourseExpiry(course, progressArray[index]?.purchaseData)?.expired}>
                                         {progressArray[index] && progressArray[index].lectureCompleted / progressArray[index].totalLectures === 1 ? 'Completed' : 'On Going'}
                                     </button>
                                 </td>

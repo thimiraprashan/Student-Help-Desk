@@ -6,7 +6,9 @@ const lectureSchema = new mongoose.Schema({
     lectureDuration: { type: Number, required: true },
     lectureUrl: { type: String, required: true },
     isPreviewFree: { type: Boolean, required: true },
-    lectureOrder: { type: Number, required: true }
+    lectureOrder: { type: Number, required: true },
+    lectureAccessDuration: { type: Number, default: 0 },
+    lectureAccessUnit: { type: String, enum: ['Minutes', 'Hours', 'Days', 'Months'], default: 'Days' }
 }, { _id: false }); 
 
 const chapterSchema = new mongoose.Schema({

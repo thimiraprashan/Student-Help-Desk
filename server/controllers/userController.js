@@ -68,6 +68,20 @@ export const purchaseCourse = async (req, res) => {
 
         const newPurchase = await Purchase.create(purchaseData)
 
+        if (Math.floor(newPurchase.amount) === 0) {
+            newPurchase.status = 'completed';
+            await newPurchase.save();
+            
+            // Immediately add to user and course
+            courseData.enrolledStudents.push(userData._id);
+            await courseData.save();
+
+            userData.enrolledCourses.push(courseData._id);
+            await userData.save();
+            
+            return res.json({ success: true, message: 'Enrolled in free course successfully!', session_url: null, freeEnrollment: true });
+        }
+
         // Stripe Gateway Initialize
         const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
 
@@ -86,7 +100,7 @@ export const purchaseCourse = async (req, res) => {
         }]
 
         const session = await stripeInstance.checkout.sessions.create({
-            success_url: `${origin}/loading/my-enrollments`,
+            success_url: `${origin}/loading/my-enrollments?session_id={CHECKOUT_SESSION_ID}`,
             cancel_url: `${origin}/`,
             line_items: line_items,
             mode: 'payment',
@@ -98,6 +112,50 @@ export const purchaseCourse = async (req, res) => {
         res.json({ success: true, session_url: session.url });
 
 
+    } catch (error) {
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// Get Single Course Purchase Data
+export const getUserPurchase = async (req, res) => {
+    try {
+        const userId = req.auth.userId
+        const { courseId } = req.body
+        const purchaseData = await Purchase.findOne({ courseId, userId })
+        res.json({ success: true, purchaseData })
+    } catch (error) {
+        res.json({ success: false, message: error.message })
+    }
+}
+
+// Verify Stripe Manual Verification
+export const verifyStripePurchase = async (req, res) => {
+    try {
+        const { sessionId } = req.body;
+        const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY);
+        const session = await stripeInstance.checkout.sessions.retrieve(sessionId);
+
+        if (session.payment_status === 'paid') {
+            const { purchaseId } = session.metadata;
+            const purchaseData = await Purchase.findById(purchaseId);
+            
+            if (purchaseData.status === 'pending') {
+                const userData = await User.findById(purchaseData.userId);
+                const courseData = await Course.findById(purchaseData.courseId.toString());
+
+                courseData.enrolledStudents.push(userData._id);
+                await courseData.save();
+
+                userData.enrolledCourses.push(courseData._id);
+                await userData.save();
+
+                purchaseData.status = 'completed';
+                await purchaseData.save();
+            }
+            return res.json({ success: true, message: 'Payment verified sync' });
+        }
+        res.json({ success: false, message: 'Payment failed sync' });
     } catch (error) {
         res.json({ success: false, message: error.message });
     }
@@ -169,8 +227,9 @@ export const getUserCourseProgress = async (req, res) => {
         const { courseId } = req.body
 
         const progressData = await CourseProgress.findOne({ userId, courseId })
+        const purchaseData = await Purchase.findOne({ userId, courseId, status: 'completed' })
 
-        res.json({ success: true, progressData })
+        res.json({ success: true, progressData, purchaseData })
 
     } catch (error) {
         res.json({ success: false, message: error.message })
