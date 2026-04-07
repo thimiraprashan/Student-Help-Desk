@@ -137,7 +137,22 @@ const AddCourse = () => {
       }
 
       if (!image) {
-        toast.error('Thumbnail Not Selected')
+        return toast.error('Thumbnail Not Selected')
+      }
+
+      if (chapters.length === 0) {
+        return toast.error('Please add at least one chapter.')
+      }
+
+      let hasEmptyChapter = false;
+      chapters.forEach(chapter => {
+        if (chapter.chapterContent.length === 0) {
+          hasEmptyChapter = true;
+        }
+      });
+
+      if (hasEmptyChapter) {
+        return toast.error('Each chapter must have at least one lecture.')
       }
 
       const finalizedChapters = chapters.map(chapter => ({

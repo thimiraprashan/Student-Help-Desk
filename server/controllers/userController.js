@@ -73,11 +73,15 @@ export const purchaseCourse = async (req, res) => {
             await newPurchase.save();
             
             // Immediately add to user and course
-            courseData.enrolledStudents.push(userData._id);
-            await courseData.save();
+            if (!courseData.enrolledStudents.some(id => id.toString() === userData._id.toString())) {
+                courseData.enrolledStudents.push(userData._id);
+                await courseData.save();
+            }
 
-            userData.enrolledCourses.push(courseData._id);
-            await userData.save();
+            if (!userData.enrolledCourses.some(id => id.toString() === courseData._id.toString())) {
+                userData.enrolledCourses.push(courseData._id);
+                await userData.save();
+            }
             
             return res.json({ success: true, message: 'Enrolled in free course successfully!', session_url: null, freeEnrollment: true });
         }
@@ -122,7 +126,7 @@ export const getUserPurchase = async (req, res) => {
     try {
         const userId = req.auth.userId
         const { courseId } = req.body
-        const purchaseData = await Purchase.findOne({ courseId, userId })
+        const purchaseData = await Purchase.findOne({ courseId, userId }).sort({ createdAt: -1 })
         res.json({ success: true, purchaseData })
     } catch (error) {
         res.json({ success: false, message: error.message })
@@ -144,11 +148,15 @@ export const verifyStripePurchase = async (req, res) => {
                 const userData = await User.findById(purchaseData.userId);
                 const courseData = await Course.findById(purchaseData.courseId.toString());
 
-                courseData.enrolledStudents.push(userData._id);
-                await courseData.save();
+                if (!courseData.enrolledStudents.some(id => id.toString() === userData._id.toString())) {
+                    courseData.enrolledStudents.push(userData._id);
+                    await courseData.save();
+                }
 
-                userData.enrolledCourses.push(courseData._id);
-                await userData.save();
+                if (!userData.enrolledCourses.some(id => id.toString() === courseData._id.toString())) {
+                    userData.enrolledCourses.push(courseData._id);
+                    await userData.save();
+                }
 
                 purchaseData.status = 'completed';
                 await purchaseData.save();
@@ -171,7 +179,17 @@ export const userEnrolledCourses = async (req, res) => {
         const userData = await User.findById(userId)
             .populate('enrolledCourses')
 
-        res.json({ success: true, enrolledCourses: userData.enrolledCourses })
+        // De-duplicate in case of corrupted array
+        const uniqueCourses = [];
+        const seenIds = new Set();
+        for (const course of userData.enrolledCourses) {
+            if (course && !seenIds.has(course._id.toString())) {
+                uniqueCourses.push(course);
+                seenIds.add(course._id.toString());
+            }
+        }
+
+        res.json({ success: true, enrolledCourses: uniqueCourses })
 
     } catch (error) {
         res.json({ success: false, message: error.message })
@@ -227,7 +245,7 @@ export const getUserCourseProgress = async (req, res) => {
         const { courseId } = req.body
 
         const progressData = await CourseProgress.findOne({ userId, courseId })
-        const purchaseData = await Purchase.findOne({ userId, courseId, status: 'completed' })
+        const purchaseData = await Purchase.findOne({ userId, courseId, status: 'completed' }).sort({ createdAt: -1 })
 
         res.json({ success: true, progressData, purchaseData })
 
