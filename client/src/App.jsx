@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Navigate, Routes, Route } from "react-router-dom";
 import initialDb from "./data";
 
+import CSlogin from "./Components/Cstudent/CSlogin";
 import CStudentDashboard from "./Components/Cstudent/CStudentDashboard/CStudentDashboard";
 import CStudentInternships from "./Components/Cstudent/CStudentInternships/CStudentInternships";
 import CStudentApplications from "./Components/Cstudent/CStudentApplications/CStudentApplications";
@@ -17,12 +18,13 @@ import CompanyNotifications from "./Components/Ccompany/CompanyNotifications";
 import CCompanyMessages from "./Components/Ccompany/CCompanyMessages";
 import CompanyProfile from "./Components/Ccompany/CCompanyProfile";
 import CompanyLogin from "./Components/Ccompany/CompanyLogin";
+import CSregister from "./Components/Cstudent/CSregister";
 
 function App() {
   const [db, setDb] = useState(initialDb);
   const [studentSession, setStudentSession] = useState(() => {
     const saved = localStorage.getItem("studentProfile");
-    return saved ? JSON.parse(saved) : { userId: 1, name: "Student" };
+    return saved ? JSON.parse(saved) : null;
   });
   const [companySession, setCompanySession] = useState(() => {
     const saved = localStorage.getItem("companySession");
@@ -38,6 +40,8 @@ function App() {
 
   return (
     <Routes>
+      <Route path="/login" element={<CSlogin onLogin={setStudentSession} />} />
+
       <Route path="/" element={<CStudentDashboard userId={studentId} studentSession={studentSession} />} />
       <Route path="/student/dashboard" element={<CStudentDashboard userId={studentId} studentSession={studentSession} />} />
       <Route path="/student/internships" element={<CStudentInternships db={db} setDb={setDb} userId={studentId} studentSession={studentSession} />} />
@@ -55,6 +59,7 @@ function App() {
       <Route path="/company/messages" element={requireCompanyAuth(<CCompanyMessages db={db} setDb={setDb} userId={companyId} />)} />
       <Route path="/company/notifications" element={requireCompanyAuth(<CompanyNotifications db={db} setDb={setDb} userId={companyId} />)} />
       <Route path="/company/profile" element={requireCompanyAuth(<CompanyProfile companyId={companyId} />)} />
+      <Route path="/student/register" element={<CSregister onRegister={setStudentSession} />} />
     </Routes>
   );
 }

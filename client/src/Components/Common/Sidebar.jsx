@@ -8,6 +8,15 @@ const Sidebar = ({ session, unreadCount }) => {
 
   const isActive = (path) => location.pathname.startsWith(path);
 
+  const handleSignOut = () => {
+    // clear any stored student/login data if needed
+    localStorage.removeItem("student");
+    localStorage.removeItem("token");
+
+    // navigate to your login route
+    navigate("/login");
+  };
+
   return (
     <div className="w-[260px] h-screen bg-[#0b1220] text-white flex flex-col p-5 sticky top-0">
 
@@ -37,7 +46,6 @@ const Sidebar = ({ session, unreadCount }) => {
 
       {/* MENU */}
       <div className="flex flex-col gap-2 flex-1">
-
         {[
           { name: "Dashboard", path: "/student/dashboard", icon: "🏠" },
           { name: "Search Internships", path: "/student/internships", icon: "🔍" },
@@ -67,16 +75,17 @@ const Sidebar = ({ session, unreadCount }) => {
             )}
           </div>
         ))}
-
       </div>
 
       {/* LOGOUT */}
       <div className="mt-4">
-        <div className="border border-red-500 py-3 rounded-xl text-center cursor-pointer text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200">
-  🚪 Sign Out
-</div>
+        <div
+          onClick={handleSignOut}
+          className="border border-red-500 py-3 rounded-xl text-center cursor-pointer text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"
+        >
+          🚪 Sign Out
+        </div>
       </div>
-
     </div>
   );
 };

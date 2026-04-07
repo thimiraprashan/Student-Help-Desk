@@ -1,15 +1,20 @@
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
+import dotenv from "dotenv";
 import { ObjectId } from "mongodb";
 
 import router from "./Routes/CStudentRoutes.js";
+import studentAuthRoutes from "./Routes/CStudentAuthRoutes.js";
 import companyRoutes from "./Routes/CCompanyRoutes.js";
 import messageRoutes from "./Routes/CSMessageRoutes.js";
 import cvRoutes from "./Routes/CStudentCVRoutes.js";
 import companyProfileRoutes from "./Routes/CCompanyProfileRoutes.js";
 import companyAuthRoutes from "./Routes/CCompanyAuthRoutes.js";
 import uploadRoutes from "./Routes/uploadRoutes.js";
+
+// 🔥 load env
+dotenv.config();
 
 const app = express();
 
@@ -20,8 +25,9 @@ app.use(express.json());
 // ✅ static folder (CV view)
 app.use("/uploads", express.static("uploads"));
 
-// ✅ existing routes
+// ✅ routes
 app.use("/students", router);
+app.use("/students", studentAuthRoutes);
 app.use("/companies", companyRoutes);
 app.use("/messages", messageRoutes);
 app.use("/api/cv", cvRoutes);
@@ -33,7 +39,7 @@ app.use("/api/upload", uploadRoutes);
 // 🔥 APPLICATION ROUTES
 // =======================================
 
-// ✅ CREATE APPLICATION
+// CREATE APPLICATION
 app.post("/applications", async (req, res) => {
   try {
     const db = mongoose.connection.db;
@@ -45,37 +51,34 @@ app.post("/applications", async (req, res) => {
     };
 
     const result = await db.collection("applications").insertOne(data);
-
     res.json(result);
+
   } catch (err) {
     console.log("CREATE ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ GET ALL APPLICATIONS
+// GET ALL APPLICATIONS
 app.get("/applications", async (req, res) => {
   try {
     const db = mongoose.connection.db;
-
     const data = await db.collection("applications").find().toArray();
-
     res.json(data);
+
   } catch (err) {
     console.log("GET ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ UPDATE STATUS + SEND NOTIFICATION
+// UPDATE APPLICATION + NOTIFICATION
 app.put("/applications/:id", async (req, res) => {
   try {
     const db = mongoose.connection.db;
 
     const appId = req.params.id;
     const { status } = req.body;
-
-    console.log("👉 UPDATE STATUS:", status);
 
     const application = await db.collection("applications").findOne({
       _id: new ObjectId(appId)
@@ -85,16 +88,12 @@ app.put("/applications/:id", async (req, res) => {
       return res.status(404).json({ error: "Application not found" });
     }
 
-    // 🔥 update status
     await db.collection("applications").updateOne(
       { _id: new ObjectId(appId) },
       { $set: { status } }
     );
 
-    // 🔥 notification create (ALL STATUS)
     if (application.status !== status) {
-
-      console.log("🔥 STATUS CHANGED → creating notification");
 
       let message = "";
 
@@ -105,18 +104,17 @@ app.put("/applications/:id", async (req, res) => {
       } else if (status === "Shortlisted") {
         message = `⭐ You have been shortlisted for ${application.title}`;
       } else {
-        message = `ℹ️ Your application for ${application.title} status updated to ${status}`;
+        message = `ℹ️ Status updated to ${status}`;
       }
 
       await db.collection("notifications").insertOne({
         toUserId: Number(application.studentId),
-        message: message,
+        message,
         date: new Date().toISOString(),
         read: false,
         type: "application_status",
         relatedApplicationId: appId
       });
-
     }
 
     res.json({ message: "Updated successfully + notification sent" });
@@ -128,28 +126,24 @@ app.put("/applications/:id", async (req, res) => {
 });
 
 // =======================================
-// 🔔 NOTIFICATION ROUTES
+// 🔔 NOTIFICATIONS
 // =======================================
 
-// ✅ GET ALL
 app.get("/notifications", async (req, res) => {
   try {
     const db = mongoose.connection.db;
-
     const data = await db.collection("notifications").find().toArray();
-
     res.json(data);
+
   } catch (err) {
-    console.log("NOTIF GET ERROR:", err);
+    console.log("NOTIF ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ GET BY USER
 app.get("/notifications/:userId", async (req, res) => {
   try {
     const db = mongoose.connection.db;
-
     const userId = Number(req.params.userId);
 
     const data = await db.collection("notifications").find({
@@ -157,13 +151,13 @@ app.get("/notifications/:userId", async (req, res) => {
     }).toArray();
 
     res.json(data);
+
   } catch (err) {
-    console.log("NOTIF USER ERROR:", err);
+    console.log("USER NOTIF ERROR:", err);
     res.status(500).json({ error: err.message });
   }
 });
 
-// ✅ MARK READ
 app.put("/notifications/:id/read", async (req, res) => {
   try {
     const db = mongoose.connection.db;
@@ -173,7 +167,8 @@ app.put("/notifications/:id/read", async (req, res) => {
       { $set: { read: true } }
     );
 
-    res.json({ message: "Notification marked as read" });
+    res.json({ message: "Marked as read" });
+
   } catch (err) {
     console.log("READ ERROR:", err);
     res.status(500).json({ error: err.message });
@@ -182,13 +177,14 @@ app.put("/notifications/:id/read", async (req, res) => {
 
 // =======================================
 
-// ✅ connect DB
-mongoose.connect("mongodb+srv://admin1:LYHUgp1Ch6JuduaC@cluster0.jm7s1hy.mongodb.net/")
+// ✅ DB connect
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => {
-    console.log("✅ Connected to MongoDB");
+    console.log("✅ MongoDB Connected");
 
     app.listen(5000, () => {
       console.log("🚀 Server running on port 5000");
     });
+
   })
-  .catch((err) => console.log(err));
+  .catch((err) => console.log("❌ DB ERROR:", err));

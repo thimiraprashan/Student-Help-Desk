@@ -266,20 +266,20 @@ const CStudentInternships = () => {
       <div className="flex items-center gap-4 mb-4">
 
         <div className="w-14 h-14 bg-blue-500 text-white flex items-center justify-center rounded-xl text-xl font-bold">
-          {companyProfile?.name?.[0]}
+          {selectedCompany?.companyName?.[0]}
         </div>
 
         <div>
-          <h3 className="text-lg font-bold">{companyProfile?.name}</h3>
-          <p className="text-sm text-gray-500">{companyProfile?.email}</p>
+          <h3 className="text-lg font-bold">{selectedCompany?.companyName}</h3>
+          <p className="text-sm text-gray-500">{companyProfile?.email || "N/A"}</p>
         </div>
 
       </div>
 
       <div className="bg-blue-100 p-4 rounded-xl mb-4 text-sm border border-blue-200">
-        <p>📞 {companyProfile?.phone}</p>
-        <p>📍 {companyProfile?.location}</p>
-        <p>🎯 {companyProfile?.purpose}</p>
+        <p>📞 {companyProfile?.phone || "N/A"}</p>
+        <p>📍 {selectedCompany?.location}</p>
+        <p>🎯 {companyProfile?.purpose || "N/A"}</p>
       </div>
 
       <div className="mb-4">
@@ -294,20 +294,18 @@ const CStudentInternships = () => {
               </tr>
             </thead>
             <tbody>
-              {(companyProfile?.details || []).length > 0 ? (
-                companyProfile.details.map((detail, index) => (
-                  <tr key={`${detail.title}-${index}`} className="border-t border-blue-100">
-                    <td className="px-3 py-2 font-medium text-gray-700">{detail.title}</td>
-                    <td className="px-3 py-2 text-gray-600">{detail.value}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="2" className="px-3 py-4 text-center text-gray-400">
-                    No company details available.
-                  </td>
-                </tr>
-              )}
+              <tr className="border-t border-blue-100">
+                <td className="px-3 py-2 font-medium text-gray-700">Company</td>
+                <td className="px-3 py-2 text-gray-600">{selectedCompany?.companyName}</td>
+              </tr>
+              <tr className="border-t border-blue-100">
+                <td className="px-3 py-2 font-medium text-gray-700">Field</td>
+                <td className="px-3 py-2 text-gray-600">{selectedCompany?.field}</td>
+              </tr>
+              <tr className="border-t border-blue-100">
+                <td className="px-3 py-2 font-medium text-gray-700">Duration</td>
+                <td className="px-3 py-2 text-gray-600">{selectedCompany?.duration}</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -316,7 +314,7 @@ const CStudentInternships = () => {
       <h4 className="font-semibold mb-2">Active Internships</h4>
 
       {internships
-        .filter(x => x.companyName === selectedCompany.companyName)
+        .filter(x => x.companyName === selectedCompany?.companyName)
         .map((x) => (
           <div key={x._id} className="border border-blue-100 bg-white p-2 rounded mb-2 text-sm hover:bg-blue-50 transition">
             {x.title} • {x.duration}
