@@ -1,15 +1,26 @@
 import React from 'react';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Home from './pages/Home';
+import Events from './pages/Events';
+import Sports from './pages/Sports';
+import Clubs from './pages/Clubs';
+import Notifications from './pages/Notifications';
 
 function App() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="text-center p-8 bg-white shadow rounded-lg">
-        <h1 className="text-3xl font-bold text-gray-800 mb-4">Student Help Desk</h1>
-        <p className="text-gray-600">App successfully initialized.</p>
-      </div>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="events" element={<Events />} />
+          <Route path="sports" element={<Sports />} />
+          <Route path="clubs" element={<Clubs />} />
+          <Route path="notifications" element={<Notifications />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
 
-//test comment
 export default App;
