@@ -5,11 +5,18 @@ const router = express.Router();
 
 // 🔥 GET profile
 router.get("/", async (req, res) => {
-  const { companyId } = req.query;
-  const profile = companyId
-    ? await CompanyProfile.findOne({ companyId: Number(companyId) })
-    : await CompanyProfile.findOne();
-  res.json(profile);
+  try {
+    const companyId = Number(req.query.companyId);
+
+    if (!Number.isFinite(companyId)) {
+      return res.json(null);
+    }
+
+    const profile = await CompanyProfile.findOne({ companyId });
+    res.json(profile);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 // 🔥 CREATE

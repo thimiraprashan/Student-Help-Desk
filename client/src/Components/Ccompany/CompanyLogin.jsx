@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { setCompanySessionStorage } from "../../utils/sessionStore";
 
 const emptyForm = {
   name: "",
@@ -55,7 +56,7 @@ function CompanyLogin({ onLogin }) {
         throw new Error(data.error || "Something went wrong");
       }
 
-      localStorage.setItem("companySession", JSON.stringify(data));
+      setCompanySessionStorage(data);
       onLogin(data);
       navigate("/company/dashboard");
     } catch (err) {

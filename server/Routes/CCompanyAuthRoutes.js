@@ -3,6 +3,24 @@ import CompanyAuth from "../Model/CCompanyAuthModel.js";
 
 const router = express.Router();
 
+router.get("/", async (req, res) => {
+  try {
+    const companies = await CompanyAuth.find({}, { companyId: 1, name: 1, email: 1 })
+      .sort({ companyId: 1 })
+      .lean();
+
+    res.json(
+      companies.map((company) => ({
+        companyId: company.companyId,
+        name: company.name,
+        email: company.email,
+      }))
+    );
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { setStudentSessionStorage } from "../../utils/sessionStore";
 
 const CSlogin = ({ onLogin }) => {
   const navigate = useNavigate();
@@ -24,7 +25,7 @@ const CSlogin = ({ onLogin }) => {
         return;
       }
 
-      localStorage.setItem("studentProfile", JSON.stringify(data));
+      setStudentSessionStorage(data);
       onLogin?.(data);
       navigate("/student/dashboard");
     } catch (err) {

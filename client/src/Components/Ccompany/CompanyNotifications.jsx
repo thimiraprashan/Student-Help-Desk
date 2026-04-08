@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../Common/SSidebar";
+import { getCompanySession } from "../../utils/sessionStore";
 // ✅ IMPORTANT (correct path check karanna)
 
 const CompanyNotifications = ({ db, userId, setDb }) => {
@@ -8,12 +9,11 @@ const CompanyNotifications = ({ db, userId, setDb }) => {
   const unreadCount = notifs.filter(n => !n.read).length;
 
   useEffect(() => {
-    const savedSession = localStorage.getItem("companySession");
+    const savedSession = getCompanySession();
     if (savedSession) {
       try {
-        const parsed = JSON.parse(savedSession);
-        if (parsed?.name) {
-          setCompanyName(parsed.name);
+        if (savedSession?.name) {
+          setCompanyName(savedSession.name);
         }
       } catch (err) {
         console.log(err);

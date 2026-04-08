@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { setStudentSessionStorage } from "../../utils/sessionStore";
 
 const CSregister = ({ onRegister }) => {
   const navigate = useNavigate();
@@ -41,7 +42,7 @@ const CSregister = ({ onRegister }) => {
         return;
       }
 
-      localStorage.setItem("studentProfile", JSON.stringify(data));
+      setStudentSessionStorage(data);
       onRegister?.(data);
       setSuccess("Account created. Redirecting...");
       setTimeout(() => navigate("/student/dashboard"), 800);

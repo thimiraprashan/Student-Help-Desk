@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { FaGraduationCap } from "react-icons/fa";
+import { clearStudentSession } from "../../utils/sessionStore";
 
 const Sidebar = ({ session, unreadCount }) => {
   const navigate = useNavigate();
@@ -9,12 +10,10 @@ const Sidebar = ({ session, unreadCount }) => {
   const isActive = (path) => location.pathname.startsWith(path);
 
   const handleSignOut = () => {
-    // clear any stored student/login data if needed
+    clearStudentSession();
     localStorage.removeItem("student");
     localStorage.removeItem("token");
-
-    // navigate to your login route
-    navigate("/login");
+    window.location.assign("/login");
   };
 
   return (

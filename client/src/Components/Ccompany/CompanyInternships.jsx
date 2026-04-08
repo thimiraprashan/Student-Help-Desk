@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../Common/SSidebar";
+import { getCompanySession } from "../../utils/sessionStore";
 
 const internshipCategories = [
   "IT",
@@ -43,13 +44,12 @@ const CompanyInternships = ({ db, setDb, userId }) => {
     : [];
 
   useEffect(() => {
-    const savedSession = localStorage.getItem("companySession");
+    const savedSession = getCompanySession();
     if (savedSession) {
       try {
-        const parsed = JSON.parse(savedSession);
         setCompanyProfile((prev) => ({
           ...prev,
-          name: parsed?.name || prev?.name || "Company",
+          name: savedSession?.name || prev?.name || "Company",
         }));
       } catch (err) {
         console.log(err);

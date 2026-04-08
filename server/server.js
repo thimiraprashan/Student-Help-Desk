@@ -51,7 +51,10 @@ app.post("/applications", async (req, res) => {
     };
 
     const result = await db.collection("applications").insertOne(data);
-    res.json(result);
+    res.json({
+      _id: result.insertedId,
+      ...data,
+    });
 
   } catch (err) {
     console.log("CREATE ERROR:", err);

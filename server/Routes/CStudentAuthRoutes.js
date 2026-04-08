@@ -3,6 +3,25 @@ import StudentAuth from "../Model/CStudentAuthModel.js";
 
 const router = express.Router();
 
+router.get("/auth/accounts", async (req, res) => {
+  try {
+    const students = await StudentAuth.find({}, { studentId: 1, name: 1, email: 1 })
+      .sort({ studentId: 1 })
+      .lean();
+
+    res.json(
+      students.map((student) => ({
+        studentId: student.studentId,
+        userId: student.studentId,
+        name: student.name,
+        email: student.email,
+      }))
+    );
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 router.post("/register", async (req, res) => {
   try {
     const { name, email, password } = req.body;

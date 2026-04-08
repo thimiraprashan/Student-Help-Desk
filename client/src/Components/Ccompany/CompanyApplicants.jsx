@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../Common/SSidebar";
+import { getCompanySession } from "../../utils/sessionStore";
 
 const CompanyApplicants = ({ userId }) => {
   const [applications, setApplications] = useState([]);
@@ -19,12 +20,11 @@ const CompanyApplicants = ({ userId }) => {
   };
 
   useEffect(() => {
-    const savedSession = localStorage.getItem("companySession");
+    const savedSession = getCompanySession();
     if (savedSession) {
       try {
-        const parsed = JSON.parse(savedSession);
-        if (parsed?.name) {
-          setCompanyName(parsed.name);
+        if (savedSession?.name) {
+          setCompanyName(savedSession.name);
         }
       } catch (err) {
         console.log(err);
@@ -32,6 +32,12 @@ const CompanyApplicants = ({ userId }) => {
     }
 
     loadApplications();
+
+    const interval = setInterval(() => {
+      loadApplications();
+    }, 3000);
+
+    return () => clearInterval(interval);
   }, [userId]);
 
   return (

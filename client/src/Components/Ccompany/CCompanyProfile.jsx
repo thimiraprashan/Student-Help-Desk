@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../Common/SSidebar";
+import {
+  getCompanySession,
+  setCompanySessionStorage,
+} from "../../utils/sessionStore";
 
-const CompanyProfile = ({ companyId }) => {
+const CompanyProfile = ({ companyId, onSessionChange }) => {
   const emptyProfile = {
     name: "",
     email: "",
@@ -31,7 +35,30 @@ const CompanyProfile = ({ companyId }) => {
     index,
   }));
 
+  const syncCompanySession = (profileData) => {
+    try {
+      const storedSession = getCompanySession();
+
+      if (!storedSession || String(storedSession.companyId) !== String(companyId)) {
+        return;
+      }
+
+      const nextSession = {
+        ...storedSession,
+        name: profileData?.name || storedSession.name || "Company",
+        email: profileData?.email || storedSession.email || "",
+      };
+
+      setCompanySessionStorage(nextSession);
+      onSessionChange?.(nextSession);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
+    if (!companyId) return;
+
     fetch(`http://localhost:5000/company-profile?companyId=${companyId}`)
       .then((res) => res.json())
       .then((data) => {
@@ -41,6 +68,7 @@ const CompanyProfile = ({ companyId }) => {
             ...data,
             details: data.details || [],
           });
+          syncCompanySession(data);
           setIsEditing(false);
           setIsSaved(true);
           setShowForm(false);
@@ -112,6 +140,7 @@ const CompanyProfile = ({ companyId }) => {
       ...data,
       details: data.details || [],
     });
+    syncCompanySession(data);
 
     window.dispatchEvent(new Event("profileUpdated"));
     return data;

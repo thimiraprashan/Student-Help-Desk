@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { clearCompanySession, getCompanySession } from "../../utils/sessionStore";
 
 const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
   const navigate = useNavigate();
@@ -11,10 +12,22 @@ const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
   // 🔥 FUNCTION → FETCH FROM DATABASE
   const loadProfile = async () => {
     try {
-      const storedSession = JSON.parse(localStorage.getItem("companySession") || "null");
+      const storedSession = getCompanySession();
       const companyId = storedSession?.companyId;
-      const query = companyId ? `?companyId=${companyId}` : "";
-      const res = await fetch(`http://localhost:5000/company-profile${query}`);
+      if (!companyId) {
+        setCompanyName(session?.name || "Company");
+        return;
+      }
+
+      const res = await fetch(
+        `http://localhost:5000/company-profile?companyId=${companyId}`
+      );
+
+      if (!res.ok) {
+        setCompanyName(session?.name || "Company");
+        return;
+      }
+
       const data = await res.json();
 
       if (data?.name) {
@@ -31,6 +44,12 @@ const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
   useEffect(() => {
     loadProfile();
   }, []);
+
+  useEffect(() => {
+    if (session?.name) {
+      setCompanyName(session.name);
+    }
+  }, [session?.name]);
 
   // 🔥 LISTEN FOR UPDATE EVENT
   useEffect(() => {
@@ -120,7 +139,7 @@ const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
       <div className="p-4">
         <button
           onClick={() => {
-            localStorage.removeItem("companySession");
+            clearCompanySession();
             navigate("/company/login");
           }}
           className="w-full border border-red-500 py-3 rounded-xl text-red-400 hover:bg-red-500 hover:text-white transition-all duration-200"

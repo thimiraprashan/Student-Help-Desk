@@ -1,32 +1,37 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../../Common/Sidebar";
 
-const CStudentApplications = () => {
-
+const CStudentApplications = ({ userId, studentSession }) => {
   const [applications, setApplications] = useState([]);
-  const studentId = 1;
 
-  // 🔥 FETCH FUNCTION
-  const loadApplications = () => {
-    fetch("http://localhost:5000/applications")
-      .then(res => res.json())
-      .then(data => {
-        const myApps = data.filter(a => a.studentId === studentId);
-        setApplications(myApps);
-      })
-      .catch(err => console.log(err));
+  const loadApplications = async () => {
+    if (!userId) {
+      setApplications([]);
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/applications");
+      const data = await res.json();
+      const myApps = data.filter((a) => String(a.studentId) === String(userId));
+      setApplications(myApps);
+    } catch (err) {
+      console.log(err);
+      setApplications([]);
+    }
   };
 
   useEffect(() => {
+    if (!userId) return;
+
     loadApplications();
 
-    // 🔥 AUTO REFRESH (notification feel)
     const interval = setInterval(() => {
       loadApplications();
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [userId]);
 
   const getStatusStyle = (status) => {
     switch (status) {
@@ -45,25 +50,20 @@ const CStudentApplications = () => {
 
   return (
     <div className="flex min-h-screen bg-white">
-
-      <Sidebar session={{ name: "Sasangi Perera" }} unreadCount={2} />
+      <Sidebar
+        session={{ name: studentSession?.name || "Student" }}
+        unreadCount={applications.filter((app) => app.status !== "Accepted").length}
+      />
 
       <div className="flex-1 p-8 overflow-auto">
-
-        {/* HEADER */}
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">
-            My Applications 🚀
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800">My Applications 🚀</h2>
           <p className="text-gray-500 text-sm mt-1">
             Track your internship progress and status
           </p>
         </div>
 
-        {/* 🔥 TABLE CARD */}
         <div className="bg-blue-50 border border-blue-100 rounded-2xl shadow-sm overflow-hidden">
-
-          {/* HEADER */}
           <div className="grid grid-cols-4 bg-blue-100 text-blue-700 text-xs font-semibold uppercase px-6 py-4 tracking-wide border-b border-blue-200">
             <div>Internship</div>
             <div>Company</div>
@@ -71,7 +71,6 @@ const CStudentApplications = () => {
             <div>Status</div>
           </div>
 
-          {/* ROWS */}
           {applications.map((app, index) => (
             <div
               key={index}
@@ -79,48 +78,34 @@ const CStudentApplications = () => {
               hover:bg-blue-100 hover:shadow-sm hover:scale-[1.01]
               transition-all duration-300"
             >
-              {/* TITLE */}
-              <div className="font-semibold text-gray-800 text-sm">
-                {app.title}
-              </div>
+              <div className="font-semibold text-gray-800 text-sm">{app.title}</div>
 
-              {/* COMPANY */}
               <div className="text-sm text-blue-600 font-semibold hover:underline cursor-pointer">
                 {app.companyName}
               </div>
 
-              {/* DATE */}
-              <div className="text-sm text-gray-500">
-                {app.date}
-              </div>
+              <div className="text-sm text-gray-500">{app.date}</div>
 
-              {/* STATUS */}
               <div className="flex items-center justify-between">
-
                 <span
-                  className={`px-3 py-1 text-xs rounded-full font-semibold ${getStatusStyle(app.status)}`}
+                  className={`px-3 py-1 text-xs rounded-full font-semibold ${getStatusStyle(
+                    app.status
+                  )}`}
                 >
                   {app.status}
                 </span>
 
-                {/* 👉 Arrow */}
                 <span className="ml-3 text-gray-400 group-hover:text-blue-600 transform group-hover:translate-x-2 transition">
                   →
                 </span>
-
               </div>
             </div>
           ))}
 
-          {/* EMPTY */}
           {applications.length === 0 && (
-            <div className="p-6 text-center text-gray-400">
-              No applications yet
-            </div>
+            <div className="p-6 text-center text-gray-400">No applications yet</div>
           )}
-
         </div>
-
       </div>
     </div>
   );

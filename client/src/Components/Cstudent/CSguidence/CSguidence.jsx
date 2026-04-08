@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Sidebar from "../../Common/Sidebar";
 
-const Csguidence = () => {
+const Csguidence = ({ userId, studentSession }) => {
 
   const [result, setResult] = useState(null);
   const [allReviews, setAllReviews] = useState([]);
@@ -42,7 +42,7 @@ const Csguidence = () => {
   return (
     <div className="flex min-h-screen bg-gray-50">
 
-      <Sidebar session={{ name: "Sasangi Perera" }} unreadCount={2} />
+      <Sidebar session={{ name: studentSession?.name || "Student" }} unreadCount={2} />
 
       <div className="flex-1 p-6">
 

@@ -1,11 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import Sidebar from "../../Common/Sidebar";
+import { setStudentSessionStorage, getStudentSession } from "../../../utils/sessionStore";
 
-const StudentCV = () => {
-
+const StudentCV = ({ userId, studentSession, onStudentProfileChange }) => {
   const [profile, setProfile] = useState({
-    name: "",
-    email: "",
+    name: studentSession?.name || "",
+    email: studentSession?.email || "",
     field: "",
     year: "",
     phone: "",
@@ -13,22 +13,42 @@ const StudentCV = () => {
     bio: "",
     cvName: "",
     cv: null,
-    userId: 1
+    userId: userId || null
   });
 
   const [isEditing, setIsEditing] = useState(true);
-
-  // ✅ NEW VALIDATION STATE
   const [errors, setErrors] = useState({});
-
   const fileRef = useRef();
-  const userId = 1;
 
-  // 🔥 READ (NO CHANGE)
+  const syncStudentSession = (profileData) => {
+    try {
+      const storedSession = getStudentSession();
+
+      const nextSession = {
+        ...(storedSession || {}),
+        userId: Number(
+          profileData?.userId || storedSession?.userId || studentSession?.userId || userId
+        ),
+        studentId: Number(
+          storedSession?.studentId || studentSession?.studentId || profileData?.userId || userId
+        ),
+        name: profileData?.name || storedSession?.name || studentSession?.name || "Student",
+        email: profileData?.email || storedSession?.email || studentSession?.email || "",
+      };
+
+      setStudentSessionStorage(nextSession);
+      onStudentProfileChange?.(nextSession);
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
+    if (!userId) return;
+
     fetch(`http://localhost:5000/api/cv/${userId}`)
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (data && (data._id || data.userId)) {
           setProfile({
             name: data.name || "",
@@ -43,32 +63,25 @@ const StudentCV = () => {
             _id: data._id,
             userId: data.userId || userId
           });
-
+          syncStudentSession(data);
           setIsEditing(false);
         }
       })
       .catch(() => console.log("No data"));
-  }, []);
+  }, [userId]);
 
-  // ✅ VALIDATION FUNCTION
-const validate = () => {
-  let newErrors = {};
+  const validate = () => {
+    let newErrors = {};
 
-  if (!profile.name || profile.name.length < 3)
-    newErrors.name = "Min 3 characters";
+    if (!profile.name || profile.name.length < 3) newErrors.name = "Min 3 characters";
+    if (!profile.email || !/\S+@\S+\.\S+/.test(profile.email)) newErrors.email = "Valid email required";
+    if (!profile.phone || profile.phone.length < 10) newErrors.phone = "Valid phone required";
+    if (!profile.field) newErrors.field = "Field required";
 
-  if (!profile.email || !/\S+@\S+\.\S+/.test(profile.email))
-    newErrors.email = "Valid email required";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
-  if (!profile.phone || profile.phone.length < 10)
-    newErrors.phone = "Valid phone required";
-  if (!profile.field) newErrors.field = "Field required";
-
-  setErrors(newErrors);
-  return Object.keys(newErrors).length === 0;
-};
-
-  // 🔥 FILE UPLOAD + AUTO SAVE FIX
   const handleFile = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -84,25 +97,23 @@ const validate = () => {
 
       const data = await res.json();
 
-      const updatedProfile = {
+      setProfile({
         ...profile,
         cv: data.filePath,
         cvName: data.fileName
-      };
-
-      setProfile(updatedProfile);
-
+      });
     } catch (err) {
       console.log("Upload error:", err);
     }
   };
 
-  // 🔥 SAVE
   const saveProfile = async (customData) => {
+    if (!validate()) return;
 
-    if (!validate()) return; // ✅ added
-
-    let finalData = customData || profile;
+    const finalData = {
+      ...((customData || profile)),
+      userId
+    };
 
     if (!finalData.cv) {
       delete finalData.cv;
@@ -111,28 +122,23 @@ const validate = () => {
 
     const res = await fetch("http://localhost:5000/api/cv", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(finalData)
     });
 
     const data = await res.json();
-
     setProfile(data);
-    localStorage.setItem("studentProfile", JSON.stringify(data));
+    syncStudentSession(data);
     setIsEditing(false);
     alert("Saved!");
   };
 
-  // 🔥 UPDATE
   const updateProfile = async () => {
-
-    if (!validate()) return; // ✅ added
+    if (!validate()) return;
 
     let bodyData = {
       ...profile,
-      userId: Number(userId)
+      userId
     };
 
     if (!profile.cv) {
@@ -142,21 +148,20 @@ const validate = () => {
 
     const res = await fetch(`http://localhost:5000/api/cv/${userId}`, {
       method: "PUT",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(bodyData)
     });
 
     const data = await res.json();
-
     setProfile(data);
+    syncStudentSession(data);
     alert("Updated!");
     setIsEditing(false);
   };
 
-  // 🔥 DELETE (NO CHANGE)
   const deleteProfile = async () => {
+    if (!userId) return;
+
     await fetch(`http://localhost:5000/api/cv/${userId}`, {
       method: "DELETE"
     });
@@ -171,9 +176,14 @@ const validate = () => {
       bio: "",
       cvName: "",
       cv: null,
-      userId: userId
+      userId
     });
 
+    syncStudentSession({
+      userId,
+      name: profile.name || studentSession?.name || "Student",
+      email: profile.email || studentSession?.email || "",
+    });
     setIsEditing(true);
     alert("Deleted!");
   };
@@ -181,7 +191,10 @@ const validate = () => {
   return (
     <div className="flex min-h-screen bg-white"> {/* ✅ white bg */}
 
-      <Sidebar session={{ name: profile.name }} unreadCount={2} />
+      <Sidebar
+        session={{ name: profile.name || studentSession?.name || "Student" }}
+        unreadCount={2}
+      />
 
       <div className="flex-1 p-6 overflow-auto">
 

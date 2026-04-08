@@ -1,16 +1,12 @@
 import React, { useEffect } from "react";
 import Sidebar from "../../Common/Sidebar";
 
-const CStudentNotifications = ({ db, setDb, userId, showToast }) => {
+const CStudentNotifications = ({ db, setDb, userId, showToast, studentSession }) => {
 
-  // 🔥 LOAD FROM BACKEND → db state update
   const loadNotifications = () => {
     fetch(`http://localhost:5000/notifications/${userId}`)
       .then(res => res.json())
       .then(data => {
-        console.log("BACKEND NOTIFS:", data);
-
-        // 👉 db state update (IMPORTANT)
         setDb(d => ({
           ...d,
           notifications: data || []
@@ -22,21 +18,18 @@ const CStudentNotifications = ({ db, setDb, userId, showToast }) => {
   useEffect(() => {
     loadNotifications();
 
-    // 🔥 auto refresh
     const interval = setInterval(() => {
       loadNotifications();
     }, 3000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [userId]);
 
-  // 🔥 FILTER FROM DB (unchanged)
   const notifs = db.notifications.filter(
     (n) => String(n.toUserId) === String(userId)
   );
 
   const markAllRead = async () => {
-
     await Promise.all(
       notifs.map(n =>
         fetch(`http://localhost:5000/notifications/${n._id}/read`, {
@@ -51,14 +44,12 @@ const CStudentNotifications = ({ db, setDb, userId, showToast }) => {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-
       <Sidebar
-        session={{ name: "Sasangi Perera" }}
+        session={{ name: studentSession?.name || "Student" }}
         unreadCount={notifs.filter(n => !n.read).length}
       />
 
       <div className="flex-1 p-6">
-
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-800">Notifications</h2>
 
@@ -83,8 +74,8 @@ const CStudentNotifications = ({ db, setDb, userId, showToast }) => {
               <div className="flex-1">
                 <p className="text-sm text-gray-700">{n.message}</p>
                 <p className="text-xs text-gray-500">
-  {new Date(n.date).toLocaleString()}
-</p>
+                  {new Date(n.date).toLocaleString()}
+                </p>
               </div>
 
               {!n.read && (
@@ -109,7 +100,6 @@ const CStudentNotifications = ({ db, setDb, userId, showToast }) => {
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

@@ -3,33 +3,61 @@ import ChatItem from "./ChatItem";
 import Sidebar from "../../Common/Sidebar";
 import EmojiPicker from "emoji-picker-react";
 
-const CCStudentMessages = ({ db, setDb, userId, companyId }) => {
+const CCStudentMessages = ({ db, setDb, userId, studentSession }) => {
 
   const [activeThread, setActiveThread] = useState(null);
   const [newMessage, setNewMessage] = useState("");
   const [showEmoji, setShowEmoji] = useState(false);
   const [companyProfiles, setCompanyProfiles] = useState({});
+  const [availableCompanies, setAvailableCompanies] = useState([]);
   const chatEndRef = useRef(null);
 
   const messages = db.messages || [];
 
   // ✅ THREAD ID (SAFE 🔥)
-const makeThreadId = (id1, id2) => {
-  return [String(id1).trim(), String(id2).trim()]
-    .sort()
-    .join("_");
-};
+  const makeThreadId = (id1, id2) => {
+    return [String(id1).trim(), String(id2).trim()]
+      .sort()
+      .join("_");
+  };
+
+  useEffect(() => {
+    fetch("http://localhost:5000/company-auth")
+      .then((res) => res.json())
+      .then((data) => {
+        setAvailableCompanies(Array.isArray(data) ? data : []);
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   const companies = Array.from(
     new Map(
       [
-        ...(db.companies || []).map((company) => {
-          const resolvedId = String(company.id || company._id || "");
+        ...availableCompanies.map((company) => {
+          const resolvedId = String(
+            company.companyId || company.id || company._id || ""
+          );
+
           return [
             resolvedId,
             {
               ...company,
               _id: resolvedId,
+              id: resolvedId,
+              name: company.name || company.companyName || "Company",
+            },
+          ];
+        }),
+        ...(db.companies || []).map((company) => {
+          const resolvedId = String(
+            company.companyId || company.id || company._id || ""
+          );
+          return [
+            resolvedId,
+            {
+              ...company,
+              _id: resolvedId,
+              id: resolvedId,
               name: company.name || company.companyName || "Company",
             },
           ];
@@ -61,12 +89,22 @@ const makeThreadId = (id1, id2) => {
 
   // 🔥 FIXED ACTIVE THREAD (IMPORTANT)
   useEffect(() => {
-    if (companies.length && !activeThread) {
-      const firstId = String(companyId || companies[0]?._id || companies[0]?.id || "");
+    if (!companies.length) {
+      setActiveThread(null);
+      return;
+    }
+
+    const activeExists = companies.some(
+      (company) =>
+        String(company?._id || company?.id || "") === String(activeThread?.companyId || "")
+    );
+
+    if (!activeThread || !activeExists) {
+      const firstId = String(companies[0]?._id || companies[0]?.id || "");
       if (!firstId) return;
       setActiveThread({ companyId: firstId });
     }
-  }, [companies, companyId, activeThread]);
+  }, [companies, activeThread]);
 
   useEffect(() => {
     if (!companies.length) return;
@@ -91,28 +129,28 @@ const makeThreadId = (id1, id2) => {
 
   // 🔥 FETCH MESSAGES
   useEffect(() => {
-if (!activeThread || !userId) return;
+    if (!activeThread || !userId) return;
 
     fetch(`http://localhost:5000/messages/${userId}/${activeThread.companyId}`)
       .then(res => res.json())
       .then(data => {
-setDb(prev => ({
-  ...prev,
-  messages: [
-    ...(prev.messages || []).filter(
-      m => m.threadId !== makeThreadId(userId, activeThread.companyId)
-    ),
-    ...(data || [])
-  ]
-}));
+        setDb(prev => ({
+          ...prev,
+          messages: [
+            ...(prev.messages || []).filter(
+              m => m.threadId !== makeThreadId(userId, activeThread.companyId)
+            ),
+            ...(data || [])
+          ]
+        }));
       })
       .catch(err => console.log(err));
 
-  }, [activeThread]);
+  }, [activeThread, userId, setDb]);
 
   // 🔥 FIXED THREAD FILTER
   const getThread = (companyId, studentId) => {
-    const tid = makeThreadId(String(companyId), String(studentId)); // ✅ FIXED
+    const tid = makeThreadId(String(companyId), String(studentId));
     return messages.filter((m) => m.threadId === tid);
   };
 
@@ -121,7 +159,7 @@ setDb(prev => ({
     if (!newMessage.trim() || !activeThread) return;
 
     const msg = {
-      threadId: makeThreadId(String(activeThread.companyId), String(userId)), // ✅ FIXED
+      threadId: makeThreadId(String(activeThread.companyId), String(userId)),
       fromId: String(userId),
       toId: String(activeThread.companyId),
       content: newMessage,
@@ -129,22 +167,26 @@ setDb(prev => ({
       read: false,
     };
 
-    const res = await fetch("http://localhost:5000/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(msg),
-    });
+    try {
+      const res = await fetch("http://localhost:5000/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(msg),
+      });
 
-    const savedMsg = await res.json();
+      const savedMsg = await res.json();
 
-    setDb(prev => ({
-      ...prev,
-      messages: [...(prev.messages || []), savedMsg],
-    }));
+      setDb(prev => ({
+        ...prev,
+        messages: [...(prev.messages || []), savedMsg],
+      }));
 
-    setNewMessage("");
+      setNewMessage("");
+    } catch (err) {
+      console.log("Send error:", err);
+    }
   };
 
   // 🔥 FILE SEND (FIXED)
@@ -152,7 +194,7 @@ setDb(prev => ({
     if (!file || !activeThread) return;
 
     const msg = {
-      threadId: makeThreadId(String(activeThread.companyId), String(userId)), // ✅ FIXED
+      threadId: makeThreadId(String(activeThread.companyId), String(userId)),
       fromId: String(userId),
       toId: String(activeThread.companyId),
       content: "📎 " + file.name,
@@ -161,20 +203,24 @@ setDb(prev => ({
       read: false,
     };
 
-    const res = await fetch("http://localhost:5000/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(msg),
-    });
+    try {
+      const res = await fetch("http://localhost:5000/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(msg),
+      });
 
-    const savedMsg = await res.json();
+      const savedMsg = await res.json();
 
-    setDb(prev => ({
-      ...prev,
-      messages: [...(prev.messages || []), savedMsg],
-    }));
+      setDb(prev => ({
+        ...prev,
+        messages: [...(prev.messages || []), savedMsg],
+      }));
+    } catch (err) {
+      console.log("File send error:", err);
+    }
   };
 
   // 🔽 AUTO SCROLL
@@ -185,7 +231,7 @@ setDb(prev => ({
   return (
     <div className="flex min-h-screen bg-white text-gray-800">
 
-      <Sidebar session={{ name: "Student" }} role="student" />
+      <Sidebar session={{ name: studentSession?.name || "Student" }} role="student" />
 
       <div className="flex flex-1">
 
@@ -218,18 +264,18 @@ setDb(prev => ({
             ).length;
 
             return (
-<ChatItem
-  key={companyId}
-  student={{
-    _id: companyId,
-    name: companyName
-  }}
-  lastMessage={last}
-  unread={unread}
-  active={activeThread?.companyId === companyId}
-  onClick={() => setActiveThread({ companyId })}
-  currentUserId={userId}   // ✅ ADD
-/>
+              <ChatItem
+                key={companyId}
+                student={{
+                  _id: companyId,
+                  name: companyName
+                }}
+                lastMessage={last}
+                unread={unread}
+                active={activeThread?.companyId === companyId}
+                onClick={() => setActiveThread({ companyId })}
+                currentUserId={userId}
+              />
             );
           })}
 
