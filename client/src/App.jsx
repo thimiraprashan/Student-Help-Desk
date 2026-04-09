@@ -1,25 +1,28 @@
-import React, { useEffect, useState, useContext } from "react";
-import { Navigate, Routes, Route, useLocation, useMatch } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { Navigate, Routes, Route, useMatch } from "react-router-dom";
 import initialDb from "./data";
 
-// old imports
-import CSlogin from "./Components/Cstudent/CSlogin";
-import CStudentDashboard from "./Components/Cstudent/CStudentDashboard/CStudentDashboardFixed";
-import CStudentInternships from "./Components/Cstudent/CStudentInternships/CStudentInternships";
-import CStudentApplications from "./Components/Cstudent/CStudentApplications/CStudentApplications";
-import StudentCV from "./Components/Cstudent/CStudentCV/CStudentCV";
-import Csguidence from "./Components/Cstudent/CSguidence/CSguidence";
-import CStudentNotifications from "./Components/Cstudent/CStudentNotifications/CStudentNotifications";
-import CCStudentMessages from "./Components/Cstudent/CStudentMessages/CCStudentMessages";
+// ── Student imports ──────────────────────────────────────────────
+import CSlogin from "./components/Cstudent/CSlogin";
+import CStudentDashboard from "./components/Cstudent/CStudentDashboard/CStudentDashboardFixed";
+import CStudentInternships from "./components/Cstudent/CStudentInternships/CStudentInternships";
+import CStudentApplications from "./components/Cstudent/CStudentApplications/CStudentApplications";
+import StudentCV from "./components/Cstudent/CStudentCV/CStudentCV";
+import Csguidence from "./components/Cstudent/CSguidence/CSguidence";
+import CStudentNotifications from "./components/Cstudent/CStudentNotifications/CStudentNotifications";
+import CCStudentMessages from "./components/Cstudent/CStudentMessages/CCStudentMessages";
+import CSregister from "./components/Cstudent/CSregister";
 
-import CompanyDashboard from "./Components/Ccompany/CompanyDashboard";
-import CompanyInternships from "./Components/Ccompany/CompanyInternships";
-import CompanyApplicants from "./Components/Ccompany/CompanyApplicants";
-import CompanyNotifications from "./Components/Ccompany/CompanyNotifications";
-import CCompanyMessages from "./Components/Ccompany/CCompanyMessagesFixed";
-import CompanyProfile from "./Components/Ccompany/CCompanyProfile";
-import CompanyLogin from "./Components/Ccompany/CompanyLogin";
-import CSregister from "./Components/Cstudent/CSregister";
+// ── Company imports ──────────────────────────────────────────────
+import CompanyDashboard from "./components/Ccompany/CompanyDashboard";
+import CompanyInternships from "./components/Ccompany/CompanyInternships";
+import CompanyApplicants from "./components/Ccompany/CompanyApplicants";
+import CompanyNotifications from "./components/Ccompany/CompanyNotifications";
+import CCompanyMessages from "./components/Ccompany/CCompanyMessagesFixed";
+import CompanyProfile from "./components/Ccompany/CCompanyProfile";
+import CompanyLogin from "./components/Ccompany/CompanyLogin";
+
+// ── Session utils ────────────────────────────────────────────────
 import {
   getCompanySession,
   getStudentSession,
@@ -27,26 +30,26 @@ import {
   setStudentSessionStorage,
 } from "./utils/sessionStore";
 
-// new imports
-import Navbar from './components/student/Navbar'
-import Home from './pages/student/Home'
-import CourseDetails from './pages/student/CourseDetails'
-import CoursesList from './pages/student/CoursesList'
-import Dashboard from './pages/educator/Dashboard'
-import AddCourse from './pages/educator/AddCourse'
-import EditCourse from './pages/educator/EditCourse'
-import MyCourses from './pages/educator/MyCourses'
-import StudentsEnrolled from './pages/educator/StudentsEnrolled'
-import Educator from './pages/educator/Educator'
-import 'quill/dist/quill.snow.css'
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify'
-import Player from './pages/student/Player'
-import MyEnrollments from './pages/student/MyEnrollments'
-import Loading from './components/student/Loading'
+// ── Educator / LMS imports ───────────────────────────────────────
+import Navbar from "./components/student/Navbar";
+import Home from "./pages/student/Home";
+import CourseDetails from "./pages/student/CourseDetails";
+import CoursesList from "./pages/student/CoursesList";
+import Dashboard from "./pages/educator/Dashboard";
+import AddCourse from "./pages/educator/AddCourse";
+import EditCourse from "./pages/educator/EditCourse";
+import MyCourses from "./pages/educator/MyCourses";
+import StudentsEnrolled from "./pages/educator/StudentsEnrolled";
+import Educator from "./pages/educator/Educator";
+import Player from "./pages/student/Player";
+import MyEnrollments from "./pages/student/MyEnrollments";
+import Loading from "./components/student/Loading";
+import "quill/dist/quill.snow.css";
+import "react-toastify/dist/ReactToastify.css";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
-  const isEducatorRoute = useMatch('/educator/*');
+  const isEducatorRoute = useMatch("/educator/*");
   const [db, setDb] = useState(initialDb);
   const [studentSession, setStudentSession] = useState(() => getStudentSession());
   const [companySession, setCompanySession] = useState(() => getCompanySession());
@@ -54,15 +57,14 @@ const App = () => {
   const studentId = studentSession?.userId ? Number(studentSession.userId) : null;
   const companyId = companySession?.companyId ? Number(companySession.companyId) : null;
 
+  // Sync student session from CV profile
   useEffect(() => {
     if (!studentId) return;
-
     let isActive = true;
 
     const syncStudentSession = async () => {
       try {
         const res = await fetch(`http://localhost:5000/api/cv/${studentId}`);
-
         if (!res.ok) return;
 
         const profileData = await res.json();
@@ -87,15 +89,12 @@ const App = () => {
     };
 
     syncStudentSession();
-
-    return () => {
-      isActive = false;
-    };
+    return () => { isActive = false; };
   }, [studentId, studentSession?.name, studentSession?.email]);
 
+  // Sync company session from profile
   useEffect(() => {
     if (!companyId) return;
-
     let isActive = true;
 
     const syncCompanySession = async () => {
@@ -103,7 +102,6 @@ const App = () => {
         const res = await fetch(
           `http://localhost:5000/company-profile?companyId=${companyId}`
         );
-
         if (!res.ok) return;
 
         const profileData = await res.json();
@@ -128,10 +126,7 @@ const App = () => {
     };
 
     syncCompanySession();
-
-    return () => {
-      isActive = false;
-    };
+    return () => { isActive = false; };
   }, [companyId, companySession]);
 
   const showToast = (msg) => alert(msg);
@@ -145,11 +140,12 @@ const App = () => {
   return (
     <div className="text-default min-h-screen bg-white">
       <ToastContainer />
-      {/* Navbar checks */}
+
+      {/* Hide Navbar on educator routes */}
       {!isEducatorRoute && <Navbar />}
-      
+
       <Routes>
-        {/* NEW APP ROUTES */}
+        {/* ── Educator / LMS Routes ── */}
         <Route path="/" element={<Home />} />
         <Route path="/course/:id" element={<CourseDetails />} />
         <Route path="/course-list" element={<CoursesList />} />
@@ -157,15 +153,15 @@ const App = () => {
         <Route path="/my-enrollments" element={<MyEnrollments />} />
         <Route path="/player/:courseId" element={<Player />} />
         <Route path="/loading/:path" element={<Loading />} />
-        <Route path='/educator' element={<Educator />}>
-          <Route path='/educator' element={<Dashboard />} />
-          <Route path='add-course' element={<AddCourse />} />
-          <Route path='edit-course/:id' element={<EditCourse />} />
-          <Route path='my-courses' element={<MyCourses />} />
-          <Route path='student-enrolled' element={<StudentsEnrolled />} />
+        <Route path="/educator" element={<Educator />}>
+          <Route path="/educator" element={<Dashboard />} />
+          <Route path="add-course" element={<AddCourse />} />
+          <Route path="edit-course/:id" element={<EditCourse />} />
+          <Route path="my-courses" element={<MyCourses />} />
+          <Route path="student-enrolled" element={<StudentsEnrolled />} />
         </Route>
 
-        {/* OLD APP ROUTES */}
+        {/* ── Student Routes ── */}
         <Route path="/login" element={<CSlogin onLogin={setStudentSession} />} />
         <Route path="/industry-placement" element={<CSlogin onLogin={setStudentSession} />} />
         <Route path="/extra-curricular" element={<CSlogin onLogin={setStudentSession} />} />
@@ -177,6 +173,9 @@ const App = () => {
         <Route path="/student/feedback" element={requireStudentAuth(<Csguidence userId={studentId} studentSession={studentSession} />)} />
         <Route path="/student/messages" element={requireStudentAuth(<CCStudentMessages db={db} setDb={setDb} userId={studentId} studentSession={studentSession} />)} />
         <Route path="/student/notifications" element={requireStudentAuth(<CStudentNotifications db={db} setDb={setDb} userId={studentId} showToast={showToast} studentSession={studentSession} />)} />
+        <Route path="/student/register" element={<CSregister onRegister={setStudentSession} />} />
+
+        {/* ── Company Routes ── */}
         <Route path="/company/login" element={<CompanyLogin onLogin={setCompanySession} />} />
         <Route path="/company/dashboard" element={requireCompanyAuth(<CompanyDashboard db={db} userId={companyId} session={{ name: companySession?.name || "Company" }} />)} />
         <Route path="/company/internships" element={requireCompanyAuth(<CompanyInternships db={db} setDb={setDb} userId={companyId} />)} />
@@ -184,10 +183,9 @@ const App = () => {
         <Route path="/company/messages" element={requireCompanyAuth(<CCompanyMessages db={db} setDb={setDb} userId={companyId} />)} />
         <Route path="/company/notifications" element={requireCompanyAuth(<CompanyNotifications db={db} setDb={setDb} userId={companyId} />)} />
         <Route path="/company/profile" element={requireCompanyAuth(<CompanyProfile companyId={companyId} onSessionChange={setCompanySession} />)} />
-        <Route path="/student/register" element={<CSregister onRegister={setStudentSession} />} />
       </Routes>
     </div>
-  )
-}
+  );
+};
 
 export default App;

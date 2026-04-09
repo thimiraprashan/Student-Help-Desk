@@ -16,7 +16,6 @@ import companyAuthRoutes from "./Routes/CCompanyAuthRoutes.js";
 import uploadRoutes from "./Routes/uploadRoutes.js";
 
 // Educator Part Imports
-import connectDB from './configs/mongodb.js';
 import connectCloudinary from './configs/cloudinary.js';
 import userRouter from './routes/userRoutes.js';
 import { clerkWebhooks, stripeWebhooks } from './controllers/webhooks.js';
@@ -62,91 +61,91 @@ app.use('/api/user', express.json(), userRouter);
 
 // CREATE APPLICATION
 app.post("/applications", async (req, res) => {
-  try {
-    const db = mongoose.connection.db;
+    try {
+        const db = mongoose.connection.db;
 
-    const data = {
-      ...req.body,
-      studentId: Number(req.body.studentId),
-      companyId: Number(req.body.companyId)
-    };
+        const data = {
+            ...req.body,
+            studentId: Number(req.body.studentId),
+            companyId: Number(req.body.companyId)
+        };
 
-    const result = await db.collection("applications").insertOne(data);
-    res.json({
-      _id: result.insertedId,
-      ...data,
-    });
+        const result = await db.collection("applications").insertOne(data);
+        res.json({
+            _id: result.insertedId,
+            ...data,
+        });
 
-  } catch (err) {
-    console.log("CREATE ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
+    } catch (err) {
+        console.log("CREATE ERROR:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // GET ALL APPLICATIONS
 app.get("/applications", async (req, res) => {
-  try {
-    const db = mongoose.connection.db;
-    const data = await db.collection("applications").find().toArray();
-    res.json(data);
+    try {
+        const db = mongoose.connection.db;
+        const data = await db.collection("applications").find().toArray();
+        res.json(data);
 
-  } catch (err) {
-    console.log("GET ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
+    } catch (err) {
+        console.log("GET ERROR:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // UPDATE APPLICATION + NOTIFICATION
 app.put("/applications/:id", async (req, res) => {
-  try {
-    const db = mongoose.connection.db;
+    try {
+        const db = mongoose.connection.db;
 
-    const appId = req.params.id;
-    const { status } = req.body;
+        const appId = req.params.id;
+        const { status } = req.body;
 
-    const application = await db.collection("applications").findOne({
-      _id: new ObjectId(appId)
-    });
+        const application = await db.collection("applications").findOne({
+            _id: new ObjectId(appId)
+        });
 
-    if (!application) {
-      return res.status(404).json({ error: "Application not found" });
+        if (!application) {
+            return res.status(404).json({ error: "Application not found" });
+        }
+
+        await db.collection("applications").updateOne(
+            { _id: new ObjectId(appId) },
+            { $set: { status } }
+        );
+
+        if (application.status !== status) {
+
+            let message = "";
+
+            if (status === "Accepted") {
+                message = `🎉 You have been accepted for ${application.title}!`;
+            } else if (status === "Rejected") {
+                message = `❌ Your application for ${application.title} was rejected`;
+            } else if (status === "Shortlisted") {
+                message = `⭐ You have been shortlisted for ${application.title}`;
+            } else {
+                message = `ℹ️ Status updated to ${status}`;
+            }
+
+            await db.collection("notifications").insertOne({
+                toUserId: Number(application.studentId),
+                message,
+                date: new Date().toISOString(),
+                read: false,
+                type: "application_status",
+                relatedApplicationId: appId
+            });
+        }
+
+        res.json({ message: "Updated successfully + notification sent" });
+
+    } catch (err) {
+        console.log("UPDATE ERROR:", err);
+        res.status(500).json({ error: err.message });
     }
-
-    await db.collection("applications").updateOne(
-      { _id: new ObjectId(appId) },
-      { $set: { status } }
-    );
-
-    if (application.status !== status) {
-
-      let message = "";
-
-      if (status === "Accepted") {
-        message = `🎉 You have been accepted for ${application.title}!`;
-      } else if (status === "Rejected") {
-        message = `❌ Your application for ${application.title} was rejected`;
-      } else if (status === "Shortlisted") {
-        message = `⭐ You have been shortlisted for ${application.title}`;
-      } else {
-        message = `ℹ️ Status updated to ${status}`;
-      }
-
-      await db.collection("notifications").insertOne({
-        toUserId: Number(application.studentId),
-        message,
-        date: new Date().toISOString(),
-        read: false,
-        type: "application_status",
-        relatedApplicationId: appId
-      });
-    }
-
-    res.json({ message: "Updated successfully + notification sent" });
-
-  } catch (err) {
-    console.log("UPDATE ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
 });
 
 // =======================================
@@ -154,49 +153,49 @@ app.put("/applications/:id", async (req, res) => {
 // =======================================
 
 app.get("/notifications", async (req, res) => {
-  try {
-    const db = mongoose.connection.db;
-    const data = await db.collection("notifications").find().toArray();
-    res.json(data);
+    try {
+        const db = mongoose.connection.db;
+        const data = await db.collection("notifications").find().toArray();
+        res.json(data);
 
-  } catch (err) {
-    console.log("NOTIF ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
+    } catch (err) {
+        console.log("NOTIF ERROR:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.get("/notifications/:userId", async (req, res) => {
-  try {
-    const db = mongoose.connection.db;
-    const userId = Number(req.params.userId);
+    try {
+        const db = mongoose.connection.db;
+        const userId = Number(req.params.userId);
 
-    const data = await db.collection("notifications").find({
-      toUserId: userId
-    }).toArray();
+        const data = await db.collection("notifications").find({
+            toUserId: userId
+        }).toArray();
 
-    res.json(data);
+        res.json(data);
 
-  } catch (err) {
-    console.log("USER NOTIF ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
+    } catch (err) {
+        console.log("USER NOTIF ERROR:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.put("/notifications/:id/read", async (req, res) => {
-  try {
-    const db = mongoose.connection.db;
+    try {
+        const db = mongoose.connection.db;
 
-    await db.collection("notifications").updateOne(
-      { _id: new ObjectId(req.params.id) },
-      { $set: { read: true } }
-    );
+        await db.collection("notifications").updateOne(
+            { _id: new ObjectId(req.params.id) },
+            { $set: { read: true } }
+        );
 
-    res.json({ message: "Marked as read" });
+        res.json({ message: "Marked as read" });
 
-  } catch (err) {
-    console.log("READ ERROR:", err);
-    res.status(500).json({ error: err.message });
-  }
+    } catch (err) {
+        console.log("READ ERROR:", err);
+        res.status(500).json({ error: err.message });
+    }
 });
 
 // =======================================
@@ -204,18 +203,17 @@ app.put("/notifications/:id/read", async (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 try {
-  await connectDB();
-  await connectCloudinary();
-  
-  if (mongoose.connection.readyState !== 1) {
+    // Connect to MongoDB using the URI from .env
     await mongoose.connect(process.env.MONGODB_URI);
-    console.log("✅ MongoDB Connected directly via URL");
-  }
+    console.log("✅ MongoDB Connected:", process.env.MONGODB_URI);
 
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
+    // Connect Cloudinary (for educator image uploads)
+    await connectCloudinary();
+
+    app.listen(PORT, () => {
+        console.log(`🚀 Server running on port ${PORT}`);
+    });
 
 } catch (err) {
-  console.log("❌ Server Startup Error:", err);
+    console.log("❌ Server Startup Error:", err);
 }
