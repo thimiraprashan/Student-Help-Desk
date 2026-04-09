@@ -1,0 +1,92 @@
+[
+  {
+    "_id": "69c2a980d7582ffa6494af7f",
+    "courseId": "69c1b0b780c0d7a33adfc8f4",
+    "userId": "user_3BObph6fS7v4H7i2SbzxDI8l7Ty",
+    "amount": 0.77,
+    "status": "pending",
+    "createdAt": "2026-03-24T15:10:56.364Z",
+    "updatedAt": "2026-03-24T15:10:56.364Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2a987d7582ffa6494af83",
+    "courseId": "69c1b0b780c0d7a33adfc8f4",
+    "userId": "user_3BObph6fS7v4H7i2SbzxDI8l7Ty",
+    "amount": 0.77,
+    "status": "pending",
+    "createdAt": "2026-03-24T15:11:03.775Z",
+    "updatedAt": "2026-03-24T15:11:03.775Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2a9a2d7582ffa6494af87",
+    "courseId": "69c1b0b780c0d7a33adfc8f4",
+    "userId": "user_3BObph6fS7v4H7i2SbzxDI8l7Ty",
+    "amount": 0.77,
+    "status": "pending",
+    "createdAt": "2026-03-24T15:11:30.908Z",
+    "updatedAt": "2026-03-24T15:11:30.908Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2aaf0d7582ffa6494af97",
+    "courseId": "69c1b0b780c0d7a33adfc8f4",
+    "userId": "user_3BObph6fS7v4H7i2SbzxDI8l7Ty",
+    "amount": 0.77,
+    "status": "pending",
+    "createdAt": "2026-03-24T15:17:04.868Z",
+    "updatedAt": "2026-03-24T15:17:04.868Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2aafcd7582ffa6494af9b",
+    "courseId": "69c1b0b780c0d7a33adfc8f4",
+    "userId": "user_3BObph6fS7v4H7i2SbzxDI8l7Ty",
+    "amount": 0.77,
+    "status": "pending",
+    "createdAt": "2026-03-24T15:17:16.177Z",
+    "updatedAt": "2026-03-24T15:17:16.177Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2ab26d7582ffa6494af9f",
+    "courseId": "69c1b0b780c0d7a33adfc8f4",
+    "userId": "user_3BObph6fS7v4H7i2SbzxDI8l7Ty",
+    "amount": 0.77,
+    "status": "pending",
+    "createdAt": "2026-03-24T15:17:58.900Z",
+    "updatedAt": "2026-03-24T15:17:58.900Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2b133c865d89981e11cbd",
+    "courseId": "69c1b0b780c0d7a33adfc8f4",
+    "userId": "user_3BObph6fS7v4H7i2SbzxDI8l7Ty",
+    "amount": 0.77,
+    "status": "pending",
+    "createdAt": "2026-03-24T15:43:47.209Z",
+    "updatedAt": "2026-03-24T15:43:47.209Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2b179c865d89981e11cf6",
+    "courseId": "69c1b0b780c0d7a33adfc8f4",
+    "userId": "user_3BObph6fS7v4H7i2SbzxDI8l7Ty",
+    "amount": 0.77,
+    "status": "pending",
+    "createdAt": "2026-03-24T15:44:57.815Z",
+    "updatedAt": "2026-03-24T15:44:57.815Z",
+    "__v": 0
+  },
+  {
+    "_id": "69c2b19bc865d89981e11d03",
+    "courseId": "69c1b0b780c0d7a33adfc8f4",
+    "userId": "user_3BObph6fS7v4H7i2SbzxDI8l7Ty",
+    "amount": 0.77,
+    "status": "pending",
+    "createdAt": "2026-03-24T15:45:31.735Z",
+    "updatedAt": "2026-03-24T15:45:31.735Z",
+    "__v": 0
+  }
+]
