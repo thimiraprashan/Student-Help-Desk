@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Routes, Route, useMatch } from "react-router-dom";
+import { Navigate, Routes, Route, useMatch, useLocation } from "react-router-dom";
 import initialDb from "./data";
 
 // ── Student imports ──────────────────────────────────────────────
@@ -30,6 +30,14 @@ import {
   setStudentSessionStorage,
 } from "./utils/sessionStore";
 
+// ── Extra Curricular imports ─────────────────────────────────────
+import Layout from "./components/Layout";
+import ExtraCurricularHome from "./pages/Home";
+import Events from "./pages/Events";
+import Sports from "./pages/Sports";
+import Clubs from "./pages/Clubs";
+import ActivityNotifications from "./pages/Notifications";
+
 // ── Educator / LMS imports ───────────────────────────────────────
 import Navbar from "./components/student/Navbar";
 import Home from "./pages/student/Home";
@@ -44,12 +52,22 @@ import Educator from "./pages/educator/Educator";
 import Player from "./pages/student/Player";
 import MyEnrollments from "./pages/student/MyEnrollments";
 import Loading from "./components/student/Loading";
+import Footer from "./components/educator/Footer";
 import "quill/dist/quill.snow.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
+// Wrapper that adds educator Footer flush to the bottom
+const WithFooter = ({ children }) => (
+  <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+    <div style={{ flex: 1 }}>{children}</div>
+    <Footer />
+  </div>
+);
+
 const App = () => {
   const isEducatorRoute = useMatch("/educator/*");
+  const location = useLocation();
   const [db, setDb] = useState(initialDb);
   const [studentSession, setStudentSession] = useState(() => getStudentSession());
   const [companySession, setCompanySession] = useState(() => getCompanySession());
@@ -141,7 +159,7 @@ const App = () => {
     <div className="text-default min-h-screen bg-white">
       <ToastContainer />
 
-      {/* Hide Navbar on educator routes */}
+      {/* Show Navbar on all pages except educator dashboard */}
       {!isEducatorRoute && <Navbar />}
 
       <Routes>
@@ -161,28 +179,44 @@ const App = () => {
           <Route path="student-enrolled" element={<StudentsEnrolled />} />
         </Route>
 
+        {/* ── Extra Curricular Routes ── */}
+        <Route path="/extra-curricular" element={<Layout />}>
+          <Route index element={<ExtraCurricularHome />} />
+        </Route>
+        <Route path="/events" element={<Layout />}>
+          <Route index element={<Events />} />
+        </Route>
+        <Route path="/sports" element={<Layout />}>
+          <Route index element={<Sports />} />
+        </Route>
+        <Route path="/clubs" element={<Layout />}>
+          <Route index element={<Clubs />} />
+        </Route>
+        <Route path="/notifications" element={<Layout />}>
+          <Route index element={<ActivityNotifications />} />
+        </Route>
+
         {/* ── Student Routes ── */}
-        <Route path="/login" element={<CSlogin onLogin={setStudentSession} />} />
-        <Route path="/industry-placement" element={<CSlogin onLogin={setStudentSession} />} />
-        <Route path="/extra-curricular" element={<CSlogin onLogin={setStudentSession} />} />
-        <Route path="/student/dashboard" element={requireStudentAuth(<CStudentDashboard userId={studentId} studentSession={studentSession} />)} />
-        <Route path="/student/internships" element={requireStudentAuth(<CStudentInternships db={db} setDb={setDb} userId={studentId} studentSession={studentSession} />)} />
-        <Route path="/student/applications" element={requireStudentAuth(<CStudentApplications db={db} userId={studentId} studentSession={studentSession} />)} />
-        <Route path="/student/cv" element={requireStudentAuth(<StudentCV userId={studentId} onStudentProfileChange={setStudentSession} studentSession={studentSession} />)} />
-        <Route path="/student/guidance" element={requireStudentAuth(<Csguidence userId={studentId} studentSession={studentSession} />)} />
-        <Route path="/student/feedback" element={requireStudentAuth(<Csguidence userId={studentId} studentSession={studentSession} />)} />
-        <Route path="/student/messages" element={requireStudentAuth(<CCStudentMessages db={db} setDb={setDb} userId={studentId} studentSession={studentSession} />)} />
-        <Route path="/student/notifications" element={requireStudentAuth(<CStudentNotifications db={db} setDb={setDb} userId={studentId} showToast={showToast} studentSession={studentSession} />)} />
-        <Route path="/student/register" element={<CSregister onRegister={setStudentSession} />} />
+        <Route path="/login" element={<WithFooter><CSlogin onLogin={setStudentSession} /></WithFooter>} />
+        <Route path="/industry-placement" element={<WithFooter><CSlogin onLogin={setStudentSession} /></WithFooter>} />
+        <Route path="/student/dashboard" element={requireStudentAuth(<WithFooter><CStudentDashboard userId={studentId} studentSession={studentSession} /></WithFooter>)} />
+        <Route path="/student/internships" element={requireStudentAuth(<WithFooter><CStudentInternships db={db} setDb={setDb} userId={studentId} studentSession={studentSession} /></WithFooter>)} />
+        <Route path="/student/applications" element={requireStudentAuth(<WithFooter><CStudentApplications db={db} userId={studentId} studentSession={studentSession} /></WithFooter>)} />
+        <Route path="/student/cv" element={requireStudentAuth(<WithFooter><StudentCV userId={studentId} onStudentProfileChange={setStudentSession} studentSession={studentSession} /></WithFooter>)} />
+        <Route path="/student/guidance" element={requireStudentAuth(<WithFooter><Csguidence userId={studentId} studentSession={studentSession} /></WithFooter>)} />
+        <Route path="/student/feedback" element={requireStudentAuth(<WithFooter><Csguidence userId={studentId} studentSession={studentSession} /></WithFooter>)} />
+        <Route path="/student/messages" element={requireStudentAuth(<WithFooter><CCStudentMessages db={db} setDb={setDb} userId={studentId} studentSession={studentSession} /></WithFooter>)} />
+        <Route path="/student/notifications" element={requireStudentAuth(<WithFooter><CStudentNotifications db={db} setDb={setDb} userId={studentId} showToast={showToast} studentSession={studentSession} /></WithFooter>)} />
+        <Route path="/student/register" element={<WithFooter><CSregister onRegister={setStudentSession} /></WithFooter>} />
 
         {/* ── Company Routes ── */}
-        <Route path="/company/login" element={<CompanyLogin onLogin={setCompanySession} />} />
-        <Route path="/company/dashboard" element={requireCompanyAuth(<CompanyDashboard db={db} userId={companyId} session={{ name: companySession?.name || "Company" }} />)} />
-        <Route path="/company/internships" element={requireCompanyAuth(<CompanyInternships db={db} setDb={setDb} userId={companyId} />)} />
-        <Route path="/company/applicants" element={requireCompanyAuth(<CompanyApplicants db={db} setDb={setDb} userId={companyId} />)} />
-        <Route path="/company/messages" element={requireCompanyAuth(<CCompanyMessages db={db} setDb={setDb} userId={companyId} />)} />
-        <Route path="/company/notifications" element={requireCompanyAuth(<CompanyNotifications db={db} setDb={setDb} userId={companyId} />)} />
-        <Route path="/company/profile" element={requireCompanyAuth(<CompanyProfile companyId={companyId} onSessionChange={setCompanySession} />)} />
+        <Route path="/company/login" element={<WithFooter><CompanyLogin onLogin={setCompanySession} /></WithFooter>} />
+        <Route path="/company/dashboard" element={requireCompanyAuth(<WithFooter><CompanyDashboard db={db} userId={companyId} session={{ name: companySession?.name || "Company" }} /></WithFooter>)} />
+        <Route path="/company/internships" element={requireCompanyAuth(<WithFooter><CompanyInternships db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
+        <Route path="/company/applicants" element={requireCompanyAuth(<WithFooter><CompanyApplicants db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
+        <Route path="/company/messages" element={requireCompanyAuth(<WithFooter><CCompanyMessages db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
+        <Route path="/company/notifications" element={requireCompanyAuth(<WithFooter><CompanyNotifications db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
+        <Route path="/company/profile" element={requireCompanyAuth(<WithFooter><CompanyProfile companyId={companyId} onSessionChange={setCompanySession} /></WithFooter>)} />
       </Routes>
     </div>
   );

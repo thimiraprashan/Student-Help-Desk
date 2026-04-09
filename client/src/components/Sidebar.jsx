@@ -25,7 +25,7 @@ const Sidebar = () => {
         <div className="sidebar">
             <h2 style={{ color: 'var(--text-main)', marginBottom: '2rem', fontSize: '1.5rem', fontWeight: 700 }}>SLIIT<span style={{ color: 'var(--primary)' }}>LMS</span></h2>
             <div className="sidebar-nav">
-                <NavLink to="/" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
+                <NavLink to="/extra-curricular" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`} end>
                     <Home size={20} /> Home
                 </NavLink>
                 <NavLink to="/events" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>

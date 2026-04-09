@@ -21,6 +21,11 @@ import userRouter from './routes/userRoutes.js';
 import { clerkWebhooks, stripeWebhooks } from './controllers/webhooks.js';
 import educatorRouter from './routes/educatorRoutes.js';
 import courseRouter from './routes/courseRoute.js';
+import eventRoutes from "./routes/eventRoutes.js";
+import sportRoutes from "./routes/sportRoutes.js";
+import clubRoutes from "./routes/clubRoutes.js";
+import activityNotificationRoutes from "./routes/notificationRoutes.js";
+import feedbackRoutes from "./routes/FeedbackRoutes.js";
 
 // Initialize Express
 const app = express();
@@ -54,6 +59,11 @@ app.get('/', (req, res) => res.send("API Working"));
 app.use('/api/educator', express.json(), educatorRouter);
 app.use('/api/course', express.json(), courseRouter);
 app.use('/api/user', express.json(), userRouter);
+app.use("/api/events", eventRoutes);
+app.use("/api/sports", sportRoutes);
+app.use("/api/clubs", clubRoutes);
+app.use("/api/notifications", activityNotificationRoutes);
+app.use("/api/feedback", feedbackRoutes);
 
 // =======================================
 // 🔥 APPLICATION ROUTES
