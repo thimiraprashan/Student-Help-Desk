@@ -1,9 +1,11 @@
+import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
 import cors from "cors";
-import dotenv from "dotenv";
 import { ObjectId } from "mongodb";
+import { clerkMiddleware } from '@clerk/express';
 
+// Top Part Routes
 import router from "./Routes/CStudentRoutes.js";
 import studentAuthRoutes from "./Routes/CStudentAuthRoutes.js";
 import companyRoutes from "./Routes/CCompanyRoutes.js";
@@ -13,19 +15,32 @@ import companyProfileRoutes from "./Routes/CCompanyProfileRoutes.js";
 import companyAuthRoutes from "./Routes/CCompanyAuthRoutes.js";
 import uploadRoutes from "./Routes/uploadRoutes.js";
 
-// 🔥 load env
-dotenv.config();
+// Educator Part Imports
+import connectDB from './configs/mongodb.js';
+import connectCloudinary from './configs/cloudinary.js';
+import userRouter from './routes/userRoutes.js';
+import { clerkWebhooks, stripeWebhooks } from './controllers/webhooks.js';
+import educatorRouter from './routes/educatorRoutes.js';
+import courseRouter from './routes/courseRoute.js';
 
+// Initialize Express
 const app = express();
 
 // ✅ middleware
 app.use(cors());
+app.use(clerkMiddleware());
+
+// ✅ Webhook routes (MUST be before express.json() to allow raw parsing for stripe)
+app.post('/clerk', express.json(), clerkWebhooks);
+app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks);
+
+// Now apply express.json() for all subsequent routes
 app.use(express.json());
 
 // ✅ static folder (CV view)
 app.use("/uploads", express.static("uploads"));
 
-// ✅ routes
+// ✅ Top part routes
 app.use("/students", router);
 app.use("/students", studentAuthRoutes);
 app.use("/companies", companyRoutes);
@@ -34,6 +49,12 @@ app.use("/api/cv", cvRoutes);
 app.use("/company-profile", companyProfileRoutes);
 app.use("/company-auth", companyAuthRoutes);
 app.use("/api/upload", uploadRoutes);
+
+// ✅ Bottom part routes
+app.get('/', (req, res) => res.send("API Working"));
+app.use('/api/educator', express.json(), educatorRouter);
+app.use('/api/course', express.json(), courseRouter);
+app.use('/api/user', express.json(), userRouter);
 
 // =======================================
 // 🔥 APPLICATION ROUTES
@@ -180,50 +201,21 @@ app.put("/notifications/:id/read", async (req, res) => {
 
 // =======================================
 
-// ✅ DB connect
-mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log("✅ MongoDB Connected");
+const PORT = process.env.PORT || 5000;
 
-    app.listen(5000, () => {
-      console.log("🚀 Server running on port 5000");
-    });
+try {
+  await connectDB();
+  await connectCloudinary();
+  
+  if (mongoose.connection.readyState !== 1) {
+    await mongoose.connect(process.env.MONGODB_URI);
+    console.log("✅ MongoDB Connected directly via URL");
+  }
 
-  })
-  .catch((err) => console.log("❌ DB ERROR:", err));
-import express from 'express'
-import cors from 'cors'
-import 'dotenv/config'
-import connectDB from './configs/mongodb.js'
-import connectCloudinary from './configs/cloudinary.js'
-import userRouter from './routes/userRoutes.js'
-import { clerkMiddleware } from '@clerk/express'
-import { clerkWebhooks, stripeWebhooks } from './controllers/webhooks.js'
-import educatorRouter from './routes/educatorRoutes.js'
-import courseRouter from './routes/courseRoute.js'
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
 
-// Initialize Express
-const app = express()
-
-// Connect to database
-await connectDB()
-await connectCloudinary()
-
-// Middlewares
-app.use(cors())
-app.use(clerkMiddleware())
-
-// Routes
-app.get('/', (req, res) => res.send("API Working"))
-app.post('/clerk', express.json() , clerkWebhooks)
-app.post('/stripe', express.raw({ type: 'application/json' }), stripeWebhooks)
-app.use('/api/educator', express.json(), educatorRouter)
-app.use('/api/course', express.json(), courseRouter)
-app.use('/api/user', express.json(), userRouter)
-
-// Port
-const PORT = process.env.PORT || 5000
-
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-})
+} catch (err) {
+  console.log("❌ Server Startup Error:", err);
+}

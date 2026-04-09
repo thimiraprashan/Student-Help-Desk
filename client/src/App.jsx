@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { Navigate, Routes, Route } from "react-router-dom";
+import React, { useEffect, useState, useContext } from "react";
+import { Navigate, Routes, Route, useLocation, useMatch } from "react-router-dom";
 import initialDb from "./data";
 
+// old imports
 import CSlogin from "./Components/Cstudent/CSlogin";
 import CStudentDashboard from "./Components/Cstudent/CStudentDashboard/CStudentDashboardFixed";
 import CStudentInternships from "./Components/Cstudent/CStudentInternships/CStudentInternships";
@@ -26,7 +27,26 @@ import {
   setStudentSessionStorage,
 } from "./utils/sessionStore";
 
-function App() {
+// new imports
+import Navbar from './components/student/Navbar'
+import Home from './pages/student/Home'
+import CourseDetails from './pages/student/CourseDetails'
+import CoursesList from './pages/student/CoursesList'
+import Dashboard from './pages/educator/Dashboard'
+import AddCourse from './pages/educator/AddCourse'
+import EditCourse from './pages/educator/EditCourse'
+import MyCourses from './pages/educator/MyCourses'
+import StudentsEnrolled from './pages/educator/StudentsEnrolled'
+import Educator from './pages/educator/Educator'
+import 'quill/dist/quill.snow.css'
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer } from 'react-toastify'
+import Player from './pages/student/Player'
+import MyEnrollments from './pages/student/MyEnrollments'
+import Loading from './components/student/Loading'
+
+const App = () => {
+  const isEducatorRoute = useMatch('/educator/*');
   const [db, setDb] = useState(initialDb);
   const [studentSession, setStudentSession] = useState(() => getStudentSession());
   const [companySession, setCompanySession] = useState(() => getCompanySession());
@@ -123,164 +143,13 @@ function App() {
     companySession ? element : <Navigate to="/company/login" replace />;
 
   return (
-    <Routes>
-      <Route path="/login" element={<CSlogin onLogin={setStudentSession} />} />
-
-      <Route
-        path="/"
-        element={requireStudentAuth(
-          <CStudentDashboard userId={studentId} studentSession={studentSession} />
-        )}
-      />
-      <Route
-        path="/student/dashboard"
-        element={requireStudentAuth(
-          <CStudentDashboard userId={studentId} studentSession={studentSession} />
-        )}
-      />
-      <Route
-        path="/student/internships"
-        element={requireStudentAuth(
-          <CStudentInternships
-            db={db}
-            setDb={setDb}
-            userId={studentId}
-            studentSession={studentSession}
-          />
-        )}
-      />
-      <Route
-        path="/student/applications"
-        element={requireStudentAuth(
-          <CStudentApplications
-            db={db}
-            userId={studentId}
-            studentSession={studentSession}
-          />
-        )}
-      />
-      <Route
-        path="/student/cv"
-        element={requireStudentAuth(
-          <StudentCV
-            userId={studentId}
-            onStudentProfileChange={setStudentSession}
-            studentSession={studentSession}
-          />
-        )}
-      />
-      <Route
-        path="/student/guidance"
-        element={requireStudentAuth(
-          <Csguidence userId={studentId} studentSession={studentSession} />
-        )}
-      />
-      <Route
-        path="/student/feedback"
-        element={requireStudentAuth(
-          <Csguidence userId={studentId} studentSession={studentSession} />
-        )}
-      />
-      <Route
-        path="/student/messages"
-        element={requireStudentAuth(
-          <CCStudentMessages
-            db={db}
-            setDb={setDb}
-            userId={studentId}
-            studentSession={studentSession}
-          />
-        )}
-      />
-      <Route
-        path="/student/notifications"
-        element={requireStudentAuth(
-          <CStudentNotifications
-            db={db}
-            setDb={setDb}
-            userId={studentId}
-            showToast={showToast}
-            studentSession={studentSession}
-          />
-        )}
-      />
-
-      <Route path="/company/login" element={<CompanyLogin onLogin={setCompanySession} />} />
-      <Route
-        path="/company/dashboard"
-        element={requireCompanyAuth(
-          <CompanyDashboard
-            db={db}
-            userId={companyId}
-            session={{ name: companySession?.name || "Company" }}
-          />
-        )}
-      />
-      <Route
-        path="/company/internships"
-        element={requireCompanyAuth(
-          <CompanyInternships db={db} setDb={setDb} userId={companyId} />
-        )}
-      />
-      <Route
-        path="/company/applicants"
-        element={requireCompanyAuth(
-          <CompanyApplicants db={db} setDb={setDb} userId={companyId} />
-        )}
-      />
-      <Route
-        path="/company/messages"
-        element={requireCompanyAuth(
-          <CCompanyMessages db={db} setDb={setDb} userId={companyId} />
-        )}
-      />
-      <Route
-        path="/company/notifications"
-        element={requireCompanyAuth(
-          <CompanyNotifications db={db} setDb={setDb} userId={companyId} />
-        )}
-      />
-      <Route
-        path="/company/profile"
-        element={requireCompanyAuth(
-          <CompanyProfile
-            companyId={companyId}
-            onSessionChange={setCompanySession}
-          />
-        )}
-      />
-      <Route path="/student/register" element={<CSregister onRegister={setStudentSession} />} />
-    </Routes>
-  );
-import React, { useContext } from 'react'
-import { Routes, Route, useLocation, useMatch } from 'react-router-dom'
-import Navbar from './components/student/Navbar'
-import Home from './pages/student/Home'
-import CourseDetails from './pages/student/CourseDetails'
-import CoursesList from './pages/student/CoursesList'
-import Dashboard from './pages/educator/Dashboard'
-import AddCourse from './pages/educator/AddCourse'
-import EditCourse from './pages/educator/EditCourse'
-import MyCourses from './pages/educator/MyCourses'
-import StudentsEnrolled from './pages/educator/StudentsEnrolled'
-import Educator from './pages/educator/Educator'
-import 'quill/dist/quill.snow.css'
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer } from 'react-toastify'
-import Player from './pages/student/Player'
-import MyEnrollments from './pages/student/MyEnrollments'
-import Loading from './components/student/Loading'
-
-const App = () => {
-
-  const isEducatorRoute = useMatch('/educator/*');
-
-  return (
     <div className="text-default min-h-screen bg-white">
       <ToastContainer />
-      {/* Render Student Navbar only if not on educator routes */}
+      {/* Navbar checks */}
       {!isEducatorRoute && <Navbar />}
+      
       <Routes>
+        {/* NEW APP ROUTES */}
         <Route path="/" element={<Home />} />
         <Route path="/course/:id" element={<CourseDetails />} />
         <Route path="/course-list" element={<CoursesList />} />
@@ -295,9 +164,30 @@ const App = () => {
           <Route path='my-courses' element={<MyCourses />} />
           <Route path='student-enrolled' element={<StudentsEnrolled />} />
         </Route>
+
+        {/* OLD APP ROUTES */}
+        <Route path="/login" element={<CSlogin onLogin={setStudentSession} />} />
+        <Route path="/industry-placement" element={<CSlogin onLogin={setStudentSession} />} />
+        <Route path="/extra-curricular" element={<CSlogin onLogin={setStudentSession} />} />
+        <Route path="/student/dashboard" element={requireStudentAuth(<CStudentDashboard userId={studentId} studentSession={studentSession} />)} />
+        <Route path="/student/internships" element={requireStudentAuth(<CStudentInternships db={db} setDb={setDb} userId={studentId} studentSession={studentSession} />)} />
+        <Route path="/student/applications" element={requireStudentAuth(<CStudentApplications db={db} userId={studentId} studentSession={studentSession} />)} />
+        <Route path="/student/cv" element={requireStudentAuth(<StudentCV userId={studentId} onStudentProfileChange={setStudentSession} studentSession={studentSession} />)} />
+        <Route path="/student/guidance" element={requireStudentAuth(<Csguidence userId={studentId} studentSession={studentSession} />)} />
+        <Route path="/student/feedback" element={requireStudentAuth(<Csguidence userId={studentId} studentSession={studentSession} />)} />
+        <Route path="/student/messages" element={requireStudentAuth(<CCStudentMessages db={db} setDb={setDb} userId={studentId} studentSession={studentSession} />)} />
+        <Route path="/student/notifications" element={requireStudentAuth(<CStudentNotifications db={db} setDb={setDb} userId={studentId} showToast={showToast} studentSession={studentSession} />)} />
+        <Route path="/company/login" element={<CompanyLogin onLogin={setCompanySession} />} />
+        <Route path="/company/dashboard" element={requireCompanyAuth(<CompanyDashboard db={db} userId={companyId} session={{ name: companySession?.name || "Company" }} />)} />
+        <Route path="/company/internships" element={requireCompanyAuth(<CompanyInternships db={db} setDb={setDb} userId={companyId} />)} />
+        <Route path="/company/applicants" element={requireCompanyAuth(<CompanyApplicants db={db} setDb={setDb} userId={companyId} />)} />
+        <Route path="/company/messages" element={requireCompanyAuth(<CCompanyMessages db={db} setDb={setDb} userId={companyId} />)} />
+        <Route path="/company/notifications" element={requireCompanyAuth(<CompanyNotifications db={db} setDb={setDb} userId={companyId} />)} />
+        <Route path="/company/profile" element={requireCompanyAuth(<CompanyProfile companyId={companyId} onSessionChange={setCompanySession} />)} />
+        <Route path="/student/register" element={<CSregister onRegister={setStudentSession} />} />
       </Routes>
     </div>
   )
 }
 
-export default App
+export default App;
