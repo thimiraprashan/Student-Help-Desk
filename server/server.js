@@ -6,14 +6,14 @@ import { ObjectId } from "mongodb";
 import { clerkMiddleware } from '@clerk/express';
 
 // Top Part Routes
-import router from "./Routes/CStudentRoutes.js";
-import studentAuthRoutes from "./Routes/CStudentAuthRoutes.js";
-import companyRoutes from "./Routes/CCompanyRoutes.js";
-import messageRoutes from "./Routes/CSMessageRoutes.js";
-import cvRoutes from "./Routes/CStudentCVRoutes.js";
-import companyProfileRoutes from "./Routes/CCompanyProfileRoutes.js";
-import companyAuthRoutes from "./Routes/CCompanyAuthRoutes.js";
-import uploadRoutes from "./Routes/uploadRoutes.js";
+import router from "./routes/CStudentRoutes.js";
+import studentAuthRoutes from "./routes/CStudentAuthRoutes.js";
+import companyRoutes from "./routes/CCompanyRoutes.js";
+import messageRoutes from "./routes/CSMessageRoutes.js";
+import cvRoutes from "./routes/CStudentCVRoutes.js";
+import companyProfileRoutes from "./routes/CCompanyProfileRoutes.js";
+import companyAuthRoutes from "./routes/CCompanyAuthRoutes.js";
+import uploadRoutes from "./routes/uploadRoutes.js";
 
 // Educator Part Imports
 import connectCloudinary from './configs/cloudinary.js';
