@@ -1,11 +1,20 @@
 import React, { useEffect, useState } from "react";
 import Sidebar from "../Common/SSidebar";
 import { getCompanySession } from "../../utils/sessionStore";
+import { withBackendUrl } from "../../lib/backend.js";
 
 const CompanyApplicants = ({ userId }) => {
   const [applications, setApplications] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [companyName, setCompanyName] = useState("Company");
+  const [interviewApp, setInterviewApp] = useState(null);
+  const [interviewForm, setInterviewForm] = useState({
+    interviewDate: "",
+    interviewTime: "",
+    interviewHall: ""
+  });
+  const [isEditingInterview, setIsEditingInterview] = useState(false);
+  const [interviewErrors, setInterviewErrors] = useState({});
 
   const loadApplications = () => {
     fetch("http://localhost:5000/applications")
@@ -40,6 +49,111 @@ const CompanyApplicants = ({ userId }) => {
     return () => clearInterval(interval);
   }, [userId]);
 
+  const updateApplicationStatus = async (app, status, details = {}) => {
+    const res = await fetch(`http://localhost:5000/applications/${app._id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ status, ...details })
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      throw new Error(errorData.error || "Unable to update application.");
+    }
+
+    const data = await res.json();
+    const updatedApplication = data.application || { ...app, status, ...details };
+
+    setApplications((prev) =>
+      prev.map((item) =>
+        String(item._id) === String(app._id) ? { ...item, ...updatedApplication } : item
+      )
+    );
+
+    loadApplications();
+    return updatedApplication;
+  };
+
+  const hasInterviewDetails = (app) =>
+    Boolean(app?.interviewDate && app?.interviewTime && app?.interviewHall);
+
+  const getTodayDate = () => new Date().toISOString().split("T")[0];
+
+  const validateInterviewForm = () => {
+    const errors = {};
+    const hall = interviewForm.interviewHall.trim();
+
+    if (!interviewForm.interviewDate) {
+      errors.interviewDate = "Interview date is required.";
+    } else if (interviewForm.interviewDate < getTodayDate()) {
+      errors.interviewDate = "Interview date cannot be in the past.";
+    }
+
+    if (!interviewForm.interviewTime) {
+      errors.interviewTime = "Interview time is required.";
+    } else if (interviewForm.interviewDate === getTodayDate()) {
+      const now = new Date();
+      const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(
+        now.getMinutes()
+      ).padStart(2, "0")}`;
+
+      if (interviewForm.interviewTime <= currentTime) {
+        errors.interviewTime = "Interview time must be later than the current time.";
+      }
+    }
+
+    if (!hall) {
+      errors.interviewHall = "Hall is required.";
+    } else if (hall.length < 3) {
+      errors.interviewHall = "Hall must be at least 3 characters.";
+    }
+
+    setInterviewErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const openInterviewDetails = (app) => {
+    setInterviewApp(app);
+    setIsEditingInterview(!hasInterviewDetails(app));
+    setInterviewErrors({});
+    setInterviewForm({
+      interviewDate: app.interviewDate || "",
+      interviewTime: app.interviewTime || "",
+      interviewHall: app.interviewHall || ""
+    });
+  };
+
+  const saveInterviewDetails = async (e) => {
+    e.preventDefault();
+
+    if (!interviewApp) return;
+    if (!validateInterviewForm()) return;
+
+    const cleanForm = {
+      interviewDate: interviewForm.interviewDate,
+      interviewTime: interviewForm.interviewTime,
+      interviewHall: interviewForm.interviewHall.trim()
+    };
+
+    try {
+      const updatedApplication = await updateApplicationStatus(interviewApp, "Accepted", cleanForm);
+      setInterviewApp(updatedApplication);
+      setInterviewForm({
+        interviewDate: updatedApplication.interviewDate || cleanForm.interviewDate,
+        interviewTime: updatedApplication.interviewTime || cleanForm.interviewTime,
+        interviewHall: updatedApplication.interviewHall || cleanForm.interviewHall
+      });
+      setIsEditingInterview(false);
+    } catch (err) {
+      setInterviewErrors((prev) => ({
+        ...prev,
+        form: err.message || "Unable to save interview details."
+      }));
+    }
+  };
+
   return (
     <div className="flex min-h-screen bg-slate-100">
 
@@ -72,21 +186,22 @@ const CompanyApplicants = ({ userId }) => {
           </div>
         )}
 
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
         {applications.map((app) => (
           <div
             key={app._id}
-            className="mb-4 rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-100 p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+            className="rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-100 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
           >
 
             <div className="flex items-start gap-4">
 
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-xl font-bold text-white">
+              <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-br from-violet-500 to-indigo-600 text-xl font-bold text-white">
                 {app.studentName?.[0]}
               </div>
 
-              <div>
+              <div className="min-w-0">
                 {/* 🔥 FIXED NAME */}
-                <h3 className="text-2xl font-bold text-slate-900">
+                <h3 className="break-words text-2xl font-bold text-slate-900">
                   {app.studentName}
                 </h3>
 
@@ -94,33 +209,48 @@ const CompanyApplicants = ({ userId }) => {
                   {app.field} · Year {app.year} · GPA {app.gpa}
                 </p>
 
-                <p className="mt-2 text-sm font-medium text-blue-600">
+                <p className="mt-2 break-words text-sm font-medium text-blue-600">
                   Applied for: {app.title}
                 </p>
 
                 <p className="mt-2 text-xs uppercase tracking-[0.15em] text-slate-400">
                   {app.date}
                 </p>
+
+                {app.status === "Accepted" && (
+                  <div
+                    className={`mt-3 rounded-xl border px-3 py-2 text-sm font-medium ${
+                      hasInterviewDetails(app)
+                        ? "border-green-200 bg-green-50 text-green-700"
+                        : "border-yellow-200 bg-yellow-50 text-yellow-700"
+                    }`}
+                  >
+                    {hasInterviewDetails(app)
+                      ? `Interview: ${app.interviewDate} at ${app.interviewTime} - ${app.interviewHall}`
+                      : "Interview details not added yet"}
+                  </div>
+                )}
               </div>
 
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="mt-5 flex flex-wrap items-center gap-3">
 
               <select
                 value={app.status}
                 onChange={async (e) => {
                   const newStatus = e.target.value;
 
-                  await fetch(`http://localhost:5000/applications/${app._id}`, {
-                    method: "PUT",
-                    headers: {
-                      "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ status: newStatus })
-                  });
+                  if (newStatus === "Accepted") {
+                    openInterviewDetails(app);
+                    return;
+                  }
 
-                  loadApplications();
+                  try {
+                    await updateApplicationStatus(app, newStatus);
+                  } catch (err) {
+                    alert(err.message || "Unable to update application status.");
+                  }
                 }}
                 className="rounded-xl border border-slate-300 bg-slate-50 px-3 py-2 text-sm text-slate-700 outline-none"
               >
@@ -137,10 +267,20 @@ const CompanyApplicants = ({ userId }) => {
                 View Profile
               </button>
 
+              {app.status === "Accepted" && (
+                <button
+                  onClick={() => openInterviewDetails(app)}
+                  className="rounded-xl bg-green-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-green-700"
+                >
+                  {hasInterviewDetails(app) ? "View Interview Details" : "Add Interview Details"}
+                </button>
+              )}
+
             </div>
 
           </div>
         ))}
+        </div>
 
       </div>
 
@@ -213,7 +353,7 @@ const CompanyApplicants = ({ userId }) => {
 
             {selectedStudent.cv && (
               <a
-                href={`http://localhost:5000/${selectedStudent.cv}`}
+                href={withBackendUrl(selectedStudent.cv)}
                 target="_blank"
                 rel="noreferrer"
                 className="block w-full text-center bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white py-2 rounded-lg font-medium shadow-md transition"
@@ -225,6 +365,161 @@ const CompanyApplicants = ({ userId }) => {
           </div>
           </div>
 
+        </div>
+      )}
+
+      {interviewApp && (
+        <div className="fixed inset-0 z-50 bg-slate-950/45 px-4 py-6">
+          <div className="mx-auto flex min-h-full max-w-xl items-center justify-center">
+            <div className="w-full rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl">
+              <div className="mb-5">
+                <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Interview Details</p>
+                <h3 className="mt-2 text-2xl font-bold text-slate-900">
+                  {interviewApp.studentName}
+                </h3>
+                <p className="mt-2 text-sm text-slate-500">
+                  {isEditingInterview
+                    ? "Add or update the interview date, time, and hall."
+                    : "Company interview details saved for this accepted application."}
+                </p>
+              </div>
+
+              {!isEditingInterview ? (
+                <>
+                  <div className="grid gap-3 text-sm">
+                    <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                      <p className="text-xs font-semibold uppercase text-blue-600">Interview Date</p>
+                      <p className="mt-1 font-semibold text-slate-800">{interviewApp.interviewDate}</p>
+                    </div>
+
+                    <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                      <p className="text-xs font-semibold uppercase text-blue-600">Interview Time</p>
+                      <p className="mt-1 font-semibold text-slate-800">{interviewApp.interviewTime}</p>
+                    </div>
+
+                    <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                      <p className="text-xs font-semibold uppercase text-blue-600">Hall</p>
+                      <p className="mt-1 font-semibold text-slate-800">{interviewApp.interviewHall}</p>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setInterviewApp(null)}
+                      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                    >
+                      Close
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setInterviewErrors({});
+                        setIsEditingInterview(true);
+                      }}
+                      className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                    >
+                      Edit Details
+                    </button>
+                  </div>
+                </>
+              ) : (
+                <form onSubmit={saveInterviewDetails}>
+                  <div className="grid gap-4">
+                    <label className="text-sm font-medium text-slate-700">
+                      Interview Date
+                      <input
+                        type="date"
+                        required
+                        min={getTodayDate()}
+                        value={interviewForm.interviewDate}
+                        onChange={(e) => {
+                          setInterviewForm((prev) => ({ ...prev, interviewDate: e.target.value }));
+                          setInterviewErrors((prev) => ({ ...prev, interviewDate: "" }));
+                        }}
+                        className={`mt-2 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-blue-500 ${
+                          interviewErrors.interviewDate ? "border-red-400" : "border-slate-300"
+                        }`}
+                      />
+                      {interviewErrors.interviewDate && (
+                        <p className="mt-1 text-xs text-red-500">{interviewErrors.interviewDate}</p>
+                      )}
+                    </label>
+
+                    <label className="text-sm font-medium text-slate-700">
+                      Interview Time
+                      <input
+                        type="time"
+                        required
+                        value={interviewForm.interviewTime}
+                        onChange={(e) => {
+                          setInterviewForm((prev) => ({ ...prev, interviewTime: e.target.value }));
+                          setInterviewErrors((prev) => ({ ...prev, interviewTime: "" }));
+                        }}
+                        className={`mt-2 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-blue-500 ${
+                          interviewErrors.interviewTime ? "border-red-400" : "border-slate-300"
+                        }`}
+                      />
+                      {interviewErrors.interviewTime && (
+                        <p className="mt-1 text-xs text-red-500">{interviewErrors.interviewTime}</p>
+                      )}
+                    </label>
+
+                    <label className="text-sm font-medium text-slate-700">
+                      Hall
+                      <input
+                        type="text"
+                        required
+                        minLength={3}
+                        placeholder="Example: Main Hall A"
+                        value={interviewForm.interviewHall}
+                        onChange={(e) => {
+                          setInterviewForm((prev) => ({ ...prev, interviewHall: e.target.value }));
+                          setInterviewErrors((prev) => ({ ...prev, interviewHall: "" }));
+                        }}
+                        className={`mt-2 w-full rounded-xl border px-3 py-2 text-sm outline-none focus:border-blue-500 ${
+                          interviewErrors.interviewHall ? "border-red-400" : "border-slate-300"
+                        }`}
+                      />
+                      {interviewErrors.interviewHall && (
+                        <p className="mt-1 text-xs text-red-500">{interviewErrors.interviewHall}</p>
+                      )}
+                    </label>
+                  </div>
+
+                  {interviewErrors.form && (
+                    <p className="mt-4 rounded-xl border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-600">
+                      {interviewErrors.form}
+                    </p>
+                  )}
+
+                  <div className="mt-6 flex justify-end gap-3">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (hasInterviewDetails(interviewApp)) {
+                          setIsEditingInterview(false);
+                          setInterviewErrors({});
+                          return;
+                        }
+
+                        setInterviewApp(null);
+                      }}
+                      className="rounded-xl border border-slate-300 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-100"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="rounded-xl bg-blue-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-blue-700"
+                    >
+                      {hasInterviewDetails(interviewApp) ? "Save Changes" : "Send Accepted"}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          </div>
         </div>
       )}
 

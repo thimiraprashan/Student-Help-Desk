@@ -2,7 +2,7 @@ import React, { useContext, useState } from 'react';
 import { assets } from '../../assets/assets';
 import { Link, useLocation } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
-import { useClerk, UserButton, useUser } from '@clerk/clerk-react';
+import { useClerk, UserButton, useUser } from '../../lib/auth.jsx';
 import { toast } from 'react-toastify';
 import axios from 'axios';
 

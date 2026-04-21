@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Sidebar from "../../Common/Sidebar";
 import { setStudentSessionStorage, getStudentSession } from "../../../utils/sessionStore";
+import { withBackendUrl } from "../../../lib/backend.js";
 
 const StudentCV = ({ userId, studentSession, onStudentProfileChange }) => {
   const [profile, setProfile] = useState({
@@ -232,7 +233,7 @@ const StudentCV = ({ userId, studentSession, onStudentProfileChange }) => {
                 <div className="flex gap-2">
                   {profile.cv && (
                     <a
-                      href={`http://localhost:5000/${profile.cv}`}
+                      href={withBackendUrl(profile.cv)}
                       target="_blank"
                       rel="noreferrer"
                       className="bg-green-500 text-white px-3 py-1 rounded-lg text-sm"

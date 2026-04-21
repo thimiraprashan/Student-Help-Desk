@@ -3,6 +3,7 @@ import Sidebar from "../../Common/Sidebar";
 
 const CStudentApplications = ({ userId, studentSession }) => {
   const [applications, setApplications] = useState([]);
+  const [selectedApplication, setSelectedApplication] = useState(null);
 
   const loadApplications = async () => {
     if (!userId) {
@@ -48,6 +49,35 @@ const CStudentApplications = ({ userId, studentSession }) => {
     }
   };
 
+  const formatInterviewDate = (date) => {
+    if (!date) return "Not scheduled";
+
+    return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, {
+      year: "numeric",
+      month: "long",
+      day: "numeric"
+    });
+  };
+
+  const formatInterviewTime = (time) => {
+    if (!time) return "Not scheduled";
+
+    const [hours, minutes] = time.split(":");
+    const interviewDate = new Date();
+    interviewDate.setHours(Number(hours || 0), Number(minutes || 0), 0, 0);
+
+    return interviewDate.toLocaleTimeString(undefined, {
+      hour: "numeric",
+      minute: "2-digit"
+    });
+  };
+
+  const handleApplicationClick = (app) => {
+    if (app.status !== "Accepted") return;
+
+    setSelectedApplication(app);
+  };
+
   return (
     <div className="flex min-h-screen bg-white">
       <Sidebar
@@ -74,6 +104,7 @@ const CStudentApplications = ({ userId, studentSession }) => {
           {applications.map((app, index) => (
             <div
               key={index}
+              onClick={() => handleApplicationClick(app)}
               className="group grid grid-cols-4 px-6 py-5 border-t border-blue-100 items-center cursor-pointer
               hover:bg-blue-100 hover:shadow-sm hover:scale-[1.01]
               transition-all duration-300"
@@ -107,6 +138,63 @@ const CStudentApplications = ({ userId, studentSession }) => {
           )}
         </div>
       </div>
+
+      {selectedApplication && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4">
+          <div className="w-full max-w-md rounded-2xl border border-blue-100 bg-white p-6 shadow-2xl">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-600">
+                  Interview Scheduled
+                </p>
+                <h3 className="mt-2 text-2xl font-bold text-gray-900">
+                  {selectedApplication.title}
+                </h3>
+                <p className="mt-1 text-sm font-semibold text-blue-600">
+                  {selectedApplication.companyName}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelectedApplication(null)}
+                className="rounded-lg bg-gray-100 px-3 py-2 text-sm font-semibold text-gray-600 hover:bg-gray-200"
+              >
+                X
+              </button>
+            </div>
+
+            <div className="mt-6 space-y-3 text-sm">
+              <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                <p className="text-xs font-semibold uppercase text-blue-600">Date</p>
+                <p className="mt-1 font-semibold text-gray-800">
+                  {formatInterviewDate(selectedApplication.interviewDate)}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                <p className="text-xs font-semibold uppercase text-blue-600">Time</p>
+                <p className="mt-1 font-semibold text-gray-800">
+                  {formatInterviewTime(selectedApplication.interviewTime)}
+                </p>
+              </div>
+
+              <div className="rounded-xl border border-blue-100 bg-blue-50 p-4">
+                <p className="text-xs font-semibold uppercase text-blue-600">Hall</p>
+                <p className="mt-1 font-semibold text-gray-800">
+                  {selectedApplication.interviewHall || "Not assigned"}
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => setSelectedApplication(null)}
+              className="mt-6 w-full rounded-xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+            >
+              OK
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

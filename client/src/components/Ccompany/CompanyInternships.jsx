@@ -259,9 +259,9 @@ const CompanyInternships = ({ db, setDb, userId }) => {
           </div>
         </div>
 
-        <div className="grid gap-5">
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
           {myInts.length === 0 && (
-            <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-8 py-16 text-center shadow-sm">
+            <div className="rounded-[2rem] border border-dashed border-slate-300 bg-white px-8 py-16 text-center shadow-sm md:col-span-2 xl:col-span-3">
               <h3 className="text-2xl font-bold text-slate-900">No internship posts yet</h3>
               <p className="mt-3 text-sm text-slate-500">
                 Publish your first opening to start collecting student applications.
@@ -270,20 +270,20 @@ const CompanyInternships = ({ db, setDb, userId }) => {
           )}
 
           {myInts.map(i => (
-            <div key={i._id} className="rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-100 p-6 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
+            <div key={i._id} className="flex min-h-[260px] flex-col rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-100 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg">
 
-              <div className="flex flex-col gap-5 lg:flex-row lg:justify-between">
+              <div className="flex flex-1 flex-col gap-5">
 
-                <div>
+                <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-3">
-                    <h3 className="text-2xl font-bold text-slate-900">{i.title}</h3>
+                    <h3 className="break-words text-2xl font-bold text-slate-900">{i.title}</h3>
                     <span className="rounded-full bg-blue-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.15em] text-blue-700">
                       {i.field || "Internship"}
                     </span>
                   </div>
                   <p className="mt-2 text-sm font-medium text-blue-600">{i.companyName}</p>
 
-                  <p className="text-sm text-blue-800 flex gap-4 mt-1 items-center">
+                  <p className="text-sm text-blue-800 flex flex-wrap gap-3 mt-3 items-center">
   <span>📍 {i.location}</span>
   <span>⏱ {i.duration}</span>
 </p>
@@ -301,7 +301,7 @@ const CompanyInternships = ({ db, setDb, userId }) => {
 </div>
                 </div>
 
-                <div className="flex gap-3 items-center">
+                <div className="mt-auto flex flex-wrap gap-3 items-center">
                   <button onClick={() => {
                     setEditItem(i);
                     setForm({

@@ -70,7 +70,7 @@ const Sidebar = ({ session, unreadCount = 0, role = "company" }) => {
           { name: "My Internships", path: "/company/internships", icon: "💼" },
           { name: "Applicants", path: "/company/applicants", icon: "👥" },
           { name: "Messages", path: "/company/messages", icon: "💬" },
-          //{name: "Notifications", path: "/company/notifications", icon: "🔔" },
+          { name: "Feedback", path: "/company/feedback", icon: "★" },
           { name: "Profile", path: "/company/profile", icon: "👤" },
         ]
       : [];
