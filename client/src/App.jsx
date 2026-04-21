@@ -37,6 +37,7 @@ import Events from "./pages/Events";
 import Sports from "./pages/Sports";
 import Clubs from "./pages/Clubs";
 import ActivityNotifications from "./pages/Notifications";
+import KuppiSessions from "./pages/KuppiSessions";
 
 // ── Educator / LMS imports ───────────────────────────────────────
 import Navbar from "./components/student/Navbar";
@@ -183,6 +184,7 @@ const App = () => {
         <Route path="/extra-curricular" element={<Layout />}>
           <Route index element={<ExtraCurricularHome />} />
         </Route>
+        <Route path="/kuppi-sessions" element={<WithFooter><KuppiSessions /></WithFooter>} />
         <Route path="/events" element={<Layout />}>
           <Route index element={<Events />} />
         </Route>
