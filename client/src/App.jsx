@@ -57,6 +57,14 @@ import "quill/dist/quill.snow.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
 
+// ── Help Desk imports ───────────────────────────────────────────
+import HelpHome from "./pages/HelpHome";
+import MainLayout from "./layouts/MainLayout";
+import AiChat from "./pages/AiChat";
+import StudyGuide from "./pages/StudyGuide";
+import PastPapers from "./pages/PastPapers";
+import Contact from "./pages/Contact";
+
 // Wrapper that adds educator Footer flush to the bottom
 const WithFooter = ({ children }) => (
   <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -217,6 +225,15 @@ const App = () => {
         <Route path="/company/messages" element={requireCompanyAuth(<WithFooter><CCompanyMessages db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
         <Route path="/company/notifications" element={requireCompanyAuth(<WithFooter><CompanyNotifications db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
         <Route path="/company/profile" element={requireCompanyAuth(<WithFooter><CompanyProfile companyId={companyId} onSessionChange={setCompanySession} /></WithFooter>)} />
+
+        {/* ── Help Desk Routes ── */}
+        <Route path="/help" element={<MainLayout />}>
+          <Route index element={<HelpHome />} />
+          <Route path="ai" element={<AiChat />} />
+          <Route path="study" element={<StudyGuide />} />
+          <Route path="papers" element={<PastPapers />} />
+          <Route path="contact" element={<Contact />} />
+        </Route>
       </Routes>
     </div>
   );

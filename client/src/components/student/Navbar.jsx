@@ -82,9 +82,9 @@ const Navbar = () => {
               />
             ))}
             <NavLink
-              to="/ai-chat"
+              to="/help"
               label="AI Chat Bot"
-              isActive={location.pathname.startsWith('/ai-chat')}
+              isActive={location.pathname.startsWith('/help')}
               isGradient={true}
             />
           </div>
@@ -139,7 +139,7 @@ const Navbar = () => {
               </Link>
             ))}
             <Link
-              to="/ai-chat"
+              to="/help"
               onClick={() => setMobileMenuOpen(false)}
               className="block px-3 py-3 text-base font-semibold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600"
             >
