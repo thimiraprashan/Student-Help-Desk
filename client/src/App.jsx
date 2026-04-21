@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
-import { Navigate, Routes, Route, useMatch, useLocation } from "react-router-dom";
+import React, { useContext, useEffect, useState } from "react";
+import { Navigate, Routes, Route, useMatch } from "react-router-dom";
 import initialDb from "./data";
+import { AppContext } from "./context/AppContext";
 
 // ── Student imports ──────────────────────────────────────────────
 import CSlogin from "./components/Cstudent/CSlogin";
@@ -37,7 +38,7 @@ import Events from "./pages/Events";
 import Sports from "./pages/Sports";
 import Clubs from "./pages/Clubs";
 import ActivityNotifications from "./pages/Notifications";
-import KuppiSessions from "./pages/KuppiSessions";
+
 
 // ── Educator / LMS imports ───────────────────────────────────────
 import Navbar from "./components/student/Navbar";
@@ -66,9 +67,18 @@ const WithFooter = ({ children }) => (
   </div>
 );
 
+const KuppiSessionsRedirect = () => {
+  const { allCourses } = useContext(AppContext);
+
+  if (!allCourses.length) {
+    return <Loading />;
+  }
+
+  return <Navigate to={`/course/${allCourses[0]._id}`} replace />;
+};
+
 const App = () => {
   const isEducatorRoute = useMatch("/educator/*");
-  const location = useLocation();
   const [db, setDb] = useState(initialDb);
   const [studentSession, setStudentSession] = useState(() => getStudentSession());
   const [companySession, setCompanySession] = useState(() => getCompanySession());
@@ -184,7 +194,7 @@ const App = () => {
         <Route path="/extra-curricular" element={<Layout />}>
           <Route index element={<ExtraCurricularHome />} />
         </Route>
-        <Route path="/kuppi-sessions" element={<WithFooter><KuppiSessions /></WithFooter>} />
+        <Route path="/kuppi-sessions" element={<KuppiSessionsRedirect />} />
         <Route path="/events" element={<Layout />}>
           <Route index element={<Events />} />
         </Route>

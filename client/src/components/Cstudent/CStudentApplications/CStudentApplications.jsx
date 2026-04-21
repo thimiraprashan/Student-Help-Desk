@@ -55,7 +55,7 @@ const CStudentApplications = ({ userId, studentSession }) => {
     return new Date(`${date}T00:00:00`).toLocaleDateString(undefined, {
       year: "numeric",
       month: "long",
-      day: "numeric"
+      day: "numeric",
     });
   };
 
@@ -68,7 +68,7 @@ const CStudentApplications = ({ userId, studentSession }) => {
 
     return interviewDate.toLocaleTimeString(undefined, {
       hour: "numeric",
-      minute: "2-digit"
+      minute: "2-digit",
     });
   };
 
@@ -85,53 +85,65 @@ const CStudentApplications = ({ userId, studentSession }) => {
         unreadCount={applications.filter((app) => app.status !== "Accepted").length}
       />
 
-      <div className="flex-1 p-8 overflow-auto">
+      <div className="flex-1 overflow-auto p-8">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-gray-800">My Applications 🚀</h2>
-          <p className="text-gray-500 text-sm mt-1">
+          <h2 className="text-2xl font-bold text-gray-800">My Applications</h2>
+          <p className="mt-1 text-sm text-gray-500">
             Track your internship progress and status
           </p>
         </div>
 
-        <div className="bg-blue-50 border border-blue-100 rounded-2xl shadow-sm overflow-hidden">
-          <div className="grid grid-cols-4 bg-blue-100 text-blue-700 text-xs font-semibold uppercase px-6 py-4 tracking-wide border-b border-blue-200">
+        <div className="overflow-hidden rounded-2xl border border-blue-100 bg-blue-50 shadow-sm">
+          <div className="grid grid-cols-4 border-b border-blue-200 bg-blue-100 px-6 py-4 text-xs font-semibold uppercase tracking-wide text-blue-700">
             <div>Internship</div>
             <div>Company</div>
             <div>Date</div>
             <div>Status</div>
           </div>
 
-          {applications.map((app, index) => (
-            <div
-              key={index}
-              onClick={() => handleApplicationClick(app)}
-              className="group grid grid-cols-4 px-6 py-5 border-t border-blue-100 items-center cursor-pointer
-              hover:bg-blue-100 hover:shadow-sm hover:scale-[1.01]
-              transition-all duration-300"
-            >
-              <div className="font-semibold text-gray-800 text-sm">{app.title}</div>
+          {applications.map((app, index) => {
+            const isAccepted = app.status === "Accepted";
 
-              <div className="text-sm text-blue-600 font-semibold hover:underline cursor-pointer">
-                {app.companyName}
-              </div>
+            return (
+              <div
+                key={index}
+                onClick={() => handleApplicationClick(app)}
+                className={`grid grid-cols-4 items-center border-t border-blue-100 px-6 py-5 transition-all duration-300 ${
+                  isAccepted
+                    ? "group cursor-pointer hover:scale-[1.01] hover:bg-blue-100 hover:shadow-sm"
+                    : ""
+                }`}
+              >
+                <div className="text-sm font-semibold text-gray-800">{app.title}</div>
 
-              <div className="text-sm text-gray-500">{app.date}</div>
-
-              <div className="flex items-center justify-between">
-                <span
-                  className={`px-3 py-1 text-xs rounded-full font-semibold ${getStatusStyle(
-                    app.status
-                  )}`}
+                <div
+                  className={`text-sm font-semibold text-blue-600 ${
+                    isAccepted ? "cursor-pointer hover:underline" : ""
+                  }`}
                 >
-                  {app.status}
-                </span>
+                  {app.companyName}
+                </div>
 
-                <span className="ml-3 text-gray-400 group-hover:text-blue-600 transform group-hover:translate-x-2 transition">
-                  →
-                </span>
+                <div className="text-sm text-gray-500">{app.date}</div>
+
+                <div className="flex items-center justify-between">
+                  <span
+                    className={`rounded-full px-3 py-1 text-xs font-semibold ${getStatusStyle(
+                      app.status
+                    )}`}
+                  >
+                    {app.status}
+                  </span>
+
+                  {isAccepted && (
+                    <span className="ml-3 transform text-gray-400 transition group-hover:translate-x-2 group-hover:text-blue-600">
+                      &rarr;
+                    </span>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           {applications.length === 0 && (
             <div className="p-6 text-center text-gray-400">No applications yet</div>
