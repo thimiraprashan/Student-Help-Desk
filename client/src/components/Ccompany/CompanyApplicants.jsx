@@ -7,6 +7,8 @@ const CompanyApplicants = ({ userId }) => {
   const [applications, setApplications] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState(null);
   const [companyName, setCompanyName] = useState("Company");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
   const [interviewApp, setInterviewApp] = useState(null);
   const [interviewForm, setInterviewForm] = useState({
     interviewDate: "",
@@ -154,6 +156,20 @@ const CompanyApplicants = ({ userId }) => {
     }
   };
 
+  const filteredApplications = applications.filter((app) => {
+    const normalizedSearch = searchTerm.trim().toLowerCase();
+    const matchesSearch =
+      !normalizedSearch ||
+      app.studentName?.toLowerCase().includes(normalizedSearch) ||
+      app.studentEmail?.toLowerCase().includes(normalizedSearch) ||
+      app.title?.toLowerCase().includes(normalizedSearch) ||
+      app.field?.toLowerCase().includes(normalizedSearch);
+
+    const matchesStatus = statusFilter === "All" || app.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div className="flex min-h-screen bg-slate-100">
 
@@ -171,9 +187,33 @@ const CompanyApplicants = ({ userId }) => {
               </p>
             </div>
             <div className="rounded-2xl border border-blue-200 bg-white/60 px-4 py-3 backdrop-blur-sm">
-              <p className="text-xs uppercase tracking-[0.2em] text-blue-600">Total</p>
-              <p className="mt-2 text-2xl font-bold text-slate-900">{applications.length}</p>
+              <p className="text-xs uppercase tracking-[0.2em] text-blue-600">
+                {searchTerm || statusFilter !== "All" ? "Showing" : "Total"}
+              </p>
+              <p className="mt-2 text-2xl font-bold text-slate-900">{filteredApplications.length}</p>
             </div>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3 lg:flex-row">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by student, email, role, or field"
+              className="w-full rounded-2xl border border-blue-200 bg-white/80 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+            />
+
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="min-w-[200px] rounded-2xl border border-blue-200 bg-white/80 px-4 py-3 text-sm text-slate-700 outline-none transition focus:border-blue-500"
+            >
+              <option value="All">All Statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="Shortlisted">Shortlisted</option>
+              <option value="Accepted">Accepted</option>
+              <option value="Rejected">Rejected</option>
+            </select>
           </div>
         </div>
 
@@ -186,8 +226,17 @@ const CompanyApplicants = ({ userId }) => {
           </div>
         )}
 
+        {applications.length > 0 && filteredApplications.length === 0 && (
+          <div className="mb-6 rounded-[2rem] border border-dashed border-slate-300 bg-white px-8 py-12 text-center shadow-sm">
+            <h3 className="text-xl font-bold text-slate-900">No matching applicants</h3>
+            <p className="mt-3 text-sm text-slate-500">
+              Try a different search term or change the selected status filter.
+            </p>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {applications.map((app) => (
+        {filteredApplications.map((app) => (
           <div
             key={app._id}
             className="rounded-[2rem] border border-blue-200 bg-gradient-to-br from-blue-50 to-sky-100 p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
