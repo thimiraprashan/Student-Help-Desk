@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, useNavigate } from 'react-router-dom';
-import { Home, Calendar, Trophy, Users, Bell, ShieldCheck, LogOut } from 'lucide-react';
+import { Home, Calendar, Trophy, Users, Bell, ShieldCheck, LogOut, ClipboardCheck } from 'lucide-react';
 import API from '../utils/api.js';
 import { useAuth } from '../context/AuthContext';
 import Modal from './Modal';
@@ -86,6 +86,10 @@ const Sidebar = () => {
                             {unreadCount > 9 ? '9+' : unreadCount}
                         </span>
                     )}
+                </NavLink>
+
+                <NavLink to="/testing" className={({ isActive }) => `nav-item ${isActive ? 'active' : ''}`}>
+                    <ClipboardCheck size={20} /> Quality Assurance
                 </NavLink>
             </div>
 
