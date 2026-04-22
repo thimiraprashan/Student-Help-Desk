@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import API from '../utils/api';
 import Card from '../components/Card';
-import { Calendar, Trophy, Users, Bell, Upload } from 'lucide-react';
+import { Calendar, Trophy, Users, Bell, ArrowRight } from 'lucide-react';
 
 const Home = () => {
     const [events, setEvents] = useState([]);
@@ -11,25 +11,6 @@ const Home = () => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const uploadFileHandler = async (e) => {
-        const file = e.target.files[0];
-        const formData = new FormData();
-        formData.append('image', file);
-        try {
-            const config = {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            };
-            const { data } = await API.post('/upload', formData, config);
-            // In a real app, we might want to refresh the gallery or add to it
-            alert('Image uploaded successfully! Path: ' + data);
-            window.location.reload(); // Refresh to see gallery update if linked to backend
-        } catch (error) {
-            console.error(error);
-        }
-    };
-
     useEffect(() => {
         const fetchData = async () => {
             try {
@@ -37,7 +18,7 @@ const Home = () => {
                     API.get('/events').catch(() => ({ data: [] })),
                     API.get('/sports').catch(() => ({ data: [] })),
                     API.get('/clubs').catch(() => ({ data: [] })),
-                    API.get('/notifications').catch(() => ({ data: [] }))
+                    API.get('/notifications/today').catch(() => ({ data: [] }))
                 ]);
                 setEvents(evRes.data.slice(0, 3));
                 setSports(spRes.data.slice(0, 3));
@@ -58,17 +39,22 @@ const Home = () => {
         <div>
             <div className="page-header">
                 <h1 className="page-title">Extracurricular Activities</h1>
-                <div style={{ display: 'flex', gap: '1rem' }}>
-
-                </div>
             </div>
 
             {/* Notifications Widget */}
-            <div className="card" style={{ marginBottom: '2rem', borderLeft: '4px solid var(--secondary)' }}>
-                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginTop: 0 }}>
-                    <Bell size={20} color="var(--secondary)" /> Recent Notifications
-                </h3>
-                {notifications.length === 0 ? <p>No new notifications</p> : (
+            <div className="card" style={{ marginBottom: '2rem', borderLeft: '4px solid var(--secondary)', position: 'relative' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
+                        <Bell size={20} color="var(--secondary)" /> Today's Updates
+                    </h3>
+                    <Link to="/notifications" style={{ fontSize: '0.85rem', color: 'var(--primary)', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: 600 }}>
+                        View All <ArrowRight size={14} />
+                    </Link>
+                </div>
+
+                {notifications.length === 0 ? (
+                    <p style={{ color: 'var(--text-muted)', margin: 0 }}>No updates for today yet. Check back later!</p>
+                ) : (
                     <ul style={{ paddingLeft: '1.2rem', margin: 0 }}>
                         {notifications.map(n => (
                             <li key={n._id} style={{ marginBottom: '0.5rem' }}>
@@ -82,19 +68,19 @@ const Home = () => {
             <div className="grid grid-cols-3">
                 <Link to="/events" style={{ color: 'inherit', textDecoration: 'none' }}>
                     <Card title="Upcoming Events" icon={Calendar}>
-                        {events.length === 0 ? <p>No events found.</p> : events.map(e => <p key={e._id}>{e.title}</p>)}
+                        {events.length === 0 ? <p>No events found.</p> : events.map(e => <p key={e._id} style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>• {e.title}</p>)}
                     </Card>
                 </Link>
 
                 <Link to="/sports" style={{ color: 'inherit', textDecoration: 'none' }}>
                     <Card title="Popular Sports" icon={Trophy}>
-                        {sports.length === 0 ? <p>No sports found.</p> : sports.map(s => <p key={s._id}>{s.name}</p>)}
+                        {sports.length === 0 ? <p>No sports found.</p> : sports.map(s => <p key={s._id} style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>• {s.name}</p>)}
                     </Card>
                 </Link>
 
                 <Link to="/clubs" style={{ color: 'inherit', textDecoration: 'none' }}>
                     <Card title="Active Clubs" icon={Users}>
-                        {clubs.length === 0 ? <p>No clubs found.</p> : clubs.map(c => <p key={c._id}>{c.name}</p>)}
+                        {clubs.length === 0 ? <p>No clubs found.</p> : clubs.map(c => <p key={c._id} style={{ margin: '0.25rem 0', fontSize: '0.9rem' }}>• {c.name}</p>)}
                     </Card>
                 </Link>
             </div>

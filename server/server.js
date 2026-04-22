@@ -9,6 +9,7 @@ import clubRoutes from './routes/clubRoutes.js';
 import notificationRoutes from './routes/notificationRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 import path from 'path';
+import startReminderScheduler from './utils/reminderScheduler.js';
 
 dotenv.config();
 
@@ -19,7 +20,10 @@ app.use(cors());
 app.use(express.json());
 
 // Connect Database
-connectDB();
+connectDB().then(() => {
+    // Start the event reminder scheduler
+    startReminderScheduler();
+});
 
 app.use('/api/events', eventRoutes);
 app.use('/api/sports', sportRoutes);
