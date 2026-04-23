@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import AdminDashboardMa from './components/AdminDashboardMa';
-import { LayoutDashboard, BookOpen, LogOut } from 'lucide-react';
+import AdminPastPapers from './components/AdminPastPapers';
+import AdminMessages from './components/AdminMessages';
+import { LayoutDashboard, BookOpen, FileText, LogOut, MessageSquareText } from 'lucide-react';
 
 function App() {
   const [activeTab, setActiveTab] = useState('study-guide');
@@ -28,6 +30,28 @@ function App() {
             <BookOpen size={20} />
             <span className="font-medium">Study Guide</span>
           </button>
+          <button
+            onClick={() => setActiveTab('past-papers')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === 'past-papers'
+                ? 'bg-admin-primary text-white shadow-lg shadow-indigo-500/20'
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <FileText size={20} />
+            <span className="font-medium">Past Papers</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('messages')}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all ${
+              activeTab === 'messages'
+                ? 'bg-admin-primary text-white shadow-lg shadow-indigo-500/20'
+                : 'text-slate-400 hover:bg-white/5 hover:text-white'
+            }`}
+          >
+            <MessageSquareText size={20} />
+            <span className="font-medium">Messages</span>
+          </button>
         </nav>
 
         <div className="pt-6 border-t border-white/5">
@@ -42,7 +66,11 @@ function App() {
       <main className="flex-1 overflow-y-auto bg-admin-background">
         <header className="h-20 border-b border-white/5 flex items-center justify-between px-10 bg-admin-background/50 backdrop-blur-xl sticky top-0 z-10">
           <h2 className="text-lg font-semibold text-white">
-            {activeTab === 'study-guide' ? 'Manage Study Guide' : 'Dashboard'}
+            {activeTab === 'study-guide'
+              ? 'Manage Study Guide'
+              : activeTab === 'past-papers'
+                ? 'Manage Past Papers'
+                : 'Manage Messages'}
           </h2>
           <div className="flex items-center gap-4">
             <div className="text-right">
@@ -55,6 +83,8 @@ function App() {
 
         <div className="p-10">
           {activeTab === 'study-guide' && <AdminDashboardMa />}
+          {activeTab === 'past-papers' && <AdminPastPapers />}
+          {activeTab === 'messages' && <AdminMessages />}
         </div>
       </main>
     </div>

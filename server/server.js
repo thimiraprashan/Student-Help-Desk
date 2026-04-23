@@ -27,6 +27,8 @@ import clubRoutes from "./routes/clubRoutes.js";
 import activityNotificationRoutes from "./routes/notificationRoutes.js";
 import feedbackRoutes from "./routes/FeedbackRoutes.js";
 import studyGuideRoutes from "./routes/studyGuideRoutes.js";
+import paperRoutes from "./routes/paperRoutes.js";
+import contactMessageRoutes from "./routes/contactMessageRoutes.js";
 
 // Initialize Express
 const app = express();
@@ -66,6 +68,8 @@ app.use("/api/clubs", clubRoutes);
 app.use("/api/notifications", activityNotificationRoutes);
 app.use("/api/feedback", feedbackRoutes);
 app.use("/api/study-guide", studyGuideRoutes);
+app.use("/api/papers", paperRoutes);
+app.use("/api/contact-messages", contactMessageRoutes);
 
 // =======================================
 // 🔥 APPLICATION ROUTES
