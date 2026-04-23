@@ -29,6 +29,7 @@ import feedbackRoutes from "./routes/FeedbackRoutes.js";
 import studyGuideRoutes from "./routes/studyGuideRoutes.js";
 import paperRoutes from "./routes/paperRoutes.js";
 import contactMessageRoutes from "./routes/contactMessageRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 // Initialize Express
 const app = express();
@@ -70,6 +71,7 @@ app.use("/api/feedback", feedbackRoutes);
 app.use("/api/study-guide", studyGuideRoutes);
 app.use("/api/papers", paperRoutes);
 app.use("/api/contact-messages", contactMessageRoutes);
+app.use("/api/ai", aiRoutes);
 
 // =======================================
 // 🔥 APPLICATION ROUTES
