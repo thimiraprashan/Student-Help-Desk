@@ -9,20 +9,17 @@ import axios from 'axios';
 const NavLink = ({ to, label, isActive, isGradient }) => (
   <Link
     to={to}
-    className={`relative group px-1 py-2 font-semibold text-sm transition-colors duration-300
-      ${isActive ? 'text-blue-600' : 'text-gray-600 hover:text-blue-500'}`}
+    className={`relative group px-1 py-2 font-bold text-[15px] transition-colors duration-300
+      ${isActive ? 'text-slate-950' : 'text-slate-600 hover:text-slate-950'}`}
   >
     {isGradient ? (
-      <span className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-sm hover:shadow-md transition-all hover:scale-105">
+      <span className="flex items-center gap-2 px-5 py-3 rounded-[9px] bg-gradient-to-r from-blue-600 to-purple-600 text-white shadow-[0_8px_20px_rgba(91,76,226,0.25)] hover:shadow-md transition-all hover:-translate-y-0.5">
         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
         {label}
       </span>
     ) : (
       <>
         {label}
-        {/* Slide-in Underline effect */}
-        <span className={`absolute left-0 bottom-0 w-full h-0.5 bg-blue-600 transition-transform duration-300 origin-left 
-          ${isActive ? 'scale-x-100' : 'scale-x-0 group-hover:scale-x-100'}`}></span>
       </>
     )}
   </Link>
@@ -62,17 +59,17 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="sticky top-0 z-50 w-full font-sans backdrop-blur-md bg-white/75 border-b border-gray-200/50 shadow-[0_4px_6px_-1px_rgba(0,0,0,0.1)] transition-all duration-300">
-      <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="sticky top-0 z-50 w-full font-sans bg-white border-b border-slate-200/70 shadow-[0_4px_12px_rgba(15,35,65,0.09)] transition-all duration-300">
+      <div className="w-full px-5 sm:px-8 lg:px-[52px]">
         <div className="flex justify-between items-center h-20">
 
           {/* Logo - Far Left */}
           <div className="flex-shrink-0 flex items-center">
-            <img onClick={() => navigate('/')} src={assets.chatimg} alt="Logo" className="h-14 lg:h-16 w-auto cursor-pointer transition-transform hover:scale-105 object-contain" />
+            <img onClick={() => navigate('/')} src={assets.chatimg} alt="Student Help Desk" className="h-[58px] lg:h-[62px] w-auto cursor-pointer transition-transform hover:scale-[1.02] object-contain" />
           </div>
 
           {/* Primary Navigation - Center/Right */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center space-x-10">
             {navItems.map((item) => (
               <NavLink
                 key={item.path}
@@ -102,7 +99,10 @@ const Navbar = () => {
                 </div>
               </div>
             ) : (
-              <button onClick={() => openSignIn()} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-6 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+              <button onClick={() => openSignIn()} className="inline-flex items-center gap-2.5 bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-[9px] shadow-[0_8px_20px_rgba(37,99,235,0.22)] hover:shadow-lg transition-all transform hover:-translate-y-0.5">
+                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.75 7.5a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
+                </svg>
                 Sign In / Sign Up
               </button>
             )}

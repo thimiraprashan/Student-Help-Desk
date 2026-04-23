@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Routes, Route, useMatch, useLocation } from "react-router-dom";
 import initialDb from "./data";
+import AdminDashboard from "./pages/AdminDashboard";
+
 
 // ── Student imports ──────────────────────────────────────────────
 import CSlogin from "./components/Cstudent/CSlogin";
@@ -234,6 +236,10 @@ const App = () => {
           <Route path="papers" element={<PastPapers />} />
           <Route path="contact" element={<Contact />} />
         </Route>
+
+        import AdminDashboard from "./pages/AdminDashboard";
+        {/* ── Help Desk Routes ── */}
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Routes>
     </div>
   );

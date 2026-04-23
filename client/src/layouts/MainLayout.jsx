@@ -2,27 +2,16 @@ import HelpSidebar from "../components/HelpSidebar";
 import { Outlet } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import "../styles/help-center.css";
 
 function MainLayout() {
   const location = useLocation();
 
   return (
-    <div style={{
-      display: "flex",
-      minHeight: "100vh",
-      width: "100%",
-      overflow: "hidden",
-      background: "#0f172a"
-    }}>
+    <div className="help-shell">
       <HelpSidebar />
 
-      <div style={{
-        flex: 1,
-        padding: "30px",
-        overflowY: "auto",
-        minHeight: "100vh",
-        background: "#0f172a"
-      }}>
+      <main className="help-main">
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
@@ -34,7 +23,7 @@ function MainLayout() {
             <Outlet />
           </motion.div>
         </AnimatePresence>
-      </div>
+      </main>
     </div>
   );
 }

@@ -1,87 +1,149 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { ArrowRight, BriefcaseBusiness, Mail, MapPin, Monitor, Phone, Search } from "lucide-react";
 import aiImage from "../assets/How-long-does-it-take-learn-AI.jpg";
 import studyImage from "../assets/Study guid.png";
 import pastPapersImage from "../assets/past papers.png";
 import contactImage from "../assets/Contact sliit.png";
 
-const cardItems = [
-  { title: "Learn with AI", path: "ai", bg: aiImage },
-  { title: "Study Guide", path: "study", bg: studyImage },
-  { title: "Past Papers", path: "papers", bg: pastPapersImage },
-  { title: "Contact SLIIT", path: "contact", bg: contactImage }
+const facultyCards = [
+  {
+    title: "Faculty of Computing",
+    text: "Get help with computing courses, resources and technical support.",
+    icon: Monitor,
+    tone: "blue",
+  },
+  {
+    title: "Faculty of Business",
+    text: "Get assistance for business studies, management and related subjects.",
+    icon: BriefcaseBusiness,
+    tone: "orange",
+  },
+];
+
+const contactOptions = [
+  { label: "Visit Us", icon: MapPin },
+  { label: "Call Us", icon: Phone },
+  { label: "Email Us", icon: Mail },
+  { label: "Connect Online", icon: MessageBubble },
 ];
 
 function HelpHome() {
   const navigate = useNavigate();
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-    >
-      <h1 style={{ color: "#f1f5f9", fontSize: "2.5rem", marginBottom: "12px" }}>Welcome to SLIIT Help Center</h1>
+    <section className="help-dashboard">
+      <div className="help-dashboard-head">
+        <div>
+          <p className="help-kicker">Welcome to</p>
+          <h1>SLIIT Help Center</h1>
+          <p className="help-subtitle">
+            How can we help you today? Choose an option below.
+          </p>
+        </div>
 
-      <p style={{ color: "#cbd5e1", fontSize: "1rem", marginBottom: "30px" }}>Select an option from the sidebar or tap one of the buttons below.</p>
-
-      <div style={{
-        marginTop: "45px",
-        display: "grid",
-        gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
-        gap: "20px"
-      }}>
-        {cardItems.map((card, index) => (
-          <motion.div
-            key={card.path}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-          >
-            <Card
-              title={card.title}
-              bg={card.bg}
-              onClick={() => navigate(`/help/${card.path}`)}
-            />
-          </motion.div>
-        ))}
+        <label className="help-search">
+          <Search size={22} strokeWidth={2.2} />
+          <input type="search" placeholder="Search for help..." />
+        </label>
       </div>
-    </motion.div>
+
+      <div className="help-faculty-grid">
+        {facultyCards.map((card) => {
+          const Icon = card.icon;
+
+          return (
+            <button type="button" className="help-faculty-card" key={card.title}>
+              <span className={`help-faculty-icon help-faculty-icon-${card.tone}`}>
+                <Icon size={33} strokeWidth={2.4} />
+              </span>
+              <span className="help-faculty-copy">
+                <strong>{card.title}</strong>
+                <span>{card.text}</span>
+              </span>
+              <span className={`help-faculty-arrow help-faculty-arrow-${card.tone}`}>
+                <ArrowRight size={22} strokeWidth={2.5} />
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="help-card-grid">
+        <article className="help-hero-card help-ai-card">
+          <img src={aiImage} alt="" />
+          <div className="help-panel-overlay" />
+          <div className="help-panel-content">
+            <h2>Learn with AI</h2>
+            <p>Get smart answers and explanations instantly.</p>
+            <button type="button" onClick={() => navigate("/help/ai")} className="help-action help-action-light">
+              <span>Explore Now</span>
+              <ArrowRight size={17} strokeWidth={2.7} />
+            </button>
+          </div>
+        </article>
+
+        <article className="help-hero-card help-study-card">
+          <img src={studyImage} alt="" />
+          <div className="help-panel-content help-panel-dark">
+            <h2>Study Guide</h2>
+            <p>Access study materials, guides and useful resources.</p>
+            <button type="button" onClick={() => navigate("/help/study")} className="help-action help-action-green">
+              <span>View Guides</span>
+              <ArrowRight size={17} strokeWidth={2.7} />
+            </button>
+          </div>
+        </article>
+
+        <article className="help-hero-card help-paper-card">
+          <img src={pastPapersImage} alt="" />
+          <div className="help-panel-content help-panel-dark">
+            <h2>Past Papers</h2>
+            <p>Download past papers and practice for your exams.</p>
+            <button type="button" onClick={() => navigate("/help/papers")} className="help-action help-action-orange">
+              <span>View Papers</span>
+              <ArrowRight size={17} strokeWidth={2.7} />
+            </button>
+          </div>
+        </article>
+
+        <article className="help-hero-card help-contact-card">
+          <img src={contactImage} alt="" />
+          <div className="help-panel-content help-panel-dark">
+            <h2>Contact SLIIT</h2>
+            <p>Reach out to us through your preferred channel.</p>
+            <div className="help-contact-actions">
+              {contactOptions.map((option) => {
+                const Icon = option.icon;
+
+                return (
+                  <button type="button" key={option.label} onClick={() => navigate("/help/contact")}>
+                    <span>
+                      <Icon size={25} strokeWidth={2.4} />
+                    </span>
+                    <strong>{option.label}</strong>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
   );
 }
 
-function Card({ title, onClick, bg }) {
-  const [hover, setHover] = useState(false);
-
+function MessageBubble(props) {
   return (
-    <motion.button
-      type="button"
-      onClick={onClick}
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
-      className="rounded-xl overflow-hidden shadow-lg hover:scale-105 hover:shadow-2xl transition duration-300 cursor-pointer relative"
-      style={{
-        background: bg
-          ? `linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.4)), url(${bg}) center/cover no-repeat`
-          : "transparent",
-        padding: "28px 32px",
-        border: "1px solid rgba(148, 163, 184, 0.2)",
-        width: "100%",
-        minHeight: "170px",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "space-between",
-        color: "#f1f5f9"
-      }}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}
-    >
-      <div className="absolute inset-0 bg-black/40"></div>
-      <h3 className="relative z-10 text-white text-xl font-bold" style={{ margin: 0, color: "#f1f5f9", fontWeight: "600" }}>
-        {title}
-      </h3>
-    </motion.button>
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+      <path
+        d="M7.5 18.5H7a4.5 4.5 0 0 1-4.5-4.5v-3A6.5 6.5 0 0 1 9 4.5h6A6.5 6.5 0 0 1 21.5 11v2.5A5.5 5.5 0 0 1 16 19h-4.25L7.5 21.5v-3Z"
+        stroke="currentColor"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M8 12h.01M12 12h.01M16 12h.01" stroke="currentColor" strokeLinecap="round" />
+    </svg>
   );
 }
 

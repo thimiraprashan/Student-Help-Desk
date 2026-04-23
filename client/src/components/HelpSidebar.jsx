@@ -1,120 +1,64 @@
 import { NavLink } from "react-router-dom";
-import { motion } from "framer-motion";
+import {
+  BookOpen,
+  Bot,
+  Building2,
+  FileText,
+  Home,
+  MessageCircle,
+  Phone,
+} from "lucide-react";
+
+const navItems = [
+  { label: "Dashboard", to: "/help", end: true, icon: Home, tone: "blue" },
+  { label: "Learn with AI", to: "/help/ai", icon: Bot, tone: "purple" },
+  { label: "Study Guide", to: "/help/study", icon: BookOpen, tone: "mint" },
+  { label: "Past Papers", to: "/help/papers", icon: FileText, tone: "amber" },
+  { label: "Contact SLIIT", to: "/help/contact", icon: Phone, tone: "pink" },
+];
 
 function HelpSidebar() {
   return (
-    <div style={sidebarStyle}>
-      <h2 style={{ marginBottom: "40px", fontSize: "1.8rem", fontWeight: "700", display: "flex", alignItems: "center", gap: "10px", position: "relative", zIndex: 1 }}>
-        <span>🏛️</span> SLIIT Help
-      </h2>
+    <aside className="help-sidebar">
+      <div>
+        <div className="help-sidebar-title">
+          <Building2 size={30} strokeWidth={2.4} />
+          <span>SLIIT Help</span>
+        </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "24px", position: "relative", zIndex: 1 }}>
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <NavLink
-            to="/help"
-            end
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-4 rounded-3xl transition-all duration-300 transform ${
-                isActive
-                  ? "bg-white/10 border-l-4 border-cyan-300 shadow-lg"
-                  : "hover:bg-white/15 hover:-translate-x-1"
-              }`
-            }
-          >
-            <span>📊</span> Dashboard
-          </NavLink>
-        </motion.div>
+        <nav className="help-sidebar-nav" aria-label="Help center">
+          {navItems.map((item) => {
+            const Icon = item.icon;
 
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <NavLink
-            to="/help/ai"
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-4 rounded-3xl transition-all duration-300 transform ${
-                isActive
-                  ? "bg-white/10 border-l-4 border-cyan-300 shadow-lg"
-                  : "hover:bg-white/15 hover:-translate-x-1"
-              }`
-            }
-          >
-            <span>🧠</span> Learn with AI
-          </NavLink>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <NavLink
-            to="/help/study"
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-4 rounded-3xl transition-all duration-300 transform ${
-                isActive
-                  ? "bg-white/10 border-l-4 border-cyan-300 shadow-lg"
-                  : "hover:bg-white/15 hover:-translate-x-1"
-              }`
-            }
-          >
-            <span>📘</span> Study Guide
-          </NavLink>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <NavLink
-            to="/help/papers"
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-4 rounded-3xl transition-all duration-300 transform ${
-                isActive
-                  ? "bg-white/10 border-l-4 border-cyan-300 shadow-lg"
-                  : "hover:bg-white/15 hover:-translate-x-1"
-              }`
-            }
-          >
-            <span>📄</span> Past Papers
-          </NavLink>
-        </motion.div>
-
-        <motion.div
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <NavLink
-            to="/help/contact"
-            className={({ isActive }) =>
-              `flex items-center gap-3 px-4 py-4 rounded-3xl transition-all duration-300 transform ${
-                isActive
-                  ? "bg-white/10 border-l-4 border-cyan-300 shadow-lg"
-                  : "hover:bg-white/15 hover:-translate-x-1"
-              }`
-            }
-          >
-            <span>📞</span> Contact SLIIT
-          </NavLink>
-        </motion.div>
+            return (
+              <NavLink
+                key={item.to}
+                to={item.to}
+                end={item.end}
+                className={({ isActive }) =>
+                  `help-sidebar-link ${isActive ? "is-active" : ""}`
+                }
+              >
+                <span className={`help-sidebar-icon help-sidebar-icon-${item.tone}`}>
+                  <Icon size={24} strokeWidth={2.6} />
+                </span>
+                <span>{item.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
       </div>
-    </div>
+
+      <div className="help-sidebar-card">
+        <h3>Need Instant Help?</h3>
+        <p>Chat with our AI assistant 24/7 for quick solutions.</p>
+        <NavLink to="/help/ai" className="help-sidebar-chat">
+          <MessageCircle size={18} strokeWidth={2.5} />
+          <span>Chat Now</span>
+        </NavLink>
+      </div>
+    </aside>
   );
 }
-
-const sidebarStyle = {
-  width: "260px",
-  height: "100vh",
-  background: "linear-gradient(180deg, #111827 0%, #0b1226 100%)",
-  padding: "30px 20px",
-  color: "white",
-  display: "flex",
-  flexDirection: "column",
-  boxShadow: "2px 0 16px rgba(0, 0, 0, 0.35)",
-  position: "relative",
-  overflow: "hidden"
-};
 
 export default HelpSidebar;
