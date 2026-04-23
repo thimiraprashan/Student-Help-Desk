@@ -3,7 +3,8 @@ import axios from 'axios';
 import { Plus, Pencil, Trash2, X, Save, AlertCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const API_URL = 'http://localhost:5000/api/study-guide';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const API_URL = `${API_BASE_URL}/api/study-guide`;
 
 const AdminDashboardMa = () => {
   const [materials, setMaterials] = useState([]);
@@ -30,7 +31,7 @@ const AdminDashboardMa = () => {
       const res = await axios.get(API_URL);
       setMaterials(res.data);
     } catch (err) {
-      setError('Failed to fetch materials');
+      setError(err.response?.data?.error || 'Failed to fetch materials');
     } finally {
       setIsLoading(false);
     }
@@ -49,7 +50,7 @@ const AdminDashboardMa = () => {
       resetForm();
       fetchMaterials();
     } catch (err) {
-      setError('Failed to save material');
+      setError(err.response?.data?.error || 'Failed to save material');
     } finally {
       setIsLoading(false);
     }
@@ -61,7 +62,7 @@ const AdminDashboardMa = () => {
       await axios.delete(`${API_URL}/${id}`);
       fetchMaterials();
     } catch (err) {
-      setError('Failed to delete material');
+      setError(err.response?.data?.error || 'Failed to delete material');
     }
   };
 
