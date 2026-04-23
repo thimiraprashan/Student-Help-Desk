@@ -1,4 +1,5 @@
 import React from "react";
+import { formatDisplayName } from "../../../utils/nameUtils";
 
 const ChatItem = ({
   student,
@@ -11,6 +12,7 @@ const ChatItem = ({
 }) => {
 
   const studentId = String(student?._id || student?.id);
+  const displayName = formatDisplayName(student?.name || "");
 
   const isOnline = onlineUsers.map(String).includes(studentId);
 
@@ -21,15 +23,15 @@ const ChatItem = ({
   return (
     <div
       onClick={onClick}
-      className={`cursor-pointer rounded-xl p-4 flex items-center gap-4 transition ${
+      className={`cursor-pointer rounded-xl p-4 flex items-center gap-4 transition mb-[0.2cm] last:mb-0 ${
         active
-          ? "bg-indigo-600 text-white"
-          : "bg-[#1e293b] hover:bg-[#334155]"
+          ? "bg-blue-50 text-slate-900 border border-blue-200 ring-2 ring-blue-300 shadow-sm"
+          : "bg-white text-slate-900 border border-slate-200 hover:bg-slate-50"
       }`}
     >
       {/* Avatar */}
       <div className="relative w-11 h-11 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center font-bold text-lg text-white">
-        {student?.name?.[0] || "?"}
+        {displayName?.[0] || "?"}
 
         {/* 🟢 Online */}
         <span
@@ -52,7 +54,7 @@ const ChatItem = ({
 
           {/* Name */}
           <span className="text-sm font-semibold truncate">
-            {student?.name}
+            {displayName}
           </span>
 
           {/* Time */}

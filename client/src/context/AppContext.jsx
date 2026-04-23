@@ -2,14 +2,15 @@ import axios from "axios";
 import { createContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { useAuth, useUser } from "@clerk/clerk-react";
+import { useAuth, useUser } from "../lib/auth.jsx";
+import { BACKEND_URL } from "../lib/backend.js";
 import humanizeDuration from "humanize-duration";
 
 export const AppContext = createContext()
 
 export const AppContextProvider = (props) => {
 
-    const backendUrl = import.meta.env.VITE_BACKEND_URL
+    const backendUrl = BACKEND_URL
     const currency = import.meta.env.VITE_CURRENCY
 
     const navigate = useNavigate()

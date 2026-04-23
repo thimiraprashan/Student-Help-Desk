@@ -1,8 +1,10 @@
+
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import EmojiPicker from "emoji-picker-react";
 import ChatItem from "../Cstudent/CStudentMessages/ChatItem";
 import Sidebar from "../Common/SSidebar";
 import { getCompanySession } from "../../utils/sessionStore";
+import { formatDisplayName } from "../../utils/nameUtils";
 
 const makeThreadId = (id1, id2) =>
   [String(id1).trim(), String(id2).trim()].sort().join("_");
@@ -379,7 +381,7 @@ const CCompanyMessagesFixed = ({ db, setDb, userId }) => {
             <>
               <div className="mb-4 rounded-2xl border bg-white px-5 py-4 shadow-sm">
                 <h3 className="text-lg font-semibold text-slate-900">
-                  {activeStudent?.name || "Student"}
+                  {formatDisplayName(activeStudent?.name || "Student")}
                 </h3>
                 <p className="mt-1 text-sm text-slate-500">
                   {activeStudent?.email || "No email available"}
@@ -404,7 +406,7 @@ const CCompanyMessagesFixed = ({ db, setDb, userId }) => {
                       >
                         {!isMe && (
                           <div className="mb-1 text-xs text-gray-500">
-                            {activeStudent?.name || "Student"}
+                            {formatDisplayName(activeStudent?.name || "Student")}
                           </div>
                         )}
 

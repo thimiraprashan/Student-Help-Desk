@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Sidebar from "../../Common/Sidebar";
 
-const Csguidence = ({ userId, studentSession }) => {
-
+const Csguidence = ({ studentSession }) => {
   const [result, setResult] = useState(null);
   const [allReviews, setAllReviews] = useState([]);
   const [error, setError] = useState(false);
@@ -24,66 +23,114 @@ const Csguidence = ({ userId, studentSession }) => {
     if (updated.length === 0) setError(true);
   };
 
-  const QUIZ_DATA = {
-    questions: [
-      { id: 1, text: "Do you enjoy coding and solving technical problems?", cat: "Software Engineering" },
-      { id: 2, text: "Do you like creating visual designs and layouts?", cat: "UI/UX Design" },
-      { id: 3, text: "Do you like leading teams and planning tasks?", cat: "Project Management" },
-      { id: 4, text: "Do you enjoy analyzing data and statistics?", cat: "Data Science" }
-    ],
-    roadmaps: {
-      "Software Engineering": ["Programming Logic", "JavaScript Frameworks", "Database", "Cloud"],
-      "UI/UX Design": ["Design Principles", "Figma", "User Research", "Prototyping"],
-      "Project Management": ["Agile", "Planning", "Risk", "Communication"],
-      "Data Science": ["Statistics", "Python", "ML", "Visualization"]
+  const careerPaths = [
+    {
+      id: 1,
+      title: "Software Development",
+      description: "I like coding, building apps, and solving technical problems.",
+      recommendation:
+        "You may enjoy frontend, backend, full-stack, or mobile app development internships.",
+      roles: ["Frontend Developer", "Backend Developer", "Full Stack Developer"],
+      roadmap: ["Programming Logic", "JavaScript or Java", "Databases", "Cloud Basics"]
+    },
+    {
+      id: 2,
+      title: "UI/UX Design",
+      description: "I like designing screens, layouts, and user-friendly interfaces.",
+      recommendation:
+        "You may enjoy UI design, UX research, product design, or web design internships.",
+      roles: ["UI Designer", "UX Researcher", "Product Designer"],
+      roadmap: ["Design Principles", "Figma", "User Research", "Prototyping"]
+    },
+    {
+      id: 3,
+      title: "Project Management",
+      description: "I like leading teams, planning tasks, and organizing work.",
+      recommendation:
+        "You may enjoy project coordination, scrum, product ownership, or operations internships.",
+      roles: ["Project Coordinator", "Scrum Assistant", "Product Assistant"],
+      roadmap: ["Agile Basics", "Planning", "Risk Management", "Communication"]
+    },
+    {
+      id: 4,
+      title: "Data Analysis",
+      description: "I like working with data, charts, statistics, and reports.",
+      recommendation:
+        "You may enjoy data analyst, business analyst, or reporting internships.",
+      roles: ["Data Analyst", "Business Analyst", "Reporting Assistant"],
+      roadmap: ["Statistics", "Excel or SQL", "Python Basics", "Data Visualization"]
     }
-  };
+  ];
+
+  const selectedCareer = careerPaths.find((path) => path.title === result);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-
-      <Sidebar session={{ name: studentSession?.name || "Student" }} unreadCount={2} />
+      <Sidebar
+        session={{ name: studentSession?.name || "Student" }}
+        unreadCount={2}
+      />
 
       <div className="flex-1 p-6">
-
-        {/* QUIZ */}
-        <div className="bg-white border border-blue-100 p-6 rounded-xl shadow-sm">
-
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            🎯 Career Path Discovery
+        <div className="rounded-xl border border-blue-100 bg-white p-6 shadow-sm">
+          <h3 className="mb-2 text-lg font-semibold text-gray-800">
+            Find Your Best Career Path
           </h3>
 
-          <p className="text-gray-500 mb-5">
-            Select the area that interests you the most:
+          <p className="mb-5 text-gray-500">
+            Choose the career area that matches your interests. The system will
+            show a recommended path and skills to improve.
           </p>
 
-          {!result ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {QUIZ_DATA.questions.map(q => (
-                <div
-                  key={q.id}
-                  onClick={() => setResult(q.cat)}
-                  className="bg-blue-50 border border-blue-200 p-4 rounded-xl cursor-pointer hover:bg-blue-100 hover:shadow-md hover:-translate-y-1 transition"
+          {!selectedCareer ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {careerPaths.map((path) => (
+                <button
+                  key={path.id}
+                  type="button"
+                  onClick={() => setResult(path.title)}
+                  className="rounded-xl border border-blue-200 bg-blue-50 p-4 text-left transition hover:-translate-y-1 hover:bg-blue-100 hover:shadow-md"
                 >
-                  {q.text}
-                </div>
+                  <h4 className="font-semibold text-gray-800">{path.title}</h4>
+                  <p className="mt-2 text-sm leading-6 text-gray-600">
+                    {path.description}
+                  </p>
+                </button>
               ))}
             </div>
           ) : (
             <div>
-
-              <span className="bg-indigo-100 text-indigo-600 px-3 py-1 rounded-full text-xs font-semibold">
+              <span className="rounded-full bg-indigo-100 px-3 py-1 text-xs font-semibold text-indigo-600">
                 Your Best Match
               </span>
 
-              <h2 className="text-2xl font-bold mt-3 text-gray-800">
-                {result}
+              <h2 className="mt-3 text-2xl font-bold text-gray-800">
+                Recommended Career Path: {selectedCareer.title}
               </h2>
 
-              <div className="bg-blue-50 border border-blue-200 p-5 rounded-xl mt-4">
-                {QUIZ_DATA.roadmaps[result].map((step, i) => (
-                  <div key={i} className="flex items-center gap-3 mb-3">
-                    <div className="w-7 h-7 bg-indigo-500 text-white rounded-full flex items-center justify-center text-sm">
+              <p className="mt-3 text-sm leading-6 text-gray-600">
+                {selectedCareer.recommendation}
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                {selectedCareer.roles.map((role) => (
+                  <span
+                    key={role}
+                    className="rounded-full bg-green-100 px-3 py-1 text-xs font-semibold text-green-700"
+                  >
+                    {role}
+                  </span>
+                ))}
+              </div>
+
+              <div className="mt-4 rounded-xl border border-blue-200 bg-blue-50 p-5">
+                <p className="mb-4 text-sm font-semibold text-blue-700">
+                  Skills to focus on
+                </p>
+
+                {selectedCareer.roadmap.map((step, i) => (
+                  <div key={step} className="mb-3 flex items-center gap-3">
+                    <div className="flex h-7 w-7 items-center justify-center rounded-full bg-indigo-500 text-sm text-white">
                       {i + 1}
                     </div>
                     <span className="text-gray-700">{step}</span>
@@ -92,67 +139,63 @@ const Csguidence = ({ userId, studentSession }) => {
               </div>
 
               <button
+                type="button"
                 onClick={() => setResult(null)}
-                className="mt-4 border px-4 py-2 rounded-lg hover:bg-gray-100"
+                className="mt-4 rounded-lg border px-4 py-2 hover:bg-gray-100"
               >
-                ← Back
+                Choose another path
               </button>
-
             </div>
           )}
         </div>
 
-        {/* FEEDBACK */}
-        <h2 className="mt-8 mb-3 text-lg font-semibold text-gray-800">
+        <h2 className="mb-3 mt-8 text-lg font-semibold text-gray-800">
           Career Feedback
         </h2>
 
-        <div className={`bg-white border p-6 rounded-xl transition
-          ${error ? "border-red-400 ring-2 ring-red-200" : "border-blue-100"}`}>
-
+        <div
+          className={`rounded-xl border bg-white p-6 transition ${
+            error ? "border-red-400 ring-2 ring-red-200" : "border-blue-100"
+          }`}
+        >
           {allReviews.length === 0 ? (
-            <p className="text-center text-red-500 font-semibold">
+            <p className="text-center font-semibold text-red-500">
               No feedback submitted yet!
             </p>
           ) : (
-            allReviews.map((r, i) => (
+            allReviews.map((review, i) => (
               <div
-                key={i}
-                className={`bg-blue-50 p-4 rounded-lg mb-3 border transition
-                  ${error ? "border-red-300" : "border-blue-200"}
-                  hover:bg-blue-100 hover:shadow-md hover:scale-[1.01]`}
+                key={`${review.company}-${review.date}-${i}`}
+                className={`mb-3 rounded-lg bg-blue-50 p-4 transition hover:scale-[1.01] hover:bg-blue-100 hover:shadow-md ${
+                  error ? "border border-red-300" : "border border-blue-200"
+                }`}
               >
-
-                <div className="flex justify-between items-center">
-                  <p className="font-semibold">{r.name}</p>
+                <div className="flex items-center justify-between">
+                  <p className="font-semibold">{review.name}</p>
 
                   <div className="flex items-center gap-3">
-
-                    <div className="text-yellow-400 text-2xl">
-                      {"★".repeat(r.rating)}
-                      {"☆".repeat(5 - r.rating)}
+                    <div className="text-2xl text-yellow-400">
+                      {"★".repeat(review.rating)}
+                      {"☆".repeat(5 - review.rating)}
                     </div>
 
                     <button
+                      type="button"
                       onClick={() => handleDelete(i)}
-                      className="text-red-500 text-xs border px-2 py-1 rounded hover:bg-red-100"
+                      className="rounded border px-2 py-1 text-xs text-red-500 hover:bg-red-100"
                     >
                       Delete
                     </button>
-
                   </div>
                 </div>
 
-                <p className="text-sm text-blue-600">{r.company}</p>
-                <p className="text-gray-600 text-sm mt-1">{r.comment}</p>
-                <p className="text-xs text-gray-400 mt-1">{r.date}</p>
-
+                <p className="text-sm text-blue-600">{review.company}</p>
+                <p className="mt-1 text-sm text-gray-600">{review.comment}</p>
+                <p className="mt-1 text-xs text-gray-400">{review.date}</p>
               </div>
             ))
           )}
-
         </div>
-
       </div>
     </div>
   );

@@ -6,8 +6,8 @@ import axios from 'axios';
 import { AppContext } from '../../context/AppContext';
 import { toast } from 'react-toastify';
 import humanizeDuration from 'humanize-duration'
-import YouTube from 'react-youtube';
-import { useAuth } from '@clerk/clerk-react';
+import YouTube from 'react-youtube'
+import { useAuth } from '../../lib/auth.jsx';
 import Loading from '../../components/student/Loading';
 
 const getStaticCourseDuration = (course) => {

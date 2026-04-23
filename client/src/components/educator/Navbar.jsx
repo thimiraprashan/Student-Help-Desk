@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { assets } from '../../assets/assets';
 import { Link } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
-import { UserButton, useUser } from '@clerk/clerk-react';
+import { UserButton, useUser } from '../../lib/auth.jsx';
 
 const Navbar = ({ bgColor }) => {
 

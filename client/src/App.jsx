@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Navigate, Routes, Route, useMatch, useLocation } from "react-router-dom";
+import { Navigate, Routes, Route, useMatch } from "react-router-dom";
 import initialDb from "./data";
 
 // ── Student imports ──────────────────────────────────────────────
@@ -17,7 +17,7 @@ import CSregister from "./components/Cstudent/CSregister";
 import CompanyDashboard from "./components/Ccompany/CompanyDashboard";
 import CompanyInternships from "./components/Ccompany/CompanyInternships";
 import CompanyApplicants from "./components/Ccompany/CompanyApplicants";
-import CompanyNotifications from "./components/Ccompany/CompanyNotifications";
+import CompanyFeedback from "./components/Ccompany/CompanyFeedback";
 import CCompanyMessages from "./components/Ccompany/CCompanyMessagesFixed";
 import CompanyProfile from "./components/Ccompany/CCompanyProfile";
 import CompanyLogin from "./components/Ccompany/CompanyLogin";
@@ -37,6 +37,7 @@ import Events from "./pages/Events";
 import Sports from "./pages/Sports";
 import Clubs from "./pages/Clubs";
 import ActivityNotifications from "./pages/Notifications";
+
 
 // ── Educator / LMS imports ───────────────────────────────────────
 import Navbar from "./components/student/Navbar";
@@ -65,9 +66,12 @@ const WithFooter = ({ children }) => (
   </div>
 );
 
+const KuppiSessionsBlankPage = () => (
+  <div className="min-h-screen bg-white" />
+);
+
 const App = () => {
   const isEducatorRoute = useMatch("/educator/*");
-  const location = useLocation();
   const [db, setDb] = useState(initialDb);
   const [studentSession, setStudentSession] = useState(() => getStudentSession());
   const [companySession, setCompanySession] = useState(() => getCompanySession());
@@ -183,6 +187,7 @@ const App = () => {
         <Route path="/extra-curricular" element={<Layout />}>
           <Route index element={<ExtraCurricularHome />} />
         </Route>
+        <Route path="/kuppi-sessions" element={<KuppiSessionsBlankPage />} />
         <Route path="/events" element={<Layout />}>
           <Route index element={<Events />} />
         </Route>
@@ -215,7 +220,8 @@ const App = () => {
         <Route path="/company/internships" element={requireCompanyAuth(<WithFooter><CompanyInternships db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
         <Route path="/company/applicants" element={requireCompanyAuth(<WithFooter><CompanyApplicants db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
         <Route path="/company/messages" element={requireCompanyAuth(<WithFooter><CCompanyMessages db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
-        <Route path="/company/notifications" element={requireCompanyAuth(<WithFooter><CompanyNotifications db={db} setDb={setDb} userId={companyId} /></WithFooter>)} />
+        <Route path="/company/feedback" element={requireCompanyAuth(<WithFooter><CompanyFeedback userId={companyId} /></WithFooter>)} />
+        <Route path="/company/notifications" element={<Navigate to="/company/feedback" replace />} />
         <Route path="/company/profile" element={requireCompanyAuth(<WithFooter><CompanyProfile companyId={companyId} onSessionChange={setCompanySession} /></WithFooter>)} />
       </Routes>
     </div>
