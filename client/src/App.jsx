@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Navigate, Routes, Route, useMatch } from "react-router-dom";
 import initialDb from "./data";
+import AdminDashboard from "./pages/AdminDashboard";
+
 
 // ── Student imports ──────────────────────────────────────────────
 import CSlogin from "./components/Cstudent/CSlogin";
@@ -57,6 +59,14 @@ import Footer from "./components/educator/Footer";
 import "quill/dist/quill.snow.css";
 import "react-toastify/dist/ReactToastify.css";
 import { ToastContainer } from "react-toastify";
+
+// ── Help Desk imports ───────────────────────────────────────────
+import HelpHome from "./pages/HelpHome";
+import MainLayout from "./layouts/MainLayout";
+import AiChat from "./pages/AiChat";
+import StudyGuide from "./pages/StudyGuide";
+import PastPapers from "./pages/PastPapers";
+import Contact from "./pages/Contact";
 
 // Wrapper that adds educator Footer flush to the bottom
 const WithFooter = ({ children }) => (
@@ -223,6 +233,19 @@ const App = () => {
         <Route path="/company/feedback" element={requireCompanyAuth(<WithFooter><CompanyFeedback userId={companyId} /></WithFooter>)} />
         <Route path="/company/notifications" element={<Navigate to="/company/feedback" replace />} />
         <Route path="/company/profile" element={requireCompanyAuth(<WithFooter><CompanyProfile companyId={companyId} onSessionChange={setCompanySession} /></WithFooter>)} />
+
+        {/* ── Help Desk Routes ── */}
+        <Route path="/help" element={<MainLayout />}>
+          <Route index element={<HelpHome />} />
+          <Route path="ai" element={<AiChat />} />
+          <Route path="study" element={<StudyGuide />} />
+          <Route path="papers" element={<PastPapers />} />
+          <Route path="contact" element={<Contact />} />
+        </Route>
+
+        import AdminDashboard from "./pages/AdminDashboard";
+        {/* ── Help Desk Routes ── */}
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
       </Routes>
     </div>
   );

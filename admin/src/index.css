@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-admin-background text-slate-200 antialiased;
+  }
+}
+
+.admin-card {
+  @apply bg-admin-card border border-white/5 rounded-2xl shadow-xl;
+}
+
+.admin-button {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 active:scale-95 disabled:opacity-50 disabled:pointer-events-none;
+}
+
+.admin-button-primary {
+  @apply admin-button bg-admin-primary hover:bg-indigo-500 text-white shadow-lg shadow-indigo-500/20;
+}
+
+.admin-button-secondary {
+  @apply admin-button bg-white/5 hover:bg-white/10 text-white border border-white/10;
+}
+
+.admin-button-danger {
+  @apply admin-button bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20;
+}
+
+.admin-input {
+  @apply w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-admin-primary;
+}
+
+.admin-filter {
+  @apply space-y-2;
+}
+
+.admin-filter span {
+  @apply block text-[10px] font-bold uppercase tracking-widest text-slate-500;
+}
+
+.admin-filter select {
+  @apply h-11 w-full rounded-xl border border-white/10 bg-slate-900 px-3 text-sm font-semibold text-white outline-none focus:ring-2 focus:ring-admin-primary;
+}

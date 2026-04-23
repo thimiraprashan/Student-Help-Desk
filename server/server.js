@@ -26,6 +26,10 @@ import sportRoutes from "./routes/sportRoutes.js";
 import clubRoutes from "./routes/clubRoutes.js";
 import activityNotificationRoutes from "./routes/notificationRoutes.js";
 import feedbackRoutes from "./routes/FeedbackRoutes.js";
+import studyGuideRoutes from "./routes/studyGuideRoutes.js";
+import paperRoutes from "./routes/paperRoutes.js";
+import contactMessageRoutes from "./routes/contactMessageRoutes.js";
+import aiRoutes from "./routes/aiRoutes.js";
 
 const DEFAULT_PORT = 5000;
 const DEFAULT_HOST = "127.0.0.1";
@@ -158,6 +162,10 @@ app.use("/api/sports", sportRoutes);
 app.use("/api/clubs", clubRoutes);
 app.use("/api/notifications", activityNotificationRoutes);
 app.use("/api/feedback", feedbackRoutes);
+app.use("/api/study-guide", studyGuideRoutes);
+app.use("/api/papers", paperRoutes);
+app.use("/api/contact-messages", contactMessageRoutes);
+app.use("/api/ai", aiRoutes);
 
 // =======================================
 // 🔥 APPLICATION ROUTES
