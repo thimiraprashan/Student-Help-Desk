@@ -1,7 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Navigate, Routes, Route, useMatch } from "react-router-dom";
 import initialDb from "./data";
-import { AppContext } from "./context/AppContext";
 
 // ── Student imports ──────────────────────────────────────────────
 import CSlogin from "./components/Cstudent/CSlogin";
@@ -67,15 +66,9 @@ const WithFooter = ({ children }) => (
   </div>
 );
 
-const KuppiSessionsRedirect = () => {
-  const { allCourses } = useContext(AppContext);
-
-  if (!allCourses.length) {
-    return <Loading />;
-  }
-
-  return <Navigate to={`/course/${allCourses[0]._id}`} replace />;
-};
+const KuppiSessionsBlankPage = () => (
+  <div className="min-h-screen bg-white" />
+);
 
 const App = () => {
   const isEducatorRoute = useMatch("/educator/*");
@@ -194,7 +187,7 @@ const App = () => {
         <Route path="/extra-curricular" element={<Layout />}>
           <Route index element={<ExtraCurricularHome />} />
         </Route>
-        <Route path="/kuppi-sessions" element={<KuppiSessionsRedirect />} />
+        <Route path="/kuppi-sessions" element={<KuppiSessionsBlankPage />} />
         <Route path="/events" element={<Layout />}>
           <Route index element={<Events />} />
         </Route>
