@@ -53,7 +53,7 @@ const Navbar = () => {
 
   const navItems = [
     { label: 'Home', path: '/' },
-    { label: 'Kuppi Sessions', path: '/kuppi-sessions' },
+    { label: 'Kuppi Sessions', path: '/course-list' },
     { label: 'Industry Placement', path: '/industry-placement' },
     { label: 'Extra Curricular', path: '/extra-curricular' },
   ];

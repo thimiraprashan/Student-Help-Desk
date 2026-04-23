@@ -76,9 +76,7 @@ const WithFooter = ({ children }) => (
   </div>
 );
 
-const KuppiSessionsBlankPage = () => (
-  <div className="min-h-screen bg-white" />
-);
+
 
 const App = () => {
   const isEducatorRoute = useMatch("/educator/*");
@@ -197,7 +195,7 @@ const App = () => {
         <Route path="/extra-curricular" element={<Layout />}>
           <Route index element={<ExtraCurricularHome />} />
         </Route>
-        <Route path="/kuppi-sessions" element={<KuppiSessionsBlankPage />} />
+        <Route path="/kuppi-sessions" element={<Navigate to="/course-list" replace />} />
         <Route path="/events" element={<Layout />}>
           <Route index element={<Events />} />
         </Route>
