@@ -125,6 +125,7 @@ const EditCourse = () => {
       setErrors(newErrors);
 
       if (Object.keys(newErrors).length > 0) {
+        toast.error('Please fill in all required fields.')
         return; 
       }
 

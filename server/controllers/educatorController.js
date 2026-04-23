@@ -40,7 +40,7 @@ export const addCourse = async (req, res) => {
             return res.json({ success: false, message: 'Thumbnail Not Attached' })
         }
 
-        const parsedCourseData = await JSON.parse(courseData)
+        const parsedCourseData = JSON.parse(courseData)
 
         parsedCourseData.educator = educatorId
 
@@ -171,7 +171,7 @@ export const getEducatorCourseById = async (req, res) => {
         if (!course) {
             return res.json({ success: false, message: 'Course not found' });
         }
-        if (course.educator !== educatorId) {
+        if (course.educator.toString() !== educatorId.toString()) {
             return res.json({ success: false, message: 'Unauthorized' });
         }
 
@@ -193,18 +193,22 @@ export const editCourse = async (req, res) => {
         if (!course) {
             return res.json({ success: false, message: 'Course not found' });
         }
-        if (course.educator !== educatorId) {
+        if (course.educator.toString() !== educatorId.toString()) {
             return res.json({ success: false, message: 'Unauthorized' });
         }
 
-        const parsedCourseData = await JSON.parse(courseData);
+        const parsedCourseData = JSON.parse(courseData);
 
         if (imageFile) {
             const imageUpload = await cloudinary.uploader.upload(imageFile.path);
             parsedCourseData.courseThumbnail = imageUpload.secure_url;
         }
 
-        await Course.findByIdAndUpdate(id, parsedCourseData);
+        const updatedCourse = await Course.findByIdAndUpdate(id, parsedCourseData, { new: true });
+
+        if (!updatedCourse) {
+            return res.json({ success: false, message: 'Course not found during update' });
+        }
 
         res.json({ success: true, message: 'Course Updated' });
     } catch (error) {
@@ -222,7 +226,7 @@ export const deleteCourse = async (req, res) => {
         if (!course) {
             return res.json({ success: false, message: 'Course not found' });
         }
-        if (course.educator !== educatorId) {
+        if (course.educator.toString() !== educatorId.toString()) {
             return res.json({ success: false, message: 'Unauthorized' });
         }
 
