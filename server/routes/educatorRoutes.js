@@ -1,10 +1,18 @@
 import express from 'express'
-import { addCourse, educatorDashboardData, getEducatorCourses, getEnrolledStudentsData, updateRoleToEducator, getEducatorCourseById, editCourse, deleteCourse } from '../controllers/educatorController.js';
+import { addCourse, educatorDashboardData, getEducatorCourses, getEnrolledStudentsData, updateRoleToEducator, getEducatorCourseById, editCourse, deleteCourse, submitEducatorApplication, getEducatorApplications, updateApplicationStatus, adminLogin } from '../controllers/educatorController.js';
 import upload from '../configs/multer.js';
 import { protectEducator } from '../middlewares/authMiddleware.js';
 
 
 const educatorRouter = express.Router()
+
+// Admin Login 
+educatorRouter.post('/admin/login', adminLogin)
+
+// Educator Applications
+educatorRouter.post('/apply', submitEducatorApplication)
+educatorRouter.get('/applications', getEducatorApplications) // In production, this should have admin protection
+educatorRouter.post('/application-status/:id', updateApplicationStatus) // In production, this should have admin protection
 
 // Add Educator Role 
 educatorRouter.get('/update-role', updateRoleToEducator)

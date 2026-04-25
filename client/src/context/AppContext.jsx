@@ -22,6 +22,8 @@ export const AppContextProvider = (props) => {
     const [allCourses, setAllCourses] = useState([])
     const [userData, setUserData] = useState(null)
     const [enrolledCourses, setEnrolledCourses] = useState([])
+    const [notifications, setNotifications] = useState([])
+    const [unreadCount, setUnreadCount] = useState(0)
 
     // Fetch All Courses
     const fetchAllCourses = async () => {
@@ -85,6 +87,20 @@ export const AppContextProvider = (props) => {
 
     }
 
+    // Fetch Notifications for Clerk User
+    const fetchNotifications = async () => {
+        try {
+            if (!user) return;
+            const { data } = await axios.get(`${backendUrl}/notifications/${user.id}`);
+            if (Array.isArray(data)) {
+                setNotifications(data.reverse());
+                setUnreadCount(data.filter(n => !n.read).length);
+            }
+        } catch (error) {
+            console.error("Error fetching notifications:", error);
+        }
+    }
+
     // Function to Calculate Course Chapter Time
     const calculateChapterTime = (chapter) => {
 
@@ -113,7 +129,7 @@ export const AppContextProvider = (props) => {
 
     const calculateRating = (course) => {
 
-        if (course.courseRatings.length === 0) {
+        if (!course.courseRatings || course.courseRatings.length === 0) {
             return 0
         }
 
@@ -121,7 +137,8 @@ export const AppContextProvider = (props) => {
         course.courseRatings.forEach(rating => {
             totalRating += rating.rating
         })
-        return Math.floor(totalRating / course.courseRatings.length)
+        const avg = totalRating / course.courseRatings.length;
+        return avg % 1 === 0 ? avg : avg.toFixed(1);
     }
 
     const calculateNoOfLectures = (course) => {
@@ -149,6 +166,11 @@ export const AppContextProvider = (props) => {
             }
             fetchUserData()
             fetchUserEnrolledCourses()
+            fetchNotifications()
+            
+            // Poll for notifications every 10 seconds
+            const interval = setInterval(fetchNotifications, 10000);
+            return () => clearInterval(interval);
         }
     }, [user])
 
@@ -160,7 +182,8 @@ export const AppContextProvider = (props) => {
         enrolledCourses, fetchUserEnrolledCourses,
         calculateChapterTime, calculateCourseDuration,
         calculateRating, calculateNoOfLectures,
-        isEducator,setIsEducator
+        isEducator,setIsEducator,
+        notifications, fetchNotifications, unreadCount
     }
 
     return (

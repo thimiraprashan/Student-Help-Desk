@@ -35,12 +35,10 @@ const Dashboard = () => {
   }
 
   useEffect(() => {
-
-    if (isEducator) {
+    if (getToken) {
       fetchDashboardData()
     }
-
-  }, [isEducator])
+  }, [getToken])
 
   const studentsData = [
     {

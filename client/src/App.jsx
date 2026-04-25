@@ -67,6 +67,10 @@ import AiChat from "./pages/AiChat";
 import StudyGuide from "./pages/StudyGuide";
 import PastPapers from "./pages/PastPapers";
 import Contact from "./pages/Contact";
+import BecomeEducator from "./pages/student/BecomeEducator";
+import EducatorApplication from "./pages/student/EducatorApplication";
+import AdminLogin from "./pages/admin/AdminLogin";
+import DeptHeadApproval from "./pages/admin/DeptHeadApproval";
 
 // Wrapper that adds educator Footer flush to the bottom
 const WithFooter = ({ children }) => (
@@ -241,9 +245,14 @@ const App = () => {
           <Route path="contact" element={<Contact />} />
         </Route>
 
-        import AdminDashboard from "./pages/AdminDashboard";
         {/* ── Help Desk Routes ── */}
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        
+        {/* ── Educator Application & Admin Routes ── */}
+        <Route path="/become-educator" element={<BecomeEducator />} />
+        <Route path="/educator-apply" element={<EducatorApplication />} />
+        <Route path="/admin-login" element={<AdminLogin />} />
+        <Route path="/dept-head-approval" element={<DeptHeadApproval />} />
       </Routes>
     </div>
   );

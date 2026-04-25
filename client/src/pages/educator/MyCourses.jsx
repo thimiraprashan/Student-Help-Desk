@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 
 const MyCourses = () => {
 
-  const { backendUrl, isEducator, currency, getToken } = useContext(AppContext)
+  const { backendUrl, isEducator, currency, getToken, calculateRating } = useContext(AppContext)
   const navigate = useNavigate()
 
   const [courses, setCourses] = useState(null)
@@ -39,7 +39,7 @@ const MyCourses = () => {
 
       const { data } = await axios.get(backendUrl + '/api/educator/courses', { headers: { Authorization: `Bearer ${token}` } })
 
-      data.success && setCourses(data.courses)
+      data.success ? setCourses(data.courses) : setCourses([])
 
     } catch (error) {
       toast.error(error.message)
@@ -48,13 +48,13 @@ const MyCourses = () => {
   }
 
   useEffect(() => {
-    if (isEducator) {
+    if (getToken) {
       fetchEducatorCourses()
     }
-  }, [isEducator])
+  }, [getToken])
 
   return courses ? (
-    <div className="h-screen flex flex-col items-start justify-between md:p-8 md:pb-0 p-4 pt-8 pb-0">
+    <div className="h-screen flex flex-col items-start justify-start md:p-8 md:pb-0 p-4 pt-8 pb-0">
       <div className='w-full'>
         <h2 className="pb-4 text-lg font-medium">My Courses</h2>
         <div className="flex flex-col items-center max-w-4xl w-full overflow-x-auto rounded-md bg-white border border-gray-500/20">
@@ -64,6 +64,7 @@ const MyCourses = () => {
                 <th className="px-4 py-3 font-semibold truncate">All Courses</th>
                 <th className="px-4 py-3 font-semibold truncate">Earnings</th>
                 <th className="px-4 py-3 font-semibold truncate">Students</th>
+                <th className="px-4 py-3 font-semibold truncate text-center">Rating</th>
                 <th className="px-4 py-3 font-semibold truncate">Published On</th>
                 <th className="px-4 py-3 font-semibold truncate">Actions</th>
               </tr>
@@ -77,6 +78,14 @@ const MyCourses = () => {
                   </td>
                   <td className="px-4 py-3">{currency} {Math.floor(course.enrolledStudents.length * (course.coursePrice - course.discount * course.coursePrice / 100))}</td>
                   <td className="px-4 py-3">{course.enrolledStudents.length}</td>
+                  <td className="px-4 py-3 text-center">
+                     <div className="flex items-center justify-center gap-1">
+                       <span className="font-bold text-slate-700">{calculateRating(course)}</span>
+                       <svg className="w-4 h-4 text-yellow-500 fill-current" viewBox="0 0 20 20">
+                         <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                       </svg>
+                     </div>
+                   </td>
                   <td className="px-4 py-3">
                     {new Date(course.createdAt).toLocaleDateString()}
                   </td>
