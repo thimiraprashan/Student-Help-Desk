@@ -3,20 +3,21 @@ import { Monitor, Briefcase, ChevronLeft, Code, BookOpen, ExternalLink, FileText
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
-const SimpleFacultyButton = ({ title, icon: Icon, onClick, accentColor = "bg-orange-500" }) => (
+const SimpleFacultyButton = ({ title, subtitle, icon: Icon, onClick, accentColor = "#ff8f20" }) => (
   <motion.button
     whileHover={{ scale: 1.02 }}
     whileTap={{ scale: 0.98 }}
     onClick={onClick}
-    className="relative flex items-center gap-4 w-full max-w-md px-6 py-4 bg-white border border-slate-200 rounded-2xl group transition-all duration-300 hover:border-orange-500/30 shadow-sm hover:shadow-md"
+    className="help-select-card"
+    style={{ "--help-select-accent": accentColor }}
   >
-    <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1.5 h-10 ${accentColor} rounded-r-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_0_15px_rgba(243,156,18,0.3)]`} />
-    <div className="p-2.5 rounded-lg bg-orange-500/10 text-orange-500 group-hover:bg-orange-500/20 transition-colors">
+    <div className="help-select-card-icon">
       <Icon size={24} />
     </div>
-    <span className="text-xl font-medium text-slate-700 group-hover:text-slate-900 transition-colors">
-      {title}
-    </span>
+    <div className="help-select-card-copy">
+      <strong>{title}</strong>
+      {subtitle ? <span>{subtitle}</span> : null}
+    </div>
   </motion.button>
 );
 
@@ -38,7 +39,7 @@ const MaterialCard = ({ title, description, content }) => (
         href={content}
         target="_blank"
         rel="noopener noreferrer"
-        className="mt-2 inline-flex items-center gap-2 text-orange-500 text-sm font-semibold hover:text-orange-600 transition-colors"
+        className="help-inline-link mt-2"
       >
         View Resource
         <ExternalLink size={14} />
@@ -93,9 +94,9 @@ function StudyGuide() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
               onClick={handleBack}
-              className="flex items-center gap-2 text-slate-500 hover:text-orange-600 transition-colors group"
+              className="help-btn help-back-btn"
             >
-              <div className="p-1.5 rounded-full bg-slate-100 group-hover:bg-orange-50">
+              <div className="help-back-btn-icon">
                 <ChevronLeft size={20} />
               </div>
               <span className="font-medium">
@@ -116,7 +117,8 @@ function StudyGuide() {
                   title="Faculty of Computing"
                   icon={Monitor}
                   onClick={() => setSelectedFaculty("Computing")}
-                  accentColor="bg-cyan-400"
+                  subtitle="Coding, software, and technical learning materials."
+                  accentColor="#29b6d9"
                 />
               </motion.div>
             )}
@@ -127,7 +129,8 @@ function StudyGuide() {
                   title="Faculty of Business"
                   icon={Briefcase}
                   onClick={() => setSelectedFaculty("Business")}
-                  accentColor="bg-orange-400"
+                  subtitle="Guides, module references, and business resources."
+                  accentColor="#ff9a3c"
                 />
               </motion.div>
             )}
@@ -151,13 +154,15 @@ function StudyGuide() {
                     title="Programming"
                     icon={Code}
                     onClick={() => setSelectedCategory("Programming")}
-                    accentColor="bg-purple-400"
+                    subtitle="Practical coding support, concepts, and references."
+                    accentColor="#9466ff"
                   />
                   <SimpleFacultyButton
                     title="Module Guide"
                     icon={BookOpen}
                     onClick={() => setSelectedCategory("Module Guide")}
-                    accentColor="bg-emerald-400"
+                    subtitle="Structured notes and module-focused study guidance."
+                    accentColor="#22b68d"
                   />
                 </>
               ) : (
@@ -165,7 +170,8 @@ function StudyGuide() {
                   title="Module Guide"
                   icon={BookOpen}
                   onClick={() => setSelectedCategory("Module Guide")}
-                  accentColor="bg-emerald-400"
+                  subtitle="Structured notes and module-focused study guidance."
+                  accentColor="#22b68d"
                 />
               )}
             </motion.div>
@@ -220,4 +226,4 @@ function StudyGuide() {
 export default StudyGuide;
 
 
-
+
