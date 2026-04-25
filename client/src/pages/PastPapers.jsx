@@ -92,7 +92,7 @@ function PastPapers() {
                 setFilters(nextFilters);
                 fetchPapers(nextFilters);
               }}
-              className="flex h-[46px] w-full items-center justify-center gap-2 rounded-xl bg-slate-100 text-sm font-bold text-slate-700 transition hover:bg-slate-200"
+              className="help-btn help-btn-secondary h-[46px] w-full"
             >
               <Filter size={17} />
               Clear Filters
@@ -192,7 +192,7 @@ const PaperCard = ({ paper, index }) => {
             href={fileHref}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-4 py-3 text-sm font-bold text-white transition hover:bg-blue-700"
+            className="help-btn help-btn-primary"
           >
             <ExternalLink size={16} />
             Open
@@ -200,7 +200,7 @@ const PaperCard = ({ paper, index }) => {
           <a
             href={fileHref}
             download
-            className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-4 py-3 text-sm font-bold text-white transition hover:bg-orange-600"
+            className="help-btn help-btn-warm"
           >
             <Download size={16} />
             Download

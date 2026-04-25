@@ -1,25 +1,10 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, BriefcaseBusiness, Mail, MapPin, Monitor, Phone, Search } from "lucide-react";
-import aiImage from "../assets/How-long-does-it-take-learn-AI.jpg";
+import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
+import aiImage from "../assets/learnwith ai.jpg";
 import studyImage from "../assets/Study guid.png";
 import pastPapersImage from "../assets/past papers.png";
 import contactImage from "../assets/Contact sliit.png";
-
-const facultyCards = [
-  {
-    title: "Faculty of Computing",
-    text: "Get help with computing courses, resources and technical support.",
-    icon: Monitor,
-    tone: "blue",
-  },
-  {
-    title: "Faculty of Business",
-    text: "Get assistance for business studies, management and related subjects.",
-    icon: BriefcaseBusiness,
-    tone: "orange",
-  },
-];
 
 const contactOptions = [
   { label: "Visit Us", icon: MapPin },
@@ -37,36 +22,7 @@ function HelpHome() {
         <div>
           <p className="help-kicker">Welcome to</p>
           <h1>SLIIT Help Center</h1>
-          <p className="help-subtitle">
-            How can we help you today? Choose an option below.
-          </p>
         </div>
-
-        <label className="help-search">
-          <Search size={22} strokeWidth={2.2} />
-          <input type="search" placeholder="Search for help..." />
-        </label>
-      </div>
-
-      <div className="help-faculty-grid">
-        {facultyCards.map((card) => {
-          const Icon = card.icon;
-
-          return (
-            <button type="button" className="help-faculty-card" key={card.title}>
-              <span className={`help-faculty-icon help-faculty-icon-${card.tone}`}>
-                <Icon size={33} strokeWidth={2.4} />
-              </span>
-              <span className="help-faculty-copy">
-                <strong>{card.title}</strong>
-                <span>{card.text}</span>
-              </span>
-              <span className={`help-faculty-arrow help-faculty-arrow-${card.tone}`}>
-                <ArrowRight size={22} strokeWidth={2.5} />
-              </span>
-            </button>
-          );
-        })}
       </div>
 
       <div className="help-card-grid">
@@ -117,7 +73,7 @@ function HelpHome() {
                 const Icon = option.icon;
 
                 return (
-                  <button type="button" key={option.label} onClick={() => navigate("/help/contact")}>
+                  <button type="button" key={option.label} onClick={() => navigate("/help/contact")} className="help-contact-action-btn">
                     <span>
                       <Icon size={25} strokeWidth={2.4} />
                     </span>

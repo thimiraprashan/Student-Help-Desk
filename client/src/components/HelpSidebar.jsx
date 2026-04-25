@@ -5,9 +5,9 @@ import {
   Building2,
   FileText,
   Home,
-  MessageCircle,
   Phone,
 } from "lucide-react";
+import sidebarBackground from "../assets/SLIIT-malabe.jpg";
 
 const navItems = [
   { label: "Dashboard", to: "/help", end: true, icon: Home, tone: "blue" },
@@ -19,7 +19,10 @@ const navItems = [
 
 function HelpSidebar() {
   return (
-    <aside className="help-sidebar">
+    <aside
+      className="help-sidebar"
+      style={{ "--help-sidebar-bg": `url(${sidebarBackground})` }}
+    >
       <div>
         <div className="help-sidebar-title">
           <Building2 size={30} strokeWidth={2.4} />
@@ -47,15 +50,6 @@ function HelpSidebar() {
             );
           })}
         </nav>
-      </div>
-
-      <div className="help-sidebar-card">
-        <h3>Need Instant Help?</h3>
-        <p>Chat with our AI assistant 24/7 for quick solutions.</p>
-        <NavLink to="/help/ai" className="help-sidebar-chat">
-          <MessageCircle size={18} strokeWidth={2.5} />
-          <span>Chat Now</span>
-        </NavLink>
       </div>
     </aside>
   );
