@@ -1,0 +1,184 @@
+/* ───────── Sidebar ───────── */
+.sidebar {
+  width: 260px;
+  height: 100vh;
+  background: #0b1220;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 16px;
+  box-sizing: border-box;
+  position: sticky;
+  top: 0;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+/* ───────── Logo ───────── */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* 🔥 LOGO BOX */
+.logo-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 🔥 ICON FIX */
+.logo-icon svg {
+  color: #ffffff;
+  font-size: 22px;
+}
+
+/* text */
+.logo-text h2 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.logo-text p {
+  margin: 0;
+  font-size: 12px;
+  color: #64748b;
+}
+
+/* ───────── User ───────── */
+.user {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  padding: 12px;
+  border-radius: 14px;
+  margin-bottom: 20px;
+  background: rgba(255,255,255,0.03);
+}
+
+.avatar {
+  width: 42px;
+  height: 42px;
+  background: #6366f1;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.user-info h4 {
+  margin: 0;
+  font-size: 14px;
+}
+
+.badge-role {
+  background: #064e3b;
+  color: #10b981;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 11px;
+}
+
+/* ───────── Menu ───────── */
+.menu {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.item {
+  padding: 12px 14px;
+  border-radius: 12px;
+  cursor: pointer;
+  color: #94a3b8;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+
+  position: relative; /* 🔥 for left indicator */
+}
+
+.item:hover {
+  background: rgba(99, 102, 241, 0.12);
+  border: 1px solid #2e3a5a;
+  color: #e2e8f0;
+
+  transform: scale(1.01);
+}
+
+/* 🔥 ACTIVE STYLE */
+.item.active {
+  background: linear-gradient(90deg, #4f46e5, #6366f1);
+  color: #ffffff;
+  font-weight: 600;
+
+  border: 1px solid rgba(99, 102, 241, 0.4);
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4);
+
+  transform: scale(1.02);
+}
+
+/* 🔥 LEFT INDICATOR LINE */
+.item.active::before {
+  content: "";
+  width: 4px;
+  height: 70%;
+  background: #a5b4fc;
+  position: absolute;
+  left: 0;
+  border-radius: 4px;
+}
+
+/* notification */
+.notification {
+  justify-content: space-between;
+}
+
+/* badge */
+.badge {
+  background: #ef4444;
+  color: #fff;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 50px;
+}
+
+/* ───────── Logout ───────── */
+.logout {
+  border: 1px solid #334155;
+  padding: 12px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  color: #94a3b8;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.logout:hover {
+  background: #1e293b;
+  color: white;
+}
+/* 🔥 LEFT ACTIVE LINE */
+.active-line {
+  position: absolute;
+  left: 0;
+  width: 4px;
+  height: 60%;
+  background: #a5b4fc;
+  border-radius: 4px;
+}
