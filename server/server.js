@@ -187,17 +187,38 @@ app.put("/notifications/:id/read", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 5000;
+const DEFAULT_PORT = Number(process.env.PORT) || 5000;
+
+const startListening = (port) => {
+  const server = app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+
+  server.on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+      const fallbackPort = port + 1;
+      console.warn(`[Startup] Port ${port} is in use. Retrying on ${fallbackPort}...`);
+      startListening(fallbackPort);
+      return;
+    }
+
+    console.error("Server listen error:", err);
+    process.exit(1);
+  });
+};
 
 const startServer = async () => {
   try {
-    await connectDB();
+    const dbConnected = await connectDB();
     await connectCloudinary();
-    startReminderScheduler();
 
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    if (dbConnected) {
+      startReminderScheduler();
+    } else {
+      console.warn("[Startup] Server started without DB connection. DB-backed features are unavailable.");
+    }
+
+    startListening(DEFAULT_PORT);
   } catch (err) {
     console.log("Server Startup Error:", err);
     process.exit(1);
