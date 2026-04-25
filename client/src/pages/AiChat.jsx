@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import axios from "axios";
 import { Bot, Loader2, SendHorizonal, Sparkles, UserRound } from "lucide-react";
-import aiVisual from "../assets/chatbot.webp";
+import aiVisual from "../assets/learnwith ai.jpg";
 
 const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 
@@ -75,13 +75,13 @@ export default function AiChat() {
         <div className="overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm">
           <div className="relative h-[260px] overflow-hidden sm:h-[320px]">
             <img src={aiVisual} alt="Learn with AI" className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-900/90 via-blue-700/70 to-violet-700/60" />
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-950/35 via-blue-950/20 to-transparent" />
             <div className="absolute inset-0 flex flex-col justify-end p-6 text-white">
-              <p className="text-sm font-bold uppercase tracking-widest text-blue-100">Learn with AI</p>
+              <p className="text-sm font-bold uppercase tracking-widest text-blue-50">Learn with AI</p>
               <h1 className="mt-2 max-w-md text-3xl font-extrabold leading-tight">
                 Ask study questions and get instant explanations
               </h1>
-              <p className="mt-3 max-w-lg text-sm leading-6 text-blue-50">
+              <p className="mt-3 max-w-lg text-sm leading-6 text-white/95">
                 Use the assistant for course concepts, programming topics, revision help, and quick explanations.
               </p>
             </div>
@@ -97,7 +97,7 @@ export default function AiChat() {
                   key={starter}
                   type="button"
                   onClick={() => sendQuestion(starter)}
-                  className="rounded-full border border-slate-200 bg-slate-50 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+                  className="help-chip-btn"
                 >
                   {starter}
                 </button>
@@ -168,7 +168,7 @@ export default function AiChat() {
               <button
                 type="submit"
                 disabled={!canSend}
-                className="inline-flex min-w-[150px] items-center justify-center gap-2 rounded-2xl bg-blue-600 px-5 py-4 text-sm font-extrabold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+                className="help-btn help-btn-primary min-w-[150px]"
               >
                 {isLoading ? <Loader2 size={18} className="animate-spin" /> : <SendHorizonal size={18} />}
                 {isLoading ? "Sending..." : "Ask AI"}

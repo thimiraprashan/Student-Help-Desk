@@ -172,7 +172,7 @@ export default function Contact() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-blue-600 px-6 py-4 text-sm font-extrabold text-white shadow-lg shadow-blue-600/20 transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
+            className="help-btn help-btn-primary help-form-submit mt-6 w-full sm:w-auto"
           >
             <Send size={18} />
             {isSubmitting ? "Sending..." : "Submit Message"}
