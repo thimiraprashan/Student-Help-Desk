@@ -9,16 +9,23 @@ import { ClerkProvider } from '@clerk/clerk-react'
 // Import your publishable key
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
 
-if (!PUBLISHABLE_KEY) {
-  throw new Error("Missing Publishable Key")
-}
+const root = createRoot(document.getElementById('root'))
 
-createRoot(document.getElementById('root')).render(
-  <BrowserRouter>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
-      <AppContextProvider>
-        <App />
-      </AppContextProvider>
-    </ClerkProvider>
-  </BrowserRouter>,
-)
+if (!PUBLISHABLE_KEY) {
+  console.warn('VITE_CLERK_PUBLISHABLE_KEY is missing. Running without Clerk/AppContext providers.')
+  root.render(
+    <BrowserRouter>
+      <App />
+    </BrowserRouter>
+  )
+} else {
+  root.render(
+    <BrowserRouter>
+      <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+        <AppContextProvider>
+          <App />
+        </AppContextProvider>
+      </ClerkProvider>
+    </BrowserRouter>
+  )
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
 import Home from './pages/Home';
 import Events from './pages/Events';
@@ -13,18 +13,16 @@ import { AuthProvider } from './context/AuthContext';
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Layout />}>
-            <Route index element={<Home />} />
-            <Route path="events" element={<Events />} />
-            <Route path="sports" element={<Sports />} />
-            <Route path="clubs" element={<Clubs />} />
-            <Route path="notifications" element={<Notifications />} />
-            <Route path="testing" element={<QualityAssurance />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Layout />}>
+          <Route index element={<Home />} />
+          <Route path="events" element={<Events />} />
+          <Route path="sports" element={<Sports />} />
+          <Route path="clubs" element={<Clubs />} />
+          <Route path="notifications" element={<Notifications />} />
+          <Route path="testing" element={<QualityAssurance />} />
+        </Route>
+      </Routes>
     </AuthProvider>
   );
 }

@@ -29,12 +29,23 @@ import courseRouter from "./routes/courseRoute.js";
 import userRouter from "./routes/userRoutes.js";
 
 const app = express();
+const hasClerkKeys =
+  Boolean(process.env.CLERK_PUBLISHABLE_KEY) &&
+  Boolean(process.env.CLERK_SECRET_KEY);
 
 app.use(cors());
-app.use(clerkMiddleware());
+if (hasClerkKeys) {
+  app.use(clerkMiddleware());
+} else {
+  console.warn("[Startup] Clerk keys missing. Clerk auth middleware disabled.");
+}
 
 // Webhooks need to be registered before the global JSON parser.
-app.post("/clerk", express.json(), clerkWebhooks);
+if (process.env.CLERK_WEBHOOK_SECRET) {
+  app.post("/clerk", express.json(), clerkWebhooks);
+} else {
+  console.warn("[Startup] CLERK_WEBHOOK_SECRET missing. /clerk webhook disabled.");
+}
 app.post("/stripe", express.raw({ type: "application/json" }), stripeWebhooks);
 
 app.use(express.json());
