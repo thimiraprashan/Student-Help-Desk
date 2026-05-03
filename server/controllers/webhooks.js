@@ -31,14 +31,27 @@ export const clerkWebhooks = async (req, res) => {
             return res.json({});
         }
 
-        const userData = {
-          _id: data.id,
-          email: data.email_addresses[0].email_address,
-          name: data.first_name + " " + data.last_name,
-          imageUrl: data.image_url,
-          resume: ''
+        // Aggressive cleanup to prevent E11000 errors
+        // Remove any other document with this email
+        await User.deleteMany({ email: emailAddress, _id: { $ne: data.id } });
+        
+        try {
+          await User.findByIdAndUpdate(data.id, userData, { upsert: true });
+        } catch (error) {
+          if (error.code === 11000) {
+            // Last resort: delete and recreate
+            await User.deleteOne({ _id: data.id });
+            await User.deleteMany({ email: emailAddress });
+            const user = new User({
+               _id: data.id,
+               ...userData,
+               enrolledCourses: []
+            });
+            await user.save();
+          } else {
+            throw error;
+          }
         }
-        await User.create(userData)
         res.json({})
         break;
       }

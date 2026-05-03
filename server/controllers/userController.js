@@ -22,14 +22,44 @@ export const getUserData = async (req, res) => {
                 if (!email.endsWith('@sliit.lk') && !email.endsWith('@my.sliit.lk')) {
                     return res.json({ success: false, message: 'Only SLIIT emails are allowed to access this system.' })
                 }
-                user = new User({
-                    _id: userId,
-                    name: clerkUser.firstName + ' ' + clerkUser.lastName,
-                    email,
-                    imageUrl: clerkUser.imageUrl,
-                    enrolledCourses: []
-                })
-                await user.save()
+                // Aggressive check for email conflict
+                // 1. Remove any user that currently has this email (if they have a different ID)
+                const deleteResult = await User.deleteMany({ email: email, _id: { $ne: userId } });
+                if (deleteResult.deletedCount > 0) {
+                    console.log(`Deleted ${deleteResult.deletedCount} conflicting user(s) with email ${email}`);
+                }
+
+                // 2. Perform the update/upsert
+                try {
+                    user = await User.findByIdAndUpdate(userId, {
+                        name: clerkUser.firstName + ' ' + clerkUser.lastName,
+                        email,
+                        imageUrl: clerkUser.imageUrl,
+                    }, { upsert: true, new: true });
+                } catch (updateError) {
+                    if (updateError.code === 11000) {
+                        // If still failing, it might be the current userId has the conflict in a way findByIdAndUpdate doesn't handle
+                        // or there's a ghost record. Let's try one last delete and a fresh create.
+                        await User.deleteOne({ _id: userId });
+                        await User.deleteMany({ email: email });
+                        
+                        user = new User({
+                            _id: userId,
+                            name: clerkUser.firstName + ' ' + clerkUser.lastName,
+                            email,
+                            imageUrl: clerkUser.imageUrl,
+                            enrolledCourses: []
+                        });
+                        await user.save();
+                    } else {
+                        throw updateError;
+                    }
+                }
+                
+                if (!user.enrolledCourses) {
+                    user.enrolledCourses = [];
+                    await user.save();
+                }
             } else {
                 return res.json({ success: false, message: 'User Not Found' })
             }
@@ -178,6 +208,10 @@ export const userEnrolledCourses = async (req, res) => {
 
         const userData = await User.findById(userId)
             .populate('enrolledCourses')
+
+        if (!userData) {
+            return res.json({ success: true, enrolledCourses: [] })
+        }
 
         // De-duplicate in case of corrupted array
         const uniqueCourses = [];

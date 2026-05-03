@@ -328,10 +328,14 @@ app.get("/notifications", async (req, res) => {
 app.get("/notifications/:userId", async (req, res) => {
     try {
         const db = mongoose.connection.db;
-        const userId = Number(req.params.userId);
+        const userId = req.params.userId;
 
+        // Try to find notifications where toUserId matches as a string or as a number
         const data = await db.collection("notifications").find({
-            toUserId: userId
+            $or: [
+                { toUserId: userId },
+                { toUserId: Number(userId) }
+            ]
         }).toArray();
 
         res.json(data);

@@ -27,27 +27,16 @@ const NavLink = ({ to, label, isActive, isGradient }) => (
 
 const Navbar = () => {
   const location = useLocation();
-  const { backendUrl, isEducator, setIsEducator, navigate, getToken } = useContext(AppContext)
+  const { backendUrl, isEducator, setIsEducator, navigate, getToken, notifications, unreadCount } = useContext(AppContext)
   const { openSignIn } = useClerk()
   const { user } = useUser()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const becomeEducator = async () => {
-    try {
-      if (isEducator) {
-        navigate('/educator')
-        return;
-      }
-      const token = await getToken()
-      const { data } = await axios.get(backendUrl + '/api/educator/update-role', { headers: { Authorization: `Bearer ${token}` } })
-      if (data.success) {
-        toast.success(data.message)
-        setIsEducator(true)
-      } else {
-        toast.error(data.message)
-      }
-    } catch (error) {
-      toast.error(error.message)
+    if (isEducator) {
+      navigate('/educator')
+    } else {
+      navigate('/become-educator')
     }
   }
 
@@ -90,6 +79,42 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-6">
             {user ? (
               <div className="flex items-center space-x-4">
+                {/* Notification Bell */}
+                <div className="relative group">
+                  <button className="p-2 text-gray-600 hover:text-blue-600 transition-colors relative">
+                    <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                    </svg>
+                    {unreadCount > 0 && (
+                      <span className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-600 text-[10px] font-bold text-white ring-2 ring-white">
+                        {unreadCount}
+                      </span>
+                    )}
+                  </button>
+
+                  {/* Notification Dropdown */}
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-2xl border border-slate-200 hidden group-hover:block animate-in fade-in slide-in-from-top-2 duration-200 z-[100]">
+                    <div className="p-4 border-b border-slate-100 flex justify-between items-center">
+                      <h3 className="font-bold text-slate-900">Notifications</h3>
+                      <span className="text-xs font-bold text-blue-600 bg-blue-50 px-2 py-1 rounded-md">{unreadCount} New</span>
+                    </div>
+                    <div className="max-h-96 overflow-y-auto">
+                      {notifications.length > 0 ? (
+                        notifications.map((notif) => (
+                          <div key={notif._id} className={`p-4 border-b border-slate-50 hover:bg-slate-50 transition-colors ${!notif.read ? 'bg-blue-50/30' : ''}`}>
+                            <p className="text-sm font-medium text-slate-800 leading-snug">{notif.message}</p>
+                            <p className="text-[10px] font-bold text-slate-400 mt-2 uppercase tracking-wider">{new Date(notif.date).toLocaleDateString()}</p>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="p-10 text-center text-slate-400">
+                          <p className="text-sm font-bold">No notifications yet</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
                 <button onClick={becomeEducator} className="text-sm font-semibold text-gray-600 hover:text-blue-600 transition-colors">
                   {isEducator ? 'Educator Dashboard' : 'Become Educator'}
                 </button>
@@ -103,9 +128,12 @@ const Navbar = () => {
                 <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.75 7.5a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.25a7.5 7.5 0 0 1 15 0" />
                 </svg>
-                Sign In / Sign Up
+                Sign In
               </button>
             )}
+            <button onClick={() => navigate('/admin-login')} className="text-xs text-gray-400 hover:text-blue-500 transition-colors uppercase tracking-widest font-bold border-l border-gray-200 pl-4">
+              Dept Head
+            </button>
           </div>
 
           {/* Mobile Hamburger Button */}
@@ -160,6 +188,10 @@ const Navbar = () => {
                 </Link>
               </>
             )}
+            <hr className="my-2 border-gray-200" />
+            <button onClick={() => { navigate('/admin-login'); setMobileMenuOpen(false); }} className="w-full text-center px-3 py-3 text-xs text-gray-400 uppercase tracking-widest font-bold hover:text-blue-600">
+              Department Head Portal
+            </button>
           </div>
         </div>
       )}
