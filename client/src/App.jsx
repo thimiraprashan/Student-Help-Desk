@@ -251,6 +251,11 @@ const App = () => {
 
         {/* ── Help Desk Routes ── */}
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        
+        <Route path="/testing" element={<Layout />}>
+          <Route index element={<QualityAssurance />} />
+        </Route>
+
         {/* ── Educator Application & Admin Routes ── */}
         <Route path="/become-educator" element={<BecomeEducator />} />
         <Route path="/educator-apply" element={<EducatorApplication />} />
