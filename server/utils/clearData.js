@@ -13,7 +13,7 @@ const clearData = async () => {
         await connectDB();
 
         console.log('Clearing all data...');
-        
+
         await Event.deleteMany({});
         await Club.deleteMany({});
         await Sport.deleteMany({});

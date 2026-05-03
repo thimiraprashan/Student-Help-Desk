@@ -51,7 +51,7 @@ const Home = () => {
                         View All <ArrowRight size={14} />
                     </Link>
                 </div>
-                
+
                 {notifications.length === 0 ? (
                     <p style={{ color: 'var(--text-muted)', margin: 0 }}>No updates for today yet. Check back later!</p>
                 ) : (

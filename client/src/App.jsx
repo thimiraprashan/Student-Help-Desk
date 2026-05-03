@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Navigate, Routes, Route, useMatch } from "react-router-dom";
 import initialDb from "./data";
@@ -39,6 +40,8 @@ import Events from "./pages/Events";
 import Sports from "./pages/Sports";
 import Clubs from "./pages/Clubs";
 import ActivityNotifications from "./pages/Notifications";
+import QualityAssurance from "./pages/QualityAssurance";
+import { AuthProvider } from "./context/AuthContext";
 
 
 // ── Educator / LMS imports ───────────────────────────────────────
@@ -168,11 +171,12 @@ const App = () => {
     companySession ? element : <Navigate to="/company/login" replace />;
 
   return (
-    <div className="text-default min-h-screen bg-white">
-      <ToastContainer />
+    <AuthProvider>
+      <div className="text-default min-h-screen bg-white">
+        <ToastContainer />
 
-      {/* Show Navbar on all pages except educator dashboard */}
-      {!isEducatorRoute && <Navbar />}
+        {/* Show Navbar on all pages except educator dashboard */}
+        {!isEducatorRoute && <Navbar />}
 
       <Routes>
         {/* ── Educator / LMS Routes ── */}
@@ -241,12 +245,15 @@ const App = () => {
           <Route path="contact" element={<Contact />} />
         </Route>
 
-        import AdminDashboard from "./pages/AdminDashboard";
         {/* ── Help Desk Routes ── */}
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/testing" element={<Layout />}>
+          <Route index element={<QualityAssurance />} />
+        </Route>
       </Routes>
-    </div>
+      </div>
+    </AuthProvider>
   );
-};
+}
 
 export default App;

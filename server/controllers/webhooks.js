@@ -75,20 +75,29 @@ export const clerkWebhooks = async (req, res) => {
 
 
 // Stripe Gateway Initialize
-const stripeInstance = new stripe(process.env.STRIPE_SECRET_KEY)
+const stripeSecretKey = process.env.STRIPE_SECRET_KEY;
+const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+const stripeInstance = stripeSecretKey ? new stripe(stripeSecretKey) : null;
 
 
 // Stripe Webhooks to Manage Payments Action
 export const stripeWebhooks = async (request, response) => {
+  if (!stripeInstance || !stripeWebhookSecret) {
+    return response.status(503).json({
+      success: false,
+      message: "Stripe is not configured. Set STRIPE_SECRET_KEY and STRIPE_WEBHOOK_SECRET.",
+    });
+  }
+
   const sig = request.headers['stripe-signature'];
 
   let event;
 
   try {
-    event = stripeInstance.webhooks.constructEvent(request.body, sig, process.env.STRIPE_WEBHOOK_SECRET);
+    event = stripeInstance.webhooks.constructEvent(request.body, sig, stripeWebhookSecret);
   }
   catch (err) {
-    response.status(400).send(`Webhook Error: ${err.message}`);
+    return response.status(400).send(`Webhook Error: ${err.message}`);
   }
 
   // Handle the event

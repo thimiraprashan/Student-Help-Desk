@@ -1,11 +1,11 @@
 import express from 'express';
-import { 
-    getNotifications, 
-    createNotification, 
-    getUnreadCount, 
-    markAsRead, 
-    markAllAsRead, 
-    getTodayNotifications 
+import {
+    getNotifications,
+    createNotification,
+    getUnreadCount,
+    markAsRead,
+    markAllAsRead,
+    getTodayNotifications
 } from '../controllers/notificationController.js';
 
 const router = express.Router();

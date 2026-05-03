@@ -51,8 +51,8 @@ const Notifications = () => {
         <div>
             <div className="page-header">
                 <h1 className="page-title">Notifications</h1>
-                <button 
-                    className="btn" 
+                <button
+                    className="btn"
                     style={{ background: 'var(--surface)', color: 'var(--text-main)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                     onClick={markAllAsRead}
                 >
@@ -78,14 +78,14 @@ const Notifications = () => {
                         <p>No notifications available yet.</p>
                     </div>
                 ) : notifications.map(notif => (
-                    <div 
-                        key={notif._id} 
+                    <div
+                        key={notif._id}
                         onClick={() => !notif.isRead && markAsRead(notif._id)}
                         style={{ cursor: notif.isRead ? 'default' : 'pointer' }}
                     >
-                        <Card 
-                            title={notif.title} 
-                            subtitle={new Date(notif.createdAt).toLocaleString()} 
+                        <Card
+                            title={notif.title}
+                            subtitle={new Date(notif.createdAt).toLocaleString()}
                             icon={getIcon(notif.type)}
                             className={notif.isRead ? '' : 'unread-notification'}
                         >

@@ -6,6 +6,7 @@ import { ObjectId } from "mongodb";
 import { clerkMiddleware } from '@clerk/express';
 
 // Top Part Routes
+import startReminderScheduler from "./utils/reminderScheduler.js";
 import router from "./routes/CStudentRoutes.js";
 import studentAuthRoutes from "./routes/CStudentAuthRoutes.js";
 import companyRoutes from "./routes/CCompanyRoutes.js";
@@ -367,6 +368,8 @@ try {
 
     // Connect Cloudinary (for educator image uploads)
     await connectCloudinary();
+    
+    startReminderScheduler();
 
     const cleanupExpiredApplications = async () => {
         try {
